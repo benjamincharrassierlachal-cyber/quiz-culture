@@ -1,0 +1,19 @@
+{
+  "name": "quiz-culture",
+  "version": "0.2.0",
+  "description": "Quiz de culture générale du CP au Bac — prototype jouable, hors ligne",
+  "private": true,
+  "scripts": {
+    "test": "node tests.js",
+    "audit": "node tools/audit.js",
+    "build": "node build.js",
+    "build:docs": "node build.js --docs",
+    "icons": "node tools/make-icons.js",
+    "check": "node tests.js && node tools/audit.js && node build.js",
+    "serve": "node tools/serve.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "UNLICENSED"
+}

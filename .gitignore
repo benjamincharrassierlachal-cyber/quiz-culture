@@ -1,0 +1,15 @@
+# Dépendances (le projet n'en a aucune, mais au cas où)
+node_modules/
+
+# Systèmes
+.DS_Store
+Thumbs.db
+*.log
+
+# Fichiers construits par `node build.js`.
+# Ils sont volontairement VERSIONNÉS : la publication GitHub Pages via docs/ en a besoin,
+# et prototype.html doit rester téléchargeable directement depuis le dépôt.
+# Si tu passes uniquement par le workflow GitHub Actions, tu peux décommenter :
+# prototype.html
+# web/
+# docs/

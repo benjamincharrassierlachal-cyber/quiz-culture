@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Quiz Culture — banque de questions",
+  "type": "object",
+  "required": ["version", "levels", "subjects", "questions"],
+  "properties": {
+    "version": { "type": "string" },
+    "levels": {
+      "description": "Niveaux dans l'ordre de progression",
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "subjects": {
+      "description": "Matières dans l'ordre de parcours d'un niveau",
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "questions": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/question" }
+    }
+  },
+  "definitions": {
+    "question": {
+      "type": "object",
+      "required": ["id", "level", "subject", "prompt", "answer", "accepted", "distractors"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "description": "Identifiant stable. Convention : <niveau>-<matiere>-<num>, ex. cp-fr-003",
+          "type": "string",
+          "pattern": "^[a-z0-9]+-[a-z]{2,4}-[0-9]{3}$"
+        },
+        "level": { "type": "string", "description": "Doit figurer dans levels" },
+        "subject": { "type": "string", "description": "Doit figurer dans subjects" },
+        "difficulty": {
+          "description": "Difficulté relative à l'intérieur du niveau",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3,
+          "default": 2
+        },
+        "prompt": {
+          "description": "Énoncé. Doit être répondable sans image et sans contexte externe.",
+          "type": "string",
+          "minLength": 5
+        },
+        "answer": {
+          "description": "Réponse canonique, affichée au joueur et utilisée comme bonne option du QCM",
+          "type": "string",
+          "minLength": 1
+        },
+        "accepted": {
+          "description": "Variantes acceptées en réponse libre (la réponse canonique incluse). Comparaison après normalisation.",
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "distractors": {
+          "description": "Exactement 4 mauvaises réponses, plausibles et du même type que la bonne réponse",
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 4,
+          "maxItems": 4,
+          "uniqueItems": true
+        },
+        "numeric": {
+          "description": "true si la réponse doit être comparée comme un nombre",
+          "type": "boolean",
+          "default": false
+        },
+        "strict": {
+          "description": "true si l'orthographe exacte est exigée (questions de pluriel, chiffres romains…) : aucune tolérance de frappe",
+          "type": "boolean",
+          "default": false
+        },
+        "explanation": {
+          "description": "Courte explication montrée après la réponse (pédagogie)",
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}
