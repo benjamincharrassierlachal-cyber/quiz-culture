@@ -9,17 +9,27 @@ var dir = __dirname, webDir = path.join(dir, 'web');
 
 var tpl = fs.readFileSync(path.join(dir, 'template.html'), 'utf8');
 var engine = fs.readFileSync(path.join(dir, 'engine.js'), 'utf8');
+var scores = fs.readFileSync(path.join(dir, 'scores.js'), 'utf8');
 var data = fs.readFileSync(path.join(dir, 'data/questions.json'), 'utf8');
-var bank = JSON.parse(data);            // garde-fou : on ne construit pas avec un JSON cassé
+var relax = fs.readFileSync(path.join(dir, 'data/detente.json'), 'utf8');
+var board = fs.readFileSync(path.join(dir, 'data/leaderboard.json'), 'utf8');
+var bank = JSON.parse(data);            // garde-fous : on ne construit pas avec un JSON cassé
+var relaxBank = JSON.parse(relax);
+JSON.parse(board);
 
 var html = tpl
   .replace('/*__ENGINE__*/', function () { return engine; })
-  .replace('/*__DATA__*/', function () { return data; });
+  .replace('/*__SCORES__*/', function () { return scores; })
+  .replace('/*__DATA__*/', function () { return data; })
+  .replace('/*__RELAX__*/', function () { return relax; })
+  .replace('/*__LEADERBOARD__*/', function () { return board; });
 
-if (html.indexOf('__ENGINE__') !== -1 || html.indexOf('__DATA__') !== -1) {
-  console.error('Injection incomplète : vérifier les marqueurs du template.');
-  process.exit(1);
-}
+['__ENGINE__', '__SCORES__', '__DATA__', '__RELAX__', '__LEADERBOARD__'].forEach(function (m) {
+  if (html.indexOf(m) !== -1) {
+    console.error('Injection incomplète : marqueur ' + m + ' absent du template.');
+    process.exit(1);
+  }
+});
 
 // ------------------------------------------------------------------ fichier unique
 fs.writeFileSync(path.join(dir, 'prototype.html'), html);
@@ -101,8 +111,9 @@ if (toDocs) {
 var missing = ['icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'favicon-64.png']
   .filter(function (f) { return !fs.existsSync(path.join(webDir, 'icons', f)); });
 
-console.log('prototype.html : ' + Math.round(html.length / 1024) + ' Ko, ' + bank.questions.length +
-  ' questions, ' + bank.levels.length + ' classes.');
+console.log('prototype.html : ' + Math.round(html.length / 1024) + ' Ko · mode BAC ' + bank.questions.length +
+  ' questions sur ' + bank.levels.length + ' classes · mode détente ' + relaxBank.questions.length + ' questions.');
+console.log('classement : ' + (JSON.parse(board).url ? 'Supabase configuré.' : 'local (voir SUPABASE.md).'));
 console.log('web/ : version ' + version + (missing.length
   ? '\n  /!\\ icônes manquantes (' + missing.join(', ') + ') → lancer : node tools/make-icons.js'
   : ' — prêt à publier (Netlify Drop, GitHub Pages…).'));

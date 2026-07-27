@@ -66,10 +66,23 @@ git remote add origin https://github.com/TON-PSEUDO/quiz-culture.git
 git push -u origin main
 ```
 
-Remplace `TON-PSEUDO` par ton identifiant GitHub. Au moment du `git push`, une fenêtre GitHub
-s'ouvre pour t'identifier : accepte, et c'est réglé une fois pour toutes. (Si on te demande un
-mot de passe dans le terminal, ce n'est pas celui de ton compte mais un *personal access
-token* : Settings → Developer settings → Tokens. La fenêtre de connexion est plus simple.)
+### Où trouver « TON-PSEUDO » ?
+
+C'est ton identifiant GitHub (le nom du compte, pas ton adresse e-mail). Trois façons de le voir :
+
+- **Le plus simple** : juste après avoir créé le dépôt vide, GitHub affiche une page « Quick
+  setup » avec un encadré *…or push an existing repository from the command line*. La ligne
+  `git remote add origin …` y figure **déjà remplie avec ton pseudo** : copie-la telle quelle
+  plutôt que de la retaper.
+- **En haut à droite** de github.com : clique sur ton avatar, ton pseudo s'affiche en tête du menu
+  (« Signed in as … »).
+- **Dans l'adresse de ton profil** : `https://github.com/mon-pseudo`.
+
+### Identification au premier `git push`
+
+Une fenêtre GitHub s'ouvre : accepte, et c'est réglé une fois pour toutes. Si le terminal réclame
+un mot de passe à la place, ce n'est pas celui de ton compte mais un *personal access token*
+(Settings → Developer settings → Personal access tokens). La fenêtre de connexion est plus simple.
 
 ## 1 bis. Sans terminal, avec GitHub Desktop
 

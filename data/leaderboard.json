@@ -1,0 +1,5 @@
+{
+  "_lisez_moi": "Colle ici l'URL et la clé publique 'anon' de ton projet Supabase pour activer le classement en ligne. Laisse vide pour rester en local. Voir SUPABASE.md.",
+  "url": "",
+  "anonKey": ""
+}

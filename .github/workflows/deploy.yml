@@ -35,6 +35,8 @@ jobs:
         run: node build.js
 
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true        # active GitHub Pages si ce n'est pas déjà fait
 
       - uses: actions/upload-pages-artifact@v3
         with:

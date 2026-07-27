@@ -1,7 +1,21 @@
-# Quiz Culture — conception v0.2
+# Le Quizz du BAC — conception v0.3
 
-App mobile payante (Android + iOS), jouable 100 % hors ligne. Le joueur remonte le cursus
-scolaire français, du CP à la Terminale, matière par matière.
+App mobile payante (Android + iOS), jouable 100 % hors ligne. Deux modes :
+
+- **Quizz BAC** — le parcours scolaire, du CP à la Terminale, matière par matière, avec cœurs,
+  bonus de classe et carte qui se dévoile.
+- **Quizz détente** — 30 questions à thèmes (culture générale, cinéma, sport, musique), difficulté
+  croissante par paliers de 10, aucune sanction : seul le score final compte.
+
+Parcours des écrans : **écran-titre** — le héros dans une salle de classe devant le tableau, titre
+« Le Quizz du BAC », bouton Commencer — puis le **tableau s'ouvre en vortex** (aperçu de la forêt,
+spirale, le héros aspiré) → **choix du mode** → **pop-up pseudo** à la première partie, avec une
+croix rouge pour passer et jouer sans être classé → partie → **diplôme** ou écran de score →
+**classement**.
+
+Note technique : le vortex et l'aperçu de forêt sont dessinés **aux dimensions exactes du tableau**,
+sans `clipPath` ni SVG imbriqué — ces deux mécanismes se comportent différemment selon les moteurs
+de rendu, et débordaient dans mes vérifications.
 
 Stack retenue : **React Native + Expo** (TypeScript), données en **SQLite local**, vocal via
 le **moteur de dictée natif** du téléphone.
@@ -21,9 +35,15 @@ le **moteur de dictée natif** du téléphone.
 | 5 | CM2 | 11 | 1ère |
 | 6 | 6ème | 12 | Terminale |
 
-5 matières par classe : **Français, Mathématiques, Géographie, Histoire, Anglais**.
-**1 question par matière et par classe** → **5 questions par classe**, **60 questions pour une
-partie parfaite**, soit un score maximum de **120 points** (12 × 5 × 2).
+Matières : **Français, Mathématiques, Géographie, Histoire, Anglais** au primaire, plus
+**Sciences** (physique, chimie et SVT regroupées) **à partir de la 6ème** — soit 5 matières
+jusqu'au CM2 et 6 ensuite. Le moteur déduit les matières d'une classe des pools réellement
+remplis : ajouter une matière à une classe se fait donc en ajoutant des questions, sans toucher au
+code.
+
+**1 question par matière et par classe** → 5 questions par classe au primaire, 6 au secondaire,
+soit **67 questions pour une partie parfaite** et un score maximum de **144 points**
+(5 × 5 × 2 + 7 × 6 × 2 = 134, plus 10 points de bonus de classe parfaite au primaire).
 
 Ordre de parcours d'une classe : les matières s'enchaînent dans un ordre fixe (Français →
 Maths → Géo → Histoire → Anglais). La bonne réponse en Anglais valide la classe et déclenche
@@ -73,9 +93,22 @@ frustrations de reconnaissance.
 - Le rachat ne peut pas faire descendre le score sous 0 : sans point disponible, le bouton
   est désactivé.
 - **Expiration du timer** : **−2 points**, une nouvelle question de la même matière est
-  proposée, **la place est conservée**. Le score ne descend jamais sous 0, et la pénalité
+  proposée, **la place est conservée** (aucun cœur perdu, mais le bonus de classe est annulé). Le score ne descend jamais sous 0, et la pénalité
   réduit d'autant les points « en jeu » sur la classe (on ne peut pas perdre deux fois les
   mêmes points). Un timeout n'impose pas le QCM.
+
+## 3 bis. Cœurs, bonus et rétrogradation (mode BAC)
+
+- Le joueur démarre avec **3 cœurs**.
+- Une **erreur de QCM** coûte **un cœur**, en plus du retour au début de la classe et de la perte
+  des points de la classe.
+- **Plus de cœur** : le joueur **redescend d'une classe**, repart de sa première matière avec
+  **3 cœurs neufs**. Les points que cette classe avait rapportés lui sont **retirés** — sinon une
+  rétrogradation volontaire permettrait de regagner indéfiniment les mêmes points (la simulation
+  atteignait 163 points sur un maximum de 144 avant cette règle). Au CP, on ne descend pas plus
+  bas : seuls les cœurs sont rendus.
+- **Classe franchie sans aucune faute** (ni erreur de QCM, ni réponse libre fausse, ni timeout) :
+  **+2 points** du CP au CM2, **+1 cœur** de la 6ème à la Terminale.
 
 ## 4. Score et sauvegarde
 
@@ -85,7 +118,10 @@ Trois compteurs :
 - `pointsDepuisPalier` — points gagnés depuis la dernière validation de classe ; c'est ce
   montant qui est effacé lors d'une erreur de QCM. Il est réduit par le rachat de temps et par
   les pénalités de timeout, pour qu'un point ne puisse pas être perdu deux fois.
-- `meilleurScore` — record persistant.
+- `meilleurScore` — record persistant, séparé par mode.
+- `levelPoints[]` — ce que chaque classe validée a rapporté, pour pouvoir le retirer en cas de
+  rétrogradation.
+- `pseudo` — choisi par le joueur, utilisé uniquement pour le classement.
 
 Persistance locale uniquement (AsyncStorage pour les préférences, SQLite pour la progression
 et l'historique des questions vues) :
@@ -122,6 +158,17 @@ recroise pas une question avant une vingtaine de parties :
   d'une partie à l'autre, et pas seulement à l'intérieur d'une partie.
 - Chaque question porte une difficulté interne (1–3) pour lisser la difficulté d'une classe et
   éviter qu'une matière tombe toujours sur sa question la plus dure.
+
+## 5 bis. Pseudo et classement
+
+Le joueur choisit un **pseudo** (3 à 14 caractères) avant sa première partie. Rien d'autre n'est
+demandé : ni e-mail, ni compte, ni mot de passe.
+
+- Sans configuration, le classement affiche les parties de l'appareil.
+- Avec un projet **Supabase** gratuit (voir `SUPABASE.md`), les scores partent dans une table
+  `scores (pseudo, score, mode, level, created_at)` et le classement devient mondial. Les parties
+  jouées hors ligne sont mises en file et envoyées au retour du réseau.
+- Le classement est filtrable par mode. Le score du joueur est surligné.
 
 ## 6. Monétisation
 
