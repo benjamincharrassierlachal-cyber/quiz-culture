@@ -31,6 +31,9 @@ jobs:
       - name: Audit de la banque de questions
         run: node tools/audit.js
 
+      - name: Parcours complet de l'interface
+        run: node tools/uitest.js
+
       - name: Construire prototype.html et web/
         run: node build.js
 

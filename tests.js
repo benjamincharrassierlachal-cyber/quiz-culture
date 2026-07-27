@@ -220,10 +220,12 @@ var pools = Object.keys(counts);
 eq(pools.length, 5 * 5 + 7 * 6, 'tous les pools attendus existent (25 primaire + 42 secondaire)');
 ok(pools.every(function (k) { return counts[k] >= 6; }), 'au moins 6 questions par pool',
   pools.filter(function (k) { return counts[k] < 6; }).join(', '));
-ok(relax.questions.length >= 30, 'au moins 30 questions en détente');
+var small = pools.filter(function (k) { return counts[k] < 12; });
+ok(small.length === 0, 'au moins 12 questions dans chacun des 67 pools', small.join(', '));
+ok(relax.questions.length >= 90, 'au moins 90 questions en détente (' + relax.questions.length + ')');
 [1, 2, 3].forEach(function (t) {
   var n = relax.questions.filter(function (x) { return x.difficulty === t; }).length;
-  ok(n >= 10, 'au moins 10 questions de difficulté ' + t + ' en détente (' + n + ')');
+  ok(n >= 30, 'au moins 30 questions de difficulté ' + t + ' en détente (' + n + ')');
 });
 
 console.log('\n' + pass + ' tests OK, ' + fail + ' échec(s)');

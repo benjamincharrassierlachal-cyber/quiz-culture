@@ -11,6 +11,7 @@
   'use strict';
 
   var K_PSEUDO = 'quizculture.pseudo';
+  var K_TAG = 'quizculture.tag';         // numéro de joueur, pour distinguer les homonymes
   var K_LOCAL = 'quizculture.scores';
   var K_QUEUE = 'quizculture.queue';
   var K_BEST = 'quizculture.best';       // meilleur score par mode
@@ -39,6 +40,28 @@
   }
   function pseudoValid(p) { return cleanPseudo(p).length >= 3; }
   function getPseudo() { try { return localStorage.getItem(K_PSEUDO) || ''; } catch (e) { return ''; } }
+
+  /** Numéro de joueur à 5 chiffres, tiré une seule fois puis conservé : « Benji #04217 ».
+   *  Deux joueurs peuvent choisir le même pseudo, le numéro les distingue au classement. */
+  function getTag() {
+    var t;
+    try { t = localStorage.getItem(K_TAG); } catch (e) { t = null; }
+    if (t && /^\d{5}$/.test(t)) return t;
+    var n;
+    try {
+      var buf = new Uint32Array(1);
+      (self.crypto || window.crypto).getRandomValues(buf);
+      n = buf[0] % 100000;
+    } catch (e) { n = Math.floor(Math.random() * 100000); }
+    t = ('0000' + n).slice(-5);
+    try { localStorage.setItem(K_TAG, t); } catch (e) { /* ignore */ }
+    return t;
+  }
+  /** Nom affiché : pseudo + numéro. */
+  function displayName(pseudo, tag) {
+    var p = pseudo || getPseudo() || 'Anonyme';
+    return p + ' #' + (tag || getTag());
+  }
   function setPseudo(p) {
     var c = cleanPseudo(p);
     if (!pseudoValid(c)) return null;
@@ -78,7 +101,10 @@
         'Content-Type': 'application/json',
         'Prefer': 'return=minimal'
       },
-      body: JSON.stringify({ pseudo: entry.pseudo, score: entry.score, mode: entry.mode, level: entry.level || null })
+      body: JSON.stringify({
+        pseudo: entry.pseudo, tag: entry.tag, score: entry.score,
+        mode: entry.mode, level: entry.level || null
+      })
     }).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return true;
@@ -106,6 +132,7 @@
   function submit(entry) {
     entry = {
       pseudo: cleanPseudo(entry.pseudo) || 'Anonyme',
+      tag: entry.tag || getTag(),
       score: Math.max(0, Math.round(entry.score || 0)),
       mode: entry.mode || 'bac',
       level: entry.level || null,
@@ -129,7 +156,7 @@
     if (!c || !online()) {
       return Promise.resolve({ source: 'local', rows: localScores(mode).slice(0, limit) });
     }
-    var url = c.url.replace(/\/$/, '') + '/rest/v1/scores?select=pseudo,score,mode,created_at' +
+    var url = c.url.replace(/\/$/, '') + '/rest/v1/scores?select=pseudo,tag,score,mode,created_at' +
       '&mode=eq.' + encodeURIComponent(mode || 'bac') + '&order=score.desc&limit=' + limit;
     return fetch(url, { headers: { 'apikey': c.anonKey, 'Authorization': 'Bearer ' + c.anonKey } })
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
@@ -143,6 +170,8 @@
     pseudoValid: pseudoValid,
     getPseudo: getPseudo,
     setPseudo: setPseudo,
+    getTag: getTag,
+    displayName: displayName,
     best: best,
     localScores: localScores,
     submit: submit,

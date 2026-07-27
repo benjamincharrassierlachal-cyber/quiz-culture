@@ -13,16 +13,17 @@ quiz-culture/
 ├── SUPABASE.md                    ← activer le classement en ligne, pas à pas
 ├── template.html                  ← interface (à éditer, puis `node build.js`)
 ├── build.js                       ← assemble prototype.html + web/
-├── tests.js                       ← 95 tests du moteur et des deux banques
+├── tests.js                       ← 96 tests du moteur et des deux banques
 ├── tools/
 │   ├── audit.js                   ← audit du contenu + 400 parties BAC et 200 détente simulées
+│   ├── uitest.js                  ← déroule les deux modes dans un faux DOM (8 scénarios)
 │   ├── make-icons.js              ← génère les icônes de l'app depuis le sprite du héros
 │   └── serve.js                   ← serveur local pour tester depuis le téléphone (même Wi-Fi)
 ├── carte-apercu.png · carte-fin.png · diplome-apercu.png · ecrans-apercu.png
 └── data/
     ├── schema.json                ← format d'une question
-    ├── questions.json             ← mode BAC : 402 questions, 12 classes, Sciences dès la 6ème
-    ├── detente.json               ← mode détente : 60 questions sur 4 thèmes, 3 paliers
+    ├── questions.json             ← mode BAC : 804 questions, 12 par pool sur les 67 pools
+    ├── detente.json               ← mode détente : 96 questions, 32 par palier de difficulté
     └── leaderboard.json           ← URL + clé Supabase (vide = classement local)
 ```
 
@@ -51,8 +52,9 @@ En mode détente : mêmes points, aucune pénalité, on enchaîne les 30 questio
 ## Modifier
 
 ```bash
-node tests.js            # règles + banques (95 tests)
+node tests.js            # règles + banques (96 tests)
 node tools/audit.js      # audit du contenu + 400 parties simulées
+node tools/uitest.js     # parcours complet de l'interface, sans navigateur
 node build.js            # régénère prototype.html et web/
 node build.js --docs     # idem + copie docs/ (GitHub Pages sans Actions)
 node tools/make-icons.js # régénère les icônes (nécessite ImageMagick)

@@ -141,14 +141,39 @@
         animation:floatUp 1.2s ease-out forwards; z-index:2}
   .gain.plus{color:#12a566} .gain.minus{color:var(--coral)}
 
+  /* barre joueur */
+  .player{display:flex; align-items:center; gap:10px; width:100%; text-align:left; padding:8px 12px;
+          border:3px solid var(--ink); border-radius:99px; background:#fff; box-shadow:3px 3px 0 var(--ink);
+          margin-bottom:16px}
+  .player .avatar{flex:0 0 34px; height:34px; border-radius:99px; background:var(--sun);
+                  border:2px solid var(--ink); overflow:hidden; display:flex; align-items:flex-end; justify-content:center}
+  .player .who{flex:1; min-width:0}
+  .player .name{font-weight:800; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .player .num{color:var(--muted); font-weight:700}
+  .player .edit{font-size:11px; color:var(--muted); letter-spacing:.5px}
+  .player .pencil{flex:0 0 auto; font-size:15px; opacity:.7}
+
   /* modes */
-  .mode{display:block; width:100%; text-align:left; margin-top:14px; padding:16px;
-        border:3px solid var(--ink); border-radius:18px; background:#fff; box-shadow:5px 5px 0 var(--ink);
-        transition:transform .06s, box-shadow .06s}
+  @keyframes popIn{from{opacity:0; transform:translateY(10px)}to{opacity:1; transform:none}}
+  .mode{display:block; width:100%; text-align:left; margin-top:14px; padding:0; overflow:hidden;
+        border:3px solid var(--ink); border-radius:20px; background:#fff; box-shadow:6px 6px 0 var(--ink);
+        transition:transform .06s, box-shadow .06s; animation:popIn .35s ease-out both}
+  .mode:nth-of-type(2){animation-delay:.08s}
   .mode:active{transform:translate(3px,3px); box-shadow:2px 2px 0 var(--ink)}
-  .mode b{font-size:19px} .mode p{margin:6px 0 0; font-size:14px; color:var(--muted)}
-  .mode.bac{background:linear-gradient(180deg,#eef3ff,#fff)}
-  .mode.relax{background:linear-gradient(180deg,#eafff5,#fff)}
+  .mode .band{display:flex; align-items:center; gap:12px; padding:14px 16px; color:#fff}
+  .mode.bac .band{background:linear-gradient(120deg,#2f6bff,#7aa2ff)}
+  .mode.relax .band{background:linear-gradient(120deg,#12a566,#5ddba0)}
+  .mode .ico{flex:0 0 46px; height:46px; border-radius:14px; background:rgba(255,255,255,.22);
+             border:2px solid rgba(255,255,255,.7); display:flex; align-items:center; justify-content:center}
+  .mode .ico svg{display:block}
+  .mode .ttl{flex:1}
+  .mode .ttl b{display:block; font-size:20px; line-height:1.1}
+  .mode .ttl small{font-size:12px; opacity:.9; font-weight:700; letter-spacing:.5px}
+  .mode .body{display:block; padding:12px 16px 18px}
+  .mode .body p{margin:0 0 10px; font-size:14px; color:var(--muted)}
+  .rec{display:inline-block; font-size:12px; font-weight:800; padding:5px 12px; border-radius:99px;
+       border:1.5px solid var(--ink); background:var(--sun); margin:2px 0 2px 2px;
+       box-shadow:2px 2px 0 rgba(42,33,64,.5)}
 
   /* carte */
   .map{border:3px solid var(--ink); border-radius:16px; overflow:hidden; margin-top:8px;
@@ -175,6 +200,7 @@
 <script>var BANK = /*__DATA__*/;</script>
 <script>var RELAX = /*__RELAX__*/;</script>
 <script>var LEADERBOARD = /*__LEADERBOARD__*/;</script>
+<script>var BUILD = /*__BUILD__*/;</script>
 <script>
 (function () {
   'use strict';
@@ -190,7 +216,7 @@
 
   var view = 'title';        // title | modes | play | map | diploma | endBac | endRelax | ranking
   var game = null, tick = null, feedback = null, mcOpen = false, revealed = null;
-  var recognizing = false, draft = '', anim = null, pseudoAsked = false, rank = null;
+  var recognizing = false, draft = '', anim = null, pseudoAsked = false, rank = null, lastQ = null;
 
   function muted() { return localStorage.getItem(MUTE_KEY) === '1'; }
   function toggleMute() { localStorage.setItem(MUTE_KEY, muted() ? '0' : '1'); render(); }
@@ -410,7 +436,37 @@
   }
 
   // ------------------------------------------------------------------ écrans
+  /** Affiche une panne au lieu de laisser l'écran figé, avec de quoi diagnostiquer. */
+  function showFailure(err, where) {
+    stopTimer();
+    var msg = String((err && err.message) || err);
+    var stack = String((err && err.stack) || '').split('\n').slice(1, 4).join('\n');
+    app.innerHTML =
+      '<div class="card center">' +
+        '<h1>Oups 😅</h1>' +
+        '<p class="muted">Un souci pendant « ' + esc(where) + ' ». Ton meilleur score est enregistré.</p>' +
+        '<pre style="text-align:left;font-size:11px;white-space:pre-wrap;background:#ffe0e3;' +
+          'border:3px solid var(--ink);border-radius:12px;padding:10px">' + esc(msg + '\n' + stack) + '</pre>' +
+        '<div class="hint">version ' + esc(BUILD.version) + '</div>' +
+        '<button class="btn go" id="back-menu">Retour au menu</button>' +
+      '</div>';
+    var b = document.getElementById('back-menu');
+    if (b) b.onclick = function () { view = 'modes'; anim = null; feedback = null; revealed = null; render(); };
+  }
+
+  // une erreur asynchrone (chrono, son, stockage) ne doit pas non plus tout arrêter
+  window.onerror = function (msg, src, line, col, err) { showFailure(err || msg, 'exécution, ligne ' + line); };
+  window.addEventListener('unhandledrejection', function (e) { showFailure(e.reason, 'tâche de fond'); });
+
   function render() {
+    try {
+      draw();
+    } catch (err) {
+      return showFailure(err, 'affichage');
+    }
+  }
+
+  function draw() {
     if (view === 'title') return renderTitle();
     if (view === 'modes') return renderModes();
     if (view === 'map') return renderMap();
@@ -470,6 +526,7 @@
           '<div class="scene">' + classroom() + '</div>' +
           '<p class="muted" style="margin:14px 0 0">Du CP à la Terminale.<br>Réponds vite, réponds juste.</p>' +
           '<button class="btn go" id="start">Commencer</button>' +
+          '<div class="hint" style="margin-top:10px">version ' + esc(BUILD.version) + ' · ' + esc(BUILD.date) + '</div>' +
         '</div>' +
       '</div>';
     document.getElementById('mute').onclick = toggleMute;
@@ -514,7 +571,8 @@
     fx.innerHTML =
       '<div class="modal"><div class="modal-card">' +
         '<button class="close-x" id="px">✕</button>' +
-        '<h2 class="center" style="margin:0 0 14px">Choisis ton pseudo</h2>' +
+        '<h2 class="center" style="margin:0 0 4px">Choisis ton pseudo</h2>' +
+        '<div class="hint center" style="margin:0 0 12px">Ton numéro de joueur : <b>#' + esc(S.getTag()) + '</b></div>' +
         '<input type="text" id="pseudo" maxlength="14" placeholder="3 à 14 caractères" value="' + esc(S.getPseudo()) + '">' +
         '<div class="hint center" id="perr"></div>' +
         '<button class="btn go" id="pok">Valider</button>' +
@@ -534,26 +592,57 @@
     input.onkeydown = function (e) { if (e.key === 'Enter') submit(); };
   }
 
+  /** Chapeau de diplômé et feuille, dessinés pour rester nets à toute taille. */
+  function icoBac() {
+    return '<svg width="30" height="30" viewBox="0 0 30 30">' +
+      '<path d="M2 11 L15 5 L28 11 L15 17 Z" fill="#fff" stroke="#2a2140" stroke-width="2.4" stroke-linejoin="round"/>' +
+      '<path d="M8 14 v6 c0 2 14 2 14 0 v-6" fill="none" stroke="#2a2140" stroke-width="2.4"/>' +
+      '<path d="M26 12 v8" stroke="#2a2140" stroke-width="2.4"/><circle cx="26" cy="22" r="2.2" fill="#2a2140"/></svg>';
+  }
+  function icoRelax() {
+    return '<svg width="30" height="30" viewBox="0 0 30 30">' +
+      '<path d="M15 26 C15 14 20 6 27 4 C27 14 23 24 15 26 Z" fill="#fff" stroke="#2a2140" stroke-width="2.4" stroke-linejoin="round"/>' +
+      '<path d="M15 26 C13 18 9 12 3 10 C4 18 8 24 15 26 Z" fill="#fff" stroke="#2a2140" stroke-width="2.4" stroke-linejoin="round"/>' +
+      '<path d="M15 27 v-9" stroke="#2a2140" stroke-width="2.4"/></svg>';
+  }
+
   function renderModes() {
-    var p = S.getPseudo();
+    var p = S.getPseudo(), tag = S.getTag();
+    var bestBac = S.best('bac'), bestRelax = S.best('detente');
     app.innerHTML =
       '<div class="card">' + muteBtn() +
-        '<h1 class="center">Choisis ton mode</h1>' +
+        '<h1 class="center" style="margin-bottom:14px">Choisis ton mode</h1>' +
+        '<button class="player" id="edit-pseudo">' +
+          '<span class="avatar"><svg width="26" height="30" viewBox="0 0 12 16">' + sprite(1, 0) + '</svg></span>' +
+          '<span class="who">' +
+            '<span class="name">' + (p ? esc(p) + ' <span class="num">#' + esc(tag) + '</span>' : 'Choisis ton pseudo') + '</span>' +
+            (p ? '' : '<span class="edit">Pour apparaître au classement</span>') +
+          '</span>' +
+          '<span class="pencil">✏️</span>' +
+        '</button>' +
+
         '<button class="mode bac" id="m-bac">' +
-          '<b>🎓 Quizz BAC</b>' +
-          '<p>Le parcours complet, du CP à la Terminale.</p>' +
-          '<span class="tag">Record : ' + S.best('bac') + ' pts</span>' +
+          '<span class="band"><span class="ico">' + icoBac() + '</span>' +
+            '<span class="ttl"><b>Quizz BAC</b><small>12 CLASSES · 6 MATIÈRES</small></span>' +
+            '</span>' +
+          '<span class="body">' +
+            '<p>Le parcours complet, du CP à la Terminale.</p>' +
+            '<span class="rec">Record : ' + bestBac + ' pts</span>' +
+          '</span>' +
         '</button>' +
+
         '<button class="mode relax" id="m-relax">' +
-          '<b>🌿 Quizz détente</b>' +
-          '<p>30 questions, thèmes variés (culture générale, cinéma, sport, musique).</p>' +
-          '<span class="tag">Record : ' + S.best('detente') + ' pts</span>' +
+          '<span class="band"><span class="ico">' + icoRelax() + '</span>' +
+            '<span class="ttl"><b>Quizz détente</b><small>30 QUESTIONS · 4 THÈMES</small></span>' +
+            '</span>' +
+          '<span class="body">' +
+            '<p>30 questions, thèmes variés (culture générale, cinéma, sport, musique).</p>' +
+            '<span class="rec">Record : ' + bestRelax + ' pts</span>' +
+          '</span>' +
         '</button>' +
-        '<div class="between" style="margin-top:16px">' +
-          '<small class="muted">' + (p ? 'Joueur : <b>' + esc(p) + '</b>' : 'Aucun pseudo') + '</small>' +
-          '<button class="chip" id="edit-pseudo">' + (p ? 'Changer' : 'Choisir un pseudo') + '</button>' +
-        '</div>' +
+
         '<button class="btn ghost" id="see-rank">Voir le classement</button>' +
+        '<div class="hint center">version ' + esc(BUILD.version) + '</div>' +
       '</div>';
     document.getElementById('mute').onclick = toggleMute;
     document.getElementById('m-bac').onclick = function () { startMode('bac'); };
@@ -570,7 +659,7 @@
     }
     if (mode === 'bac') game = E.createGame(BANK, { seen: seenIds() });
     else game = E.createRelax(RELAX, {});
-    feedback = null; revealed = null; mcOpen = false; draft = ''; anim = null;
+    feedback = null; revealed = null; mcOpen = false; draft = ''; anim = null; lastQ = null;
     view = 'play'; startTimer(); render();
   }
 
@@ -583,14 +672,20 @@
   }
 
   function renderPlay() {
-    var p = E.progress(game), q = game.current;
+    // sur la toute dernière question, le moteur a déjà terminé la partie : on garde l'énoncé
+    // sous la main pour afficher le retour, l'écran de fin arrive juste après
+    var q = game.current || lastQ;
     if (!q) return finishGame();
+    var p = E.progress(game);
     var pct = Math.max(0, Math.min(100, game.timeLeft / game.config.timerSeconds * 100));
     var cls = game.timeLeft <= 5 ? 'crit' : (game.timeLeft <= 10 ? 'low' : '');
     var fb = feedback ? (feedback.good ? ' pop-good' : ' pop-bad') : '';
     var head;
 
-    if (p.mode === 'bac') {
+    if (game.finished) {                            // partie terminée : bandeau minimal
+      head = '<div class="scorebar"><span class="lbl">SCORE</span>' + coins(3) +
+        '<span class="val">' + game.score + '</span></div>';
+    } else if (p.mode === 'bac') {
       var pips = '';
       for (var i = 0; i < p.steps; i++) {
         pips += '<span class="pip ' + (i < game.subjectIndex ? 'done' : (i === game.subjectIndex ? 'now' : '')) + '"></span>';
@@ -777,12 +872,14 @@
   }
 
   function renderRanking() {
-    var me = S.getPseudo();
+    var me = S.getPseudo(), myTag = S.getTag();
     var rows = (rank && rank.rows) || [];
     var body = rows.map(function (r, i) {
-      var mine = r.pseudo === me;
-      return '<tr' + (mine ? ' class="me"' : '') + '><td class="n">' + (i + 1) + '</td>' +
-        '<td>' + esc(r.pseudo) + '</td><td class="s">' + r.score + '</td></tr>';
+      var mine = r.pseudo === me && (!r.tag || r.tag === myTag);
+      var medal = i === 0 ? '🥇 ' : (i === 1 ? '🥈 ' : (i === 2 ? '🥉 ' : ''));
+      return '<tr' + (mine ? ' class="me"' : '') + '><td class="n">' + medal + (i + 1) + '</td>' +
+        '<td>' + esc(r.pseudo) + ' <span class="muted" style="font-weight:700">#' + esc(r.tag || '?????') + '</span></td>' +
+        '<td class="s">' + r.score + '</td></tr>';
     }).join('');
     app.innerHTML =
       '<div class="card">' + muteBtn() +
@@ -917,6 +1014,7 @@
 
   function onTimeout() {
     var q = game.current;
+    if (!q || game.finished) return finishGame();    // le chrono a sonné après la fin : on sort proprement
     game.__lastOptions = game.options.slice();
     var r = E.timeout(game);
     revealed = { answer: q.answer, given: null };
@@ -927,7 +1025,8 @@
 
   function after(r, q, text) {
     stopTimer();
-    mcOpen = false; draft = '';
+    lastQ = q;                                      // pour pouvoir afficher le retour même si
+    mcOpen = false; draft = '';                     // le moteur a déjà clos la partie
     var delta = r.points ? r.points : (r.lost ? -r.lost : 0);
     feedback = { good: !!r.correct, text: text, delta: delta };
     if (r.correct) sfx.good();
@@ -955,21 +1054,30 @@
   /** Fin de partie : on enregistre le score, puis diplôme ou écran de fin. */
   function finishGame() {
     stopTimer();
-    var mode = game.mode === 'bac' ? 'bac' : 'detente';
-    if (game.mode === 'bac') saveSeen(game.seen);
-    S.submit({
-      pseudo: S.getPseudo(), score: game.score, mode: mode,
-      level: game.mode === 'bac' ? ALL_LEVELS[Math.min(game.levelIndex, ALL_LEVELS.length - 1)] : null
-    });
-    if (game.mode === 'detente') { sfx.win(); view = 'endRelax'; return render(); }
-    if (game.won) { sfx.win(); view = 'diploma'; return render(); }
-    view = 'endBac'; render();
+    if (game.__submitted) {                         // déjà fait : on ne réenregistre pas
+      view = game.mode === 'detente' ? 'endRelax' : (game.won ? 'diploma' : 'endBac');
+      return render();
+    }
+    game.__submitted = true;
+    // enregistrement et son isolés : s'ils échouent, l'écran de fin s'affiche quand même
+    try {
+      if (game.mode === 'bac') saveSeen(game.seen);
+      S.submit({
+        pseudo: S.getPseudo(), score: game.score, mode: game.mode === 'bac' ? 'bac' : 'detente',
+        level: game.mode === 'bac' ? ALL_LEVELS[Math.min(game.levelIndex, ALL_LEVELS.length - 1)] : null
+      });
+    } catch (e) { /* score non enregistré, la partie reste jouable */ }
+    try { sfx.win(); } catch (e) { /* son indisponible */ }
+    view = game.mode === 'detente' ? 'endRelax' : (game.won ? 'diploma' : 'endBac');
+    render();
   }
 
   function startTimer() {
     stopTimer();
+    if (!game || game.finished) return;
     var last = Date.now();
     tick = setInterval(function () {
+      if (!game || game.finished || !game.current || view !== 'play') { stopTimer(); return; }
       var now = Date.now(); game.timeLeft -= (now - last) / 1000; last = now;
       if (game.timeLeft <= 0) { game.timeLeft = 0; stopTimer(); return onTimeout(); }
       var bar = document.querySelector('.timer > i'), lbl = document.querySelector('.timer + .between small');
@@ -995,6 +1103,13 @@
     rec.onerror = rec.onend = function () { if (recognizing) { recognizing = false; render(); } };
     rec.start();
   }
+
+  // sur téléphone, passer l'app en arrière-plan met le chrono en pause plutôt que de le laisser
+  // filer : au retour, le joueur reprend là où il en était
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { stopTimer(); return; }
+    if (view === 'play' && game && !game.finished && game.current && !feedback) startTimer();
+  });
 
   S.flush();          // envoie les scores restés en attente
   render();

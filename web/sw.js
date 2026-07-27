@@ -1,5 +1,5 @@
 /* Service worker : met l'app en cache pour qu'elle fonctionne hors ligne. */
-var CACHE = "quiz-culture-5151a190f5";
+var CACHE = "quiz-culture-02f0f5389e";
 var FILES = ["./", "./index.html", "./manifest.webmanifest",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png", "./icons/favicon-64.png"];
 

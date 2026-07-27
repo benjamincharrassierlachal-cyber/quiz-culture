@@ -17,14 +17,20 @@ var bank = JSON.parse(data);            // garde-fous : on ne construit pas avec
 var relaxBank = JSON.parse(relax);
 JSON.parse(board);
 
+var stamp = JSON.stringify({
+  version: crypto.createHash('sha1').update(tpl + engine + scores + data + relax).digest('hex').slice(0, 7),
+  date: new Date().toISOString().slice(0, 16).replace('T', ' ')
+});
+
 var html = tpl
+  .replace('/*__BUILD__*/', function () { return stamp; })
   .replace('/*__ENGINE__*/', function () { return engine; })
   .replace('/*__SCORES__*/', function () { return scores; })
   .replace('/*__DATA__*/', function () { return data; })
   .replace('/*__RELAX__*/', function () { return relax; })
   .replace('/*__LEADERBOARD__*/', function () { return board; });
 
-['__ENGINE__', '__SCORES__', '__DATA__', '__RELAX__', '__LEADERBOARD__'].forEach(function (m) {
+['__ENGINE__', '__SCORES__', '__DATA__', '__RELAX__', '__LEADERBOARD__', '__BUILD__'].forEach(function (m) {
   if (html.indexOf(m) !== -1) {
     console.error('Injection incomplète : marqueur ' + m + ' absent du template.');
     process.exit(1);
@@ -111,6 +117,7 @@ if (toDocs) {
 var missing = ['icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'favicon-64.png']
   .filter(function (f) { return !fs.existsSync(path.join(webDir, 'icons', f)); });
 
+console.log('version : ' + JSON.parse(stamp).version);
 console.log('prototype.html : ' + Math.round(html.length / 1024) + ' Ko · mode BAC ' + bank.questions.length +
   ' questions sur ' + bank.levels.length + ' classes · mode détente ' + relaxBank.questions.length + ' questions.');
 console.log('classement : ' + (JSON.parse(board).url ? 'Supabase configuré.' : 'local (voir SUPABASE.md).'));

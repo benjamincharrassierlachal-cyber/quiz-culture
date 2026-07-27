@@ -3,8 +3,10 @@
 Sans configuration, le jeu fonctionne déjà : le classement affiche alors **tes parties sur cet
 appareil**. Cette page ajoute le classement mondial. Compte gratuit, pas de carte bancaire.
 
-Ce qui sera stocké, et rien d'autre : **un pseudo, un score, un mode, une date**. Aucun e-mail,
-aucun identifiant, aucun compte joueur.
+Ce qui sera stocké, et rien d'autre : **un pseudo, un numéro de joueur à 5 chiffres, un score, un
+mode, une date**. Aucun e-mail, aucun identifiant, aucun compte joueur. Le numéro est tiré au
+hasard sur l'appareil et permet de distinguer deux joueurs qui choisissent le même pseudo
+(« Benji #04217 » et « Benji #91055 »).
 
 ---
 
@@ -22,6 +24,7 @@ Dans le menu de gauche : **SQL Editor** → *New query*. Colle ceci, puis **Run*
 create table public.scores (
   id         bigint generated always as identity primary key,
   pseudo     text        not null check (char_length(pseudo) between 3 and 14),
+  tag        text        check (tag ~ '^[0-9]{5}$'),   -- numéro de joueur : « Benji #04217 »
   score      int         not null check (score >= 0 and score <= 1000),
   mode       text        not null check (mode in ('bac', 'detente')),
   level      text,
@@ -80,12 +83,23 @@ sans réseau sont mises de côté et envoyées automatiquement au retour de la c
 - Joue une partie courte en mode détente, puis ouvre le classement : ton pseudo doit apparaître.
 - Dans Supabase : **Table Editor → scores**, la ligne doit être là.
 
+## Si tu avais déjà créé la table
+
+La colonne du numéro de joueur est arrivée après. Une seule ligne à exécuter dans le SQL Editor :
+
+```sql
+alter table public.scores add column if not exists tag text check (tag ~ '^[0-9]{5}$');
+```
+
 ## Bon à savoir
 
 - **Triche possible** : n'importe qui sachant lire le code peut déposer un score arbitraire. Pour
   un test entre amis, c'est sans importance. Si le classement devient sérieux, on passera par une
   *edge function* qui vérifie la partie avant d'enregistrer — c'est un ajout, pas une refonte.
-- **Nettoyage** : pour ne garder qu'un score par pseudo, on ajoutera plus tard une vue
-  `select pseudo, max(score) …`. Aujourd'hui chaque partie crée une ligne.
+- **Nettoyage** : pour ne garder qu'un score par joueur, on ajoutera plus tard une vue
+  `select pseudo, tag, max(score) … group by pseudo, tag`. Aujourd'hui chaque partie crée une ligne.
+- **Unicité du numéro** : il est tiré au hasard parmi 100 000 sur l'appareil, ce qui suffit à
+  séparer des homonymes dans un petit groupe. Pour une unicité garantie, il faudra la faire
+  attribuer par le serveur — c'est un ajout, pas une refonte.
 - **Quotas gratuits** : largement suffisants ici (quelques milliers de lignes, quelques Ko).
 - **Repartir de zéro** : `delete from public.scores;` dans le SQL Editor.

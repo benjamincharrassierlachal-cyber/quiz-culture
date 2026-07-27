@@ -147,14 +147,39 @@
         animation:floatUp 1.2s ease-out forwards; z-index:2}
   .gain.plus{color:#12a566} .gain.minus{color:var(--coral)}
 
+  /* barre joueur */
+  .player{display:flex; align-items:center; gap:10px; width:100%; text-align:left; padding:8px 12px;
+          border:3px solid var(--ink); border-radius:99px; background:#fff; box-shadow:3px 3px 0 var(--ink);
+          margin-bottom:16px}
+  .player .avatar{flex:0 0 34px; height:34px; border-radius:99px; background:var(--sun);
+                  border:2px solid var(--ink); overflow:hidden; display:flex; align-items:flex-end; justify-content:center}
+  .player .who{flex:1; min-width:0}
+  .player .name{font-weight:800; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .player .num{color:var(--muted); font-weight:700}
+  .player .edit{font-size:11px; color:var(--muted); letter-spacing:.5px}
+  .player .pencil{flex:0 0 auto; font-size:15px; opacity:.7}
+
   /* modes */
-  .mode{display:block; width:100%; text-align:left; margin-top:14px; padding:16px;
-        border:3px solid var(--ink); border-radius:18px; background:#fff; box-shadow:5px 5px 0 var(--ink);
-        transition:transform .06s, box-shadow .06s}
+  @keyframes popIn{from{opacity:0; transform:translateY(10px)}to{opacity:1; transform:none}}
+  .mode{display:block; width:100%; text-align:left; margin-top:14px; padding:0; overflow:hidden;
+        border:3px solid var(--ink); border-radius:20px; background:#fff; box-shadow:6px 6px 0 var(--ink);
+        transition:transform .06s, box-shadow .06s; animation:popIn .35s ease-out both}
+  .mode:nth-of-type(2){animation-delay:.08s}
   .mode:active{transform:translate(3px,3px); box-shadow:2px 2px 0 var(--ink)}
-  .mode b{font-size:19px} .mode p{margin:6px 0 0; font-size:14px; color:var(--muted)}
-  .mode.bac{background:linear-gradient(180deg,#eef3ff,#fff)}
-  .mode.relax{background:linear-gradient(180deg,#eafff5,#fff)}
+  .mode .band{display:flex; align-items:center; gap:12px; padding:14px 16px; color:#fff}
+  .mode.bac .band{background:linear-gradient(120deg,#2f6bff,#7aa2ff)}
+  .mode.relax .band{background:linear-gradient(120deg,#12a566,#5ddba0)}
+  .mode .ico{flex:0 0 46px; height:46px; border-radius:14px; background:rgba(255,255,255,.22);
+             border:2px solid rgba(255,255,255,.7); display:flex; align-items:center; justify-content:center}
+  .mode .ico svg{display:block}
+  .mode .ttl{flex:1}
+  .mode .ttl b{display:block; font-size:20px; line-height:1.1}
+  .mode .ttl small{font-size:12px; opacity:.9; font-weight:700; letter-spacing:.5px}
+  .mode .body{display:block; padding:12px 16px 18px}
+  .mode .body p{margin:0 0 10px; font-size:14px; color:var(--muted)}
+  .rec{display:inline-block; font-size:12px; font-weight:800; padding:5px 12px; border-radius:99px;
+       border:1.5px solid var(--ink); background:var(--sun); margin:2px 0 2px 2px;
+       box-shadow:2px 2px 0 rgba(42,33,64,.5)}
 
   /* carte */
   .map{border:3px solid var(--ink); border-radius:16px; overflow:hidden; margin-top:8px;
@@ -738,6 +763,7 @@
   'use strict';
 
   var K_PSEUDO = 'quizculture.pseudo';
+  var K_TAG = 'quizculture.tag';         // numéro de joueur, pour distinguer les homonymes
   var K_LOCAL = 'quizculture.scores';
   var K_QUEUE = 'quizculture.queue';
   var K_BEST = 'quizculture.best';       // meilleur score par mode
@@ -766,6 +792,28 @@
   }
   function pseudoValid(p) { return cleanPseudo(p).length >= 3; }
   function getPseudo() { try { return localStorage.getItem(K_PSEUDO) || ''; } catch (e) { return ''; } }
+
+  /** Numéro de joueur à 5 chiffres, tiré une seule fois puis conservé : « Benji #04217 ».
+   *  Deux joueurs peuvent choisir le même pseudo, le numéro les distingue au classement. */
+  function getTag() {
+    var t;
+    try { t = localStorage.getItem(K_TAG); } catch (e) { t = null; }
+    if (t && /^\d{5}$/.test(t)) return t;
+    var n;
+    try {
+      var buf = new Uint32Array(1);
+      (self.crypto || window.crypto).getRandomValues(buf);
+      n = buf[0] % 100000;
+    } catch (e) { n = Math.floor(Math.random() * 100000); }
+    t = ('0000' + n).slice(-5);
+    try { localStorage.setItem(K_TAG, t); } catch (e) { /* ignore */ }
+    return t;
+  }
+  /** Nom affiché : pseudo + numéro. */
+  function displayName(pseudo, tag) {
+    var p = pseudo || getPseudo() || 'Anonyme';
+    return p + ' #' + (tag || getTag());
+  }
   function setPseudo(p) {
     var c = cleanPseudo(p);
     if (!pseudoValid(c)) return null;
@@ -805,7 +853,10 @@
         'Content-Type': 'application/json',
         'Prefer': 'return=minimal'
       },
-      body: JSON.stringify({ pseudo: entry.pseudo, score: entry.score, mode: entry.mode, level: entry.level || null })
+      body: JSON.stringify({
+        pseudo: entry.pseudo, tag: entry.tag, score: entry.score,
+        mode: entry.mode, level: entry.level || null
+      })
     }).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return true;
@@ -833,6 +884,7 @@
   function submit(entry) {
     entry = {
       pseudo: cleanPseudo(entry.pseudo) || 'Anonyme',
+      tag: entry.tag || getTag(),
       score: Math.max(0, Math.round(entry.score || 0)),
       mode: entry.mode || 'bac',
       level: entry.level || null,
@@ -856,7 +908,7 @@
     if (!c || !online()) {
       return Promise.resolve({ source: 'local', rows: localScores(mode).slice(0, limit) });
     }
-    var url = c.url.replace(/\/$/, '') + '/rest/v1/scores?select=pseudo,score,mode,created_at' +
+    var url = c.url.replace(/\/$/, '') + '/rest/v1/scores?select=pseudo,tag,score,mode,created_at' +
       '&mode=eq.' + encodeURIComponent(mode || 'bac') + '&order=score.desc&limit=' + limit;
     return fetch(url, { headers: { 'apikey': c.anonKey, 'Authorization': 'Bearer ' + c.anonKey } })
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
@@ -870,6 +922,8 @@
     pseudoValid: pseudoValid,
     getPseudo: getPseudo,
     setPseudo: setPseudo,
+    getTag: getTag,
+    displayName: displayName,
     best: best,
     localScores: localScores,
     submit: submit,
@@ -1351,12 +1405,481 @@
     {"id": "term-sci-003", "level": "Terminale", "subject": "Sciences", "difficulty": 2, "prompt": "Quelle loi relie tension, intensité et résistance ?", "answer": "la loi d'Ohm", "accepted": ["loi d ohm", "la loi d ohm", "ohm"], "distractors": ["la loi de Joule", "la loi de Coulomb", "la loi de Faraday", "la loi de Kirchhoff"]},
     {"id": "term-sci-004", "level": "Terminale", "subject": "Sciences", "difficulty": 3, "prompt": "Comment appelle-t-on la synthèse d'une protéine à partir de l'ARN messager ?", "answer": "la traduction", "accepted": ["traduction", "la traduction"], "distractors": ["la transcription", "la réplication", "l'épissage", "la maturation"]},
     {"id": "term-sci-005", "level": "Terminale", "subject": "Sciences", "difficulty": 2, "prompt": "Quelle est l'unité de la quantité de matière ?", "answer": "la mole", "accepted": ["mole", "la mole", "mol"], "distractors": ["le gramme", "le litre", "le kelvin", "le candela"]},
-    {"id": "term-sci-006", "level": "Terminale", "subject": "Sciences", "difficulty": 3, "prompt": "Quelle grandeur se conserve dans un système isolé ?", "answer": "l'énergie", "accepted": ["energie", "l energie", "energie totale"], "distractors": ["la température", "la pression", "le volume", "la vitesse"]}
+    {"id": "term-sci-006", "level": "Terminale", "subject": "Sciences", "difficulty": 3, "prompt": "Quelle grandeur se conserve dans un système isolé ?", "answer": "l'énergie", "accepted": ["energie", "l energie", "energie totale"], "distractors": ["la température", "la pression", "le volume", "la vitesse"]},
+
+    {"id": "cp-fr-007", "level": "CP", "subject": "Français", "difficulty": 1, "prompt": "Combien de lettres compte le mot « maison » ?", "answer": "6", "accepted": ["6", "six"], "distractors": ["5", "7", "4", "8"], "numeric": true},
+    {"id": "cp-fr-008", "level": "CP", "subject": "Français", "difficulty": 1, "prompt": "Quel est le contraire du mot « chaud » ?", "answer": "froid", "accepted": ["froid", "froide"], "distractors": ["tiède", "doux", "brûlant", "sec"]},
+    {"id": "cp-fr-009", "level": "CP", "subject": "Français", "difficulty": 1, "prompt": "Comment appelle-t-on le petit de la vache ?", "answer": "un veau", "accepted": ["veau", "un veau", "le veau"], "distractors": ["un agneau", "un poulain", "un chevreau", "un porcelet"]},
+    {"id": "cp-fr-010", "level": "CP", "subject": "Français", "difficulty": 2, "prompt": "Quelle lettre vient juste avant le « m » dans l'alphabet ?", "answer": "l", "accepted": ["l", "le l"], "distractors": ["n", "k", "o", "j"]},
+    {"id": "cp-fr-011", "level": "CP", "subject": "Français", "difficulty": 1, "prompt": "Quel est le pluriel de « un chat » ?", "answer": "des chats", "accepted": ["chats", "des chats", "les chats"], "distractors": ["des chates", "des chatz", "des chatts", "des chateaux"]},
+    {"id": "cp-fr-012", "level": "CP", "subject": "Français", "difficulty": 1, "prompt": "Quel est le contraire du mot « ouvert » ?", "answer": "fermé", "accepted": ["ferme", "fermee"], "distractors": ["grand", "cassé", "plein", "vide"]},
+
+    {"id": "cp-math-007", "level": "CP", "subject": "Mathématiques", "difficulty": 1, "prompt": "Combien font 3 + 4 ?", "answer": "7", "accepted": ["7", "sept"], "distractors": ["6", "8", "34", "5"], "numeric": true},
+    {"id": "cp-math-008", "level": "CP", "subject": "Mathématiques", "difficulty": 1, "prompt": "Combien font 1 + 1 ?", "answer": "2", "accepted": ["2", "deux"], "distractors": ["1", "3", "11", "0"], "numeric": true},
+    {"id": "cp-math-009", "level": "CP", "subject": "Mathématiques", "difficulty": 1, "prompt": "Combien de coins a un triangle ?", "answer": "3", "accepted": ["3", "trois"], "distractors": ["4", "5", "2", "6"], "numeric": true},
+    {"id": "cp-math-010", "level": "CP", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien font 5 + 4 ?", "answer": "9", "accepted": ["9", "neuf"], "distractors": ["8", "10", "54", "7"], "numeric": true},
+    {"id": "cp-math-011", "level": "CP", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien font 20 − 5 ?", "answer": "15", "accepted": ["15", "quinze"], "distractors": ["14", "16", "25", "10"], "numeric": true},
+    {"id": "cp-math-012", "level": "CP", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien font 6 + 7 ?", "answer": "13", "accepted": ["13", "treize"], "distractors": ["12", "14", "67", "11"], "numeric": true},
+
+    {"id": "cp-geo-007", "level": "CP", "subject": "Géographie", "difficulty": 1, "prompt": "Comment s'appelle l'étoile qui nous éclaire pendant la journée ?", "answer": "le Soleil", "accepted": ["soleil", "le soleil"], "distractors": ["la Lune", "Mars", "l'étoile Polaire", "Vénus"]},
+    {"id": "cp-geo-008", "level": "CP", "subject": "Géographie", "difficulty": 2, "prompt": "De quelle couleur représente-t-on les forêts sur une carte ?", "answer": "vert", "accepted": ["vert", "en vert", "verte"], "distractors": ["bleu", "jaune", "marron", "gris"]},
+    {"id": "cp-geo-009", "level": "CP", "subject": "Géographie", "difficulty": 2, "prompt": "Comment appelle-t-on une région couverte de sable où il ne pleut presque jamais ?", "answer": "un désert", "accepted": ["desert", "un desert"], "distractors": ["une forêt", "une plaine", "une vallée", "un marais"]},
+    {"id": "cp-geo-010", "level": "CP", "subject": "Géographie", "difficulty": 1, "prompt": "Dans quel pays se trouve la ville de Rome ?", "answer": "l'Italie", "accepted": ["italie", "l italie"], "distractors": ["la France", "l'Espagne", "la Grèce", "le Portugal"]},
+    {"id": "cp-geo-011", "level": "CP", "subject": "Géographie", "difficulty": 2, "prompt": "Comment appelle-t-on un petit cours d'eau qui rejoint un fleuve ?", "answer": "une rivière", "accepted": ["riviere", "une riviere"], "distractors": ["un lac", "une mare", "un océan", "une source chaude"]},
+    {"id": "cp-geo-012", "level": "CP", "subject": "Géographie", "difficulty": 1, "prompt": "Quelle saison vient juste après l'été ?", "answer": "l'automne", "accepted": ["automne", "l automne"], "distractors": ["l'hiver", "le printemps", "la canicule", "la rentrée"]},
+
+    {"id": "cp-hist-007", "level": "CP", "subject": "Histoire", "difficulty": 1, "prompt": "Quel est le dernier mois de l'année ?", "answer": "décembre", "accepted": ["decembre", "le decembre"], "distractors": ["janvier", "novembre", "octobre", "juillet"]},
+    {"id": "cp-hist-008", "level": "CP", "subject": "Histoire", "difficulty": 2, "prompt": "Combien de jours compte une année, en général ?", "answer": "365", "accepted": ["365"], "distractors": ["360", "366", "300", "12"], "numeric": true},
+    {"id": "cp-hist-009", "level": "CP", "subject": "Histoire", "difficulty": 1, "prompt": "Quel jour vient juste avant le samedi ?", "answer": "vendredi", "accepted": ["vendredi", "le vendredi"], "distractors": ["dimanche", "jeudi", "lundi", "mercredi"]},
+    {"id": "cp-hist-010", "level": "CP", "subject": "Histoire", "difficulty": 2, "prompt": "Quel animal de la préhistoire était couvert de longs poils ?", "answer": "le mammouth", "accepted": ["mammouth", "le mammouth"], "distractors": ["le dinosaure", "le tigre", "le bison", "le renne"]},
+    {"id": "cp-hist-011", "level": "CP", "subject": "Histoire", "difficulty": 1, "prompt": "Quelle fête célèbre-t-on le 1er janvier ?", "answer": "le Nouvel An", "accepted": ["nouvel an", "le nouvel an", "jour de l an"], "distractors": ["Noël", "Pâques", "la Chandeleur", "le 14 Juillet"]},
+    {"id": "cp-hist-012", "level": "CP", "subject": "Histoire", "difficulty": 3, "prompt": "Comment appelle-t-on la personne qui étudie le passé ?", "answer": "un historien", "accepted": ["historien", "un historien"], "distractors": ["un géographe", "un archéologue", "un écrivain", "un scientifique"]},
+
+    {"id": "cp-angl-007", "level": "CP", "subject": "Anglais", "difficulty": 1, "prompt": "Que veut dire « blue » en français ?", "answer": "bleu", "accepted": ["bleu", "bleue"], "distractors": ["noir", "vert", "gris", "marron"]},
+    {"id": "cp-angl-008", "level": "CP", "subject": "Anglais", "difficulty": 1, "prompt": "Que veut dire « fish » en français ?", "answer": "un poisson", "accepted": ["poisson", "un poisson", "le poisson"], "distractors": ["un oiseau", "un chat", "une vache", "une grenouille"]},
+    {"id": "cp-angl-009", "level": "CP", "subject": "Anglais", "difficulty": 1, "prompt": "Comment dit-on le chiffre « un » en anglais ?", "answer": "one", "accepted": ["one"], "distractors": ["two", "on", "won", "ten"], "strict": true},
+    {"id": "cp-angl-010", "level": "CP", "subject": "Anglais", "difficulty": 1, "prompt": "Que veut dire « yellow » en français ?", "answer": "jaune", "accepted": ["jaune"], "distractors": ["rouge", "vert", "orange", "marron"]},
+    {"id": "cp-angl-011", "level": "CP", "subject": "Anglais", "difficulty": 1, "prompt": "Comment dit-on « oui » en anglais ?", "answer": "yes", "accepted": ["yes"], "distractors": ["no", "yeah man", "ok", "please"]},
+    {"id": "cp-angl-012", "level": "CP", "subject": "Anglais", "difficulty": 2, "prompt": "Que veut dire « mother » en français ?", "answer": "la mère", "accepted": ["mere", "la mere", "maman"], "distractors": ["le père", "la sœur", "la fille", "la grand-mère"]},
+
+    {"id": "ce1-fr-007", "level": "CE1", "subject": "Français", "difficulty": 2, "prompt": "Quel est le pluriel de « un oiseau » ?", "answer": "des oiseaux", "accepted": ["oiseaux", "des oiseaux", "les oiseaux"], "distractors": ["des oiseaus", "des oiseauxs", "des oisaux", "des oiseus"], "strict": true},
+    {"id": "ce1-fr-008", "level": "CE1", "subject": "Français", "difficulty": 2, "prompt": "Dans « la fille chante une chanson », quel est le sujet ?", "answer": "la fille", "accepted": ["fille", "la fille"], "distractors": ["chante", "une chanson", "chante une chanson", "la fille chante"]},
+    {"id": "ce1-fr-009", "level": "CE1", "subject": "Français", "difficulty": 2, "prompt": "Quel est le féminin de « un chien » ?", "answer": "une chienne", "accepted": ["chienne", "une chienne"], "distractors": ["une chien", "une chiene", "une chiotte", "une chatte"]},
+    {"id": "ce1-fr-010", "level": "CE1", "subject": "Français", "difficulty": 2, "prompt": "Combien de syllabes compte le mot « ordinateur » ?", "answer": "4", "accepted": ["4", "quatre"], "distractors": ["3", "5", "2", "6"], "numeric": true},
+    {"id": "ce1-fr-011", "level": "CE1", "subject": "Français", "difficulty": 3, "prompt": "Comment appelle-t-on l'accent du « é » dans le mot « école » ?", "answer": "un accent aigu", "accepted": ["accent aigu", "un accent aigu", "aigu"], "distractors": ["un accent grave", "un accent circonflexe", "un tréma", "une cédille"]},
+    {"id": "ce1-fr-012", "level": "CE1", "subject": "Français", "difficulty": 1, "prompt": "Quel est le contraire du mot « propre » ?", "answer": "sale", "accepted": ["sale"], "distractors": ["neuf", "clair", "rangé", "lisse"]},
+
+    {"id": "ce1-math-007", "level": "CE1", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien font 12 + 9 ?", "answer": "21", "accepted": ["21", "vingt-et-un"], "distractors": ["20", "22", "129", "19"], "numeric": true},
+    {"id": "ce1-math-008", "level": "CE1", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien font 30 − 12 ?", "answer": "18", "accepted": ["18", "dix-huit"], "distractors": ["17", "19", "22", "28"], "numeric": true},
+    {"id": "ce1-math-009", "level": "CE1", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien font 4 × 5 ?", "answer": "20", "accepted": ["20", "vingt"], "distractors": ["45", "16", "24", "9"], "numeric": true},
+    {"id": "ce1-math-010", "level": "CE1", "subject": "Mathématiques", "difficulty": 2, "prompt": "Quel est le double de 7 ?", "answer": "14", "accepted": ["14", "quatorze"], "distractors": ["12", "16", "21", "7"], "numeric": true},
+    {"id": "ce1-math-011", "level": "CE1", "subject": "Mathématiques", "difficulty": 3, "prompt": "Combien de centimètres y a-t-il dans un demi-mètre ?", "answer": "50", "accepted": ["50", "cinquante"], "distractors": ["5", "500", "100", "25"], "numeric": true},
+    {"id": "ce1-math-012", "level": "CE1", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien font 100 − 1 ?", "answer": "99", "accepted": ["99", "quatre-vingt-dix-neuf"], "distractors": ["98", "101", "90", "9"], "numeric": true},
+
+    {"id": "ce1-geo-007", "level": "CE1", "subject": "Géographie", "difficulty": 2, "prompt": "Quelle est la capitale du Portugal ?", "answer": "Lisbonne", "accepted": ["lisbonne"], "distractors": ["Porto", "Madrid", "Séville", "Barcelone"]},
+    {"id": "ce1-geo-008", "level": "CE1", "subject": "Géographie", "difficulty": 2, "prompt": "Comment appelle-t-on une terre entourée d'eau de tous côtés ?", "answer": "une île", "accepted": ["ile", "une ile"], "distractors": ["une presqu'île", "un continent", "une côte", "un delta"]},
+    {"id": "ce1-geo-009", "level": "CE1", "subject": "Géographie", "difficulty": 1, "prompt": "Quel pays a la forme d'une botte ?", "answer": "l'Italie", "accepted": ["italie", "l italie"], "distractors": ["l'Espagne", "la Grèce", "la Norvège", "le Chili"]},
+    {"id": "ce1-geo-010", "level": "CE1", "subject": "Géographie", "difficulty": 1, "prompt": "Quelle est la ville la plus peuplée de France ?", "answer": "Paris", "accepted": ["paris"], "distractors": ["Marseille", "Lyon", "Toulouse", "Lille"]},
+    {"id": "ce1-geo-011", "level": "CE1", "subject": "Géographie", "difficulty": 2, "prompt": "Comment appelle-t-on les habitants de l'Espagne ?", "answer": "les Espagnols", "accepted": ["espagnols", "les espagnols", "espagnol"], "distractors": ["les Portugais", "les Italiens", "les Ibères", "les Catalans"]},
+    {"id": "ce1-geo-012", "level": "CE1", "subject": "Géographie", "difficulty": 3, "prompt": "Quel fleuve traverse la ville de Bordeaux ?", "answer": "la Garonne", "accepted": ["garonne", "la garonne"], "distractors": ["la Loire", "le Rhône", "la Dordogne", "l'Adour"]},
+
+    {"id": "ce1-hist-007", "level": "CE1", "subject": "Histoire", "difficulty": 1, "prompt": "Quel animal les chevaliers montaient-ils pour combattre ?", "answer": "le cheval", "accepted": ["cheval", "le cheval", "un cheval"], "distractors": ["le mulet", "l'éléphant", "le chameau", "le taureau"]},
+    {"id": "ce1-hist-008", "level": "CE1", "subject": "Histoire", "difficulty": 2, "prompt": "Où habitaient les seigneurs au Moyen Âge ?", "answer": "dans un château fort", "accepted": ["chateau fort", "un chateau fort", "dans un chateau fort", "chateau"], "distractors": ["dans une cathédrale", "dans une ferme", "dans un palais romain", "dans une grotte"]},
+    {"id": "ce1-hist-009", "level": "CE1", "subject": "Histoire", "difficulty": 2, "prompt": "Quel peuple de l'Antiquité a construit les pyramides de Gizeh ?", "answer": "les Égyptiens", "accepted": ["egyptiens", "les egyptiens"], "distractors": ["les Grecs", "les Romains", "les Perses", "les Mayas"]},
+    {"id": "ce1-hist-010", "level": "CE1", "subject": "Histoire", "difficulty": 3, "prompt": "Quel général romain a conquis la Gaule ?", "answer": "Jules César", "accepted": ["jules cesar", "cesar"], "distractors": ["Auguste", "Néron", "Pompée", "Hadrien"]},
+    {"id": "ce1-hist-011", "level": "CE1", "subject": "Histoire", "difficulty": 2, "prompt": "Quelle invention a remplacé la bougie pour éclairer les maisons ?", "answer": "l'ampoule électrique", "accepted": ["ampoule", "l ampoule", "ampoule electrique", "l ampoule electrique"], "distractors": ["la lampe à huile", "la torche", "le briquet", "la lanterne"]},
+    {"id": "ce1-hist-012", "level": "CE1", "subject": "Histoire", "difficulty": 3, "prompt": "En quelle année un homme a-t-il marché sur la Lune pour la première fois ?", "answer": "1969", "accepted": ["1969", "en 1969"], "distractors": ["1959", "1972", "1981", "1961"], "numeric": true},
+
+    {"id": "ce1-angl-007", "level": "CE1", "subject": "Anglais", "difficulty": 1, "prompt": "Que veut dire « friend » en français ?", "answer": "un ami", "accepted": ["ami", "un ami", "une amie"], "distractors": ["un frère", "un voisin", "un cousin", "un ennemi"]},
+    {"id": "ce1-angl-008", "level": "CE1", "subject": "Anglais", "difficulty": 1, "prompt": "Comment dit-on « noir » en anglais ?", "answer": "black", "accepted": ["black"], "distractors": ["blue", "brown", "white", "grey"]},
+    {"id": "ce1-angl-009", "level": "CE1", "subject": "Anglais", "difficulty": 1, "prompt": "Que veut dire « house » en français ?", "answer": "une maison", "accepted": ["maison", "une maison", "la maison"], "distractors": ["une école", "une chambre", "un immeuble", "une cabane"]},
+    {"id": "ce1-angl-010", "level": "CE1", "subject": "Anglais", "difficulty": 1, "prompt": "Comment dit-on « s'il te plaît » en anglais ?", "answer": "please", "accepted": ["please"], "distractors": ["thank you", "sorry", "welcome", "excuse me"]},
+    {"id": "ce1-angl-011", "level": "CE1", "subject": "Anglais", "difficulty": 2, "prompt": "Que veut dire « teacher » en français ?", "answer": "un professeur", "accepted": ["professeur", "un professeur", "maitre", "enseignant"], "distractors": ["un élève", "un directeur", "un parent", "un surveillant"]},
+    {"id": "ce1-angl-012", "level": "CE1", "subject": "Anglais", "difficulty": 1, "prompt": "Comment dit-on « cinq » en anglais ?", "answer": "five", "accepted": ["five"], "distractors": ["four", "fifty", "fifteen", "nine"], "strict": true},
+
+    {"id": "ce2-fr-007", "level": "CE2", "subject": "Français", "difficulty": 3, "prompt": "Quel est le pluriel de « un genou » ?", "answer": "des genoux", "accepted": ["genoux", "des genoux", "les genoux"], "distractors": ["des genous", "des genouxs", "des genoues", "des geneaux"], "strict": true},
+    {"id": "ce2-fr-008", "level": "CE2", "subject": "Français", "difficulty": 3, "prompt": "Dans « le chat dort sur le lit », quel groupe indique le lieu ?", "answer": "sur le lit", "accepted": ["sur le lit", "le lit"], "distractors": ["le chat", "dort", "le chat dort", "dort sur"]},
+    {"id": "ce2-fr-009", "level": "CE2", "subject": "Français", "difficulty": 2, "prompt": "Quel est l'infinitif du verbe dans « nous prenons » ?", "answer": "prendre", "accepted": ["prendre"], "distractors": ["prener", "prenoir", "apprendre", "prêter"]},
+    {"id": "ce2-fr-010", "level": "CE2", "subject": "Français", "difficulty": 3, "prompt": "Comment appelle-t-on la partie du mot qui ne change pas quand on le conjugue ?", "answer": "le radical", "accepted": ["radical", "le radical"], "distractors": ["la terminaison", "le préfixe", "le suffixe", "la syllabe"]},
+    {"id": "ce2-fr-011", "level": "CE2", "subject": "Français", "difficulty": 2, "prompt": "Quel est le féminin de « un roi » ?", "answer": "une reine", "accepted": ["reine", "une reine"], "distractors": ["une roie", "une royale", "une princesse", "une duchesse"]},
+    {"id": "ce2-fr-012", "level": "CE2", "subject": "Français", "difficulty": 2, "prompt": "Combien de syllabes compte le mot « télévision » ?", "answer": "4", "accepted": ["4", "quatre"], "distractors": ["3", "5", "2", "6"], "numeric": true},
+
+    {"id": "ce2-math-007", "level": "CE2", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien font 9 × 9 ?", "answer": "81", "accepted": ["81"], "distractors": ["72", "99", "18", "89"], "numeric": true},
+    {"id": "ce2-math-008", "level": "CE2", "subject": "Mathématiques", "difficulty": 3, "prompt": "Combien font 200 − 45 ?", "answer": "155", "accepted": ["155"], "distractors": ["165", "145", "245", "150"], "numeric": true},
+    {"id": "ce2-math-009", "level": "CE2", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien font 12 × 5 ?", "answer": "60", "accepted": ["60", "soixante"], "distractors": ["50", "72", "125", "55"], "numeric": true},
+    {"id": "ce2-math-010", "level": "CE2", "subject": "Mathématiques", "difficulty": 1, "prompt": "Quelle est la moitié de 24 ?", "answer": "12", "accepted": ["12", "douze"], "distractors": ["14", "10", "48", "8"], "numeric": true},
+    {"id": "ce2-math-011", "level": "CE2", "subject": "Mathématiques", "difficulty": 1, "prompt": "Combien de minutes y a-t-il dans une demi-heure ?", "answer": "30", "accepted": ["30", "trente"], "distractors": ["15", "45", "60", "20"], "numeric": true},
+    {"id": "ce2-math-012", "level": "CE2", "subject": "Mathématiques", "difficulty": 3, "prompt": "Combien font 3 × 3 × 3 ?", "answer": "27", "accepted": ["27"], "distractors": ["9", "18", "33", "36"], "numeric": true},
+
+    {"id": "ce2-geo-007", "level": "CE2", "subject": "Géographie", "difficulty": 1, "prompt": "Quelle est la capitale du Royaume-Uni ?", "answer": "Londres", "accepted": ["londres"], "distractors": ["Édimbourg", "Dublin", "Manchester", "Cardiff"]},
+    {"id": "ce2-geo-008", "level": "CE2", "subject": "Géographie", "difficulty": 3, "prompt": "Comment appelle-t-on une carte représentant toute la surface de la Terre ?", "answer": "un planisphère", "accepted": ["planisphere", "un planisphere", "mappemonde"], "distractors": ["un atlas", "un globe terrestre", "une carte routière", "un plan"]},
+    {"id": "ce2-geo-009", "level": "CE2", "subject": "Géographie", "difficulty": 2, "prompt": "Quel océan borde l'Afrique à l'est ?", "answer": "l'océan Indien", "accepted": ["indien", "l ocean indien", "ocean indien"], "distractors": ["l'océan Atlantique", "l'océan Pacifique", "la mer Rouge", "l'océan Arctique"]},
+    {"id": "ce2-geo-010", "level": "CE2", "subject": "Géographie", "difficulty": 1, "prompt": "Comment appelle-t-on le point le plus au nord de la Terre ?", "answer": "le pôle Nord", "accepted": ["pole nord", "le pole nord"], "distractors": ["le pôle Sud", "l'équateur", "le tropique du Cancer", "le méridien de Greenwich"]},
+    {"id": "ce2-geo-011", "level": "CE2", "subject": "Géographie", "difficulty": 2, "prompt": "Quelle mer sépare la France de la Corse ?", "answer": "la mer Méditerranée", "accepted": ["mediterranee", "la mediterranee", "la mer mediterranee"], "distractors": ["la mer Adriatique", "la mer Ionienne", "l'océan Atlantique", "la mer du Nord"]},
+    {"id": "ce2-geo-012", "level": "CE2", "subject": "Géographie", "difficulty": 1, "prompt": "Dans quel pays se trouve la ville de Bruxelles ?", "answer": "la Belgique", "accepted": ["belgique", "la belgique"], "distractors": ["les Pays-Bas", "le Luxembourg", "la France", "l'Allemagne"]},
+
+    {"id": "ce2-hist-007", "level": "CE2", "subject": "Histoire", "difficulty": 2, "prompt": "Comment appelle-t-on les guerriers scandinaves qui naviguaient sur des drakkars ?", "answer": "les Vikings", "accepted": ["vikings", "les vikings"], "distractors": ["les Francs", "les Saxons", "les Normands de Sicile", "les Celtes"]},
+    {"id": "ce2-hist-008", "level": "CE2", "subject": "Histoire", "difficulty": 2, "prompt": "Quelle reine de France a été guillotinée en 1793 ?", "answer": "Marie-Antoinette", "accepted": ["marie antoinette"], "distractors": ["Catherine de Médicis", "Marie de Médicis", "Anne d'Autriche", "Joséphine de Beauharnais"]},
+    {"id": "ce2-hist-009", "level": "CE2", "subject": "Histoire", "difficulty": 1, "prompt": "Quel monument égyptien servait de tombeau aux pharaons ?", "answer": "la pyramide", "accepted": ["pyramide", "la pyramide", "les pyramides"], "distractors": ["le temple", "l'obélisque", "le sphinx", "la ziggourat"]},
+    {"id": "ce2-hist-010", "level": "CE2", "subject": "Histoire", "difficulty": 3, "prompt": "Comment appelle-t-on la période artistique qui suit le Moyen Âge ?", "answer": "la Renaissance", "accepted": ["renaissance", "la renaissance"], "distractors": ["l'Antiquité", "les Lumières", "le Romantisme", "l'époque gothique"]},
+    {"id": "ce2-hist-011", "level": "CE2", "subject": "Histoire", "difficulty": 3, "prompt": "Quel général carthaginois a traversé les Alpes avec des éléphants ?", "answer": "Hannibal", "accepted": ["hannibal"], "distractors": ["Jules César", "Scipion", "Alexandre le Grand", "Spartacus"]},
+    {"id": "ce2-hist-012", "level": "CE2", "subject": "Histoire", "difficulty": 2, "prompt": "Quel roi des Francs a été baptisé à Reims vers 496 ?", "answer": "Clovis", "accepted": ["clovis"], "distractors": ["Charlemagne", "Dagobert", "Pépin le Bref", "Clotaire"]},
+
+    {"id": "ce2-angl-007", "level": "CE2", "subject": "Anglais", "difficulty": 2, "prompt": "Comment dit-on « samedi » en anglais ?", "answer": "Saturday", "accepted": ["saturday"], "distractors": ["Sunday", "Thursday", "Tuesday", "September"]},
+    {"id": "ce2-angl-008", "level": "CE2", "subject": "Anglais", "difficulty": 1, "prompt": "Que veut dire « summer » en français ?", "answer": "l'été", "accepted": ["ete", "l ete"], "distractors": ["l'hiver", "l'automne", "le printemps", "le soleil"]},
+    {"id": "ce2-angl-009", "level": "CE2", "subject": "Anglais", "difficulty": 2, "prompt": "Comment dit-on « j'aime les chiens » en anglais ?", "answer": "I like dogs", "accepted": ["i like dogs", "i love dogs"], "distractors": ["I like dog", "I am like dogs", "I likes dogs", "me like dogs"]},
+    {"id": "ce2-angl-010", "level": "CE2", "subject": "Anglais", "difficulty": 1, "prompt": "Que veut dire « to drink » en français ?", "answer": "boire", "accepted": ["boire"], "distractors": ["manger", "dormir", "parler", "conduire"]},
+    {"id": "ce2-angl-011", "level": "CE2", "subject": "Anglais", "difficulty": 1, "prompt": "Comment dit-on « ma mère » en anglais ?", "answer": "my mother", "accepted": ["my mother", "my mum", "my mom"], "distractors": ["my father", "my sister", "my aunt", "my daughter"]},
+    {"id": "ce2-angl-012", "level": "CE2", "subject": "Anglais", "difficulty": 1, "prompt": "Que veut dire « small » en français ?", "answer": "petit", "accepted": ["petit", "petite"], "distractors": ["grand", "gros", "long", "lourd"]},
+
+    {"id": "cm1-fr-007", "level": "CM1", "subject": "Français", "difficulty": 2, "prompt": "Quelle est la nature du mot « ce » dans « ce chien » ?", "answer": "un déterminant", "accepted": ["determinant", "un determinant", "adjectif demonstratif"], "distractors": ["un pronom", "un adverbe", "une préposition", "une conjonction"]},
+    {"id": "cm1-fr-008", "level": "CM1", "subject": "Français", "difficulty": 2, "prompt": "Quel est le participe passé du verbe « faire » ?", "answer": "fait", "accepted": ["fait"], "distractors": ["fais", "faisu", "faisant", "fera"], "strict": true},
+    {"id": "cm1-fr-009", "level": "CM1", "subject": "Français", "difficulty": 2, "prompt": "Comment appelle-t-on un mot qui remplace un nom ?", "answer": "un pronom", "accepted": ["pronom", "un pronom"], "distractors": ["un adjectif", "un adverbe", "un article", "un synonyme"]},
+    {"id": "cm1-fr-010", "level": "CM1", "subject": "Français", "difficulty": 3, "prompt": "Quel est le pluriel de « un travail » ?", "answer": "des travaux", "accepted": ["travaux", "des travaux", "les travaux"], "distractors": ["des travails", "des travaus", "des travailles", "des traveaux"], "strict": true},
+    {"id": "cm1-fr-011", "level": "CM1", "subject": "Français", "difficulty": 1, "prompt": "À quel temps est le verbe dans « nous irons demain » ?", "answer": "le futur", "accepted": ["futur", "le futur", "futur simple"], "distractors": ["l'imparfait", "le présent", "le passé simple", "le conditionnel"]},
+    {"id": "cm1-fr-012", "level": "CM1", "subject": "Français", "difficulty": 2, "prompt": "Quel est le contraire de l'adverbe « souvent » ?", "answer": "rarement", "accepted": ["rarement"], "distractors": ["toujours", "parfois", "longtemps", "vite"]},
+
+    {"id": "cm1-math-007", "level": "CM1", "subject": "Mathématiques", "difficulty": 3, "prompt": "Combien font 11 × 11 ?", "answer": "121", "accepted": ["121"], "distractors": ["111", "132", "1111", "110"], "numeric": true},
+    {"id": "cm1-math-008", "level": "CM1", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien font 1000 − 250 ?", "answer": "750", "accepted": ["750"], "distractors": ["850", "650", "700", "800"], "numeric": true},
+    {"id": "cm1-math-009", "level": "CM1", "subject": "Mathématiques", "difficulty": 2, "prompt": "Quelle est l'aire d'un carré de 5 cm de côté ?", "answer": "25 cm²", "accepted": ["25", "25 cm2", "25 cm²"], "distractors": ["20 cm²", "10 cm²", "50 cm²", "55 cm²"], "numeric": true},
+    {"id": "cm1-math-010", "level": "CM1", "subject": "Mathématiques", "difficulty": 1, "prompt": "Combien de mois y a-t-il dans deux ans ?", "answer": "24", "accepted": ["24", "vingt-quatre"], "distractors": ["12", "20", "36", "30"], "numeric": true},
+    {"id": "cm1-math-011", "level": "CM1", "subject": "Mathématiques", "difficulty": 1, "prompt": "Combien font 7 × 6 ?", "answer": "42", "accepted": ["42"], "distractors": ["36", "48", "76", "40"], "numeric": true},
+    {"id": "cm1-math-012", "level": "CM1", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien de millimètres y a-t-il dans 3 centimètres ?", "answer": "30", "accepted": ["30", "trente"], "distractors": ["3", "300", "13", "33"], "numeric": true},
+
+    {"id": "cm1-geo-007", "level": "CM1", "subject": "Géographie", "difficulty": 2, "prompt": "Quelle chaîne de montagnes marque la limite entre l'Europe et l'Asie ?", "answer": "l'Oural", "accepted": ["oural", "l oural"], "distractors": ["le Caucase", "l'Himalaya", "les Carpates", "les Balkans"]},
+    {"id": "cm1-geo-008", "level": "CM1", "subject": "Géographie", "difficulty": 3, "prompt": "Comment appelle-t-on une ligne imaginaire qui relie le pôle Nord au pôle Sud ?", "answer": "un méridien", "accepted": ["meridien", "un meridien"], "distractors": ["un parallèle", "un tropique", "l'équateur", "une latitude"]},
+    {"id": "cm1-geo-009", "level": "CM1", "subject": "Géographie", "difficulty": 1, "prompt": "Dans quel pays le Nil se jette-t-il dans la mer ?", "answer": "l'Égypte", "accepted": ["egypte", "l egypte"], "distractors": ["le Soudan", "l'Éthiopie", "la Libye", "le Kenya"]},
+    {"id": "cm1-geo-010", "level": "CM1", "subject": "Géographie", "difficulty": 2, "prompt": "Quelle est la monnaie du Royaume-Uni ?", "answer": "la livre sterling", "accepted": ["livre", "la livre", "livre sterling", "la livre sterling"], "distractors": ["l'euro", "le dollar", "la couronne", "le franc"]},
+    {"id": "cm1-geo-011", "level": "CM1", "subject": "Géographie", "difficulty": 3, "prompt": "Combien de départements compte la France, outre-mer inclus ?", "answer": "101", "accepted": ["101"], "distractors": ["96", "100", "95", "110"], "numeric": true},
+    {"id": "cm1-geo-012", "level": "CM1", "subject": "Géographie", "difficulty": 1, "prompt": "Quel océan borde l'ouest de l'Amérique du Sud ?", "answer": "l'océan Pacifique", "accepted": ["pacifique", "l ocean pacifique", "ocean pacifique"], "distractors": ["l'océan Atlantique", "l'océan Indien", "la mer des Caraïbes", "l'océan Austral"]},
+
+    {"id": "cm1-hist-007", "level": "CM1", "subject": "Histoire", "difficulty": 2, "prompt": "Qui a mis au point l'imprimerie à caractères mobiles en Europe ?", "answer": "Gutenberg", "accepted": ["gutenberg", "johannes gutenberg"], "distractors": ["Léonard de Vinci", "Galilée", "Copernic", "Champollion"]},
+    {"id": "cm1-hist-008", "level": "CM1", "subject": "Histoire", "difficulty": 3, "prompt": "Comment appelle-t-on le style des grandes cathédrales à arcs brisés et vitraux ?", "answer": "l'art gothique", "accepted": ["gothique", "l art gothique", "le gothique"], "distractors": ["l'art roman", "l'art baroque", "l'art classique", "l'art byzantin"]},
+    {"id": "cm1-hist-009", "level": "CM1", "subject": "Histoire", "difficulty": 2, "prompt": "Quel roi de France était surnommé le « Roi-Soleil » ?", "answer": "Louis XIV", "accepted": ["louis xiv", "louis 14", "louis quatorze"], "distractors": ["Louis XV", "Louis XIII", "François Ier", "Henri IV"], "strict": true},
+    {"id": "cm1-hist-010", "level": "CM1", "subject": "Histoire", "difficulty": 3, "prompt": "Quelle épidémie a décimé l'Europe au XIVe siècle ?", "answer": "la peste noire", "accepted": ["peste", "la peste", "peste noire", "la peste noire"], "distractors": ["le choléra", "la variole", "la grippe espagnole", "la lèpre"]},
+    {"id": "cm1-hist-011", "level": "CM1", "subject": "Histoire", "difficulty": 2, "prompt": "En quelle année les Français ont-ils pris la Bastille ?", "answer": "1789", "accepted": ["1789", "en 1789"], "distractors": ["1792", "1799", "1815", "1848"], "numeric": true},
+    {"id": "cm1-hist-012", "level": "CM1", "subject": "Histoire", "difficulty": 3, "prompt": "Comment appelle-t-on les moines qui recopiaient les livres à la main ?", "answer": "des copistes", "accepted": ["copistes", "des copistes", "copiste"], "distractors": ["des imprimeurs", "des scribes égyptiens", "des libraires", "des enlumineurs"]},
+
+    {"id": "cm1-angl-007", "level": "CM1", "subject": "Anglais", "difficulty": 1, "prompt": "Que veut dire « to write » en français ?", "answer": "écrire", "accepted": ["ecrire"], "distractors": ["lire", "dessiner", "parler", "effacer"]},
+    {"id": "cm1-angl-008", "level": "CM1", "subject": "Anglais", "difficulty": 1, "prompt": "Comment dit-on « mon frère » en anglais ?", "answer": "my brother", "accepted": ["my brother"], "distractors": ["my sister", "my cousin", "my father", "my son"]},
+    {"id": "cm1-angl-009", "level": "CM1", "subject": "Anglais", "difficulty": 2, "prompt": "Que veut dire « bedroom » en français ?", "answer": "la chambre", "accepted": ["chambre", "la chambre"], "distractors": ["la cuisine", "le salon", "la salle de bains", "le lit"]},
+    {"id": "cm1-angl-010", "level": "CM1", "subject": "Anglais", "difficulty": 2, "prompt": "Comment dit-on « trente » en anglais ?", "answer": "thirty", "accepted": ["thirty"], "distractors": ["thirteen", "third", "threety", "twenty"], "strict": true},
+    {"id": "cm1-angl-011", "level": "CM1", "subject": "Anglais", "difficulty": 1, "prompt": "Que veut dire « to run » en français ?", "answer": "courir", "accepted": ["courir"], "distractors": ["marcher", "sauter", "nager", "tomber"]},
+    {"id": "cm1-angl-012", "level": "CM1", "subject": "Anglais", "difficulty": 2, "prompt": "Comment dit-on « j'ai faim » en anglais ?", "answer": "I am hungry", "accepted": ["i am hungry", "i m hungry", "im hungry"], "distractors": ["I have hunger", "I am thirsty", "I am tired", "I have hungry"]},
+
+    {"id": "cm2-fr-007", "level": "CM2", "subject": "Français", "difficulty": 3, "prompt": "Dans « je parle à mon frère », quel est le complément d'objet indirect ?", "answer": "à mon frère", "accepted": ["a mon frere", "mon frere"], "distractors": ["je", "parle", "à", "parle à"]},
+    {"id": "cm2-fr-008", "level": "CM2", "subject": "Français", "difficulty": 3, "prompt": "À quel temps est « j'aurai mangé » ?", "answer": "le futur antérieur", "accepted": ["futur anterieur", "le futur anterieur"], "distractors": ["le futur simple", "le passé composé", "le plus-que-parfait", "le conditionnel passé"]},
+    {"id": "cm2-fr-009", "level": "CM2", "subject": "Français", "difficulty": 3, "prompt": "Quel est le pluriel de « un vitrail » ?", "answer": "des vitraux", "accepted": ["vitraux", "des vitraux", "les vitraux"], "distractors": ["des vitrails", "des vitreaux", "des vitraus", "des vitrailles"], "strict": true},
+    {"id": "cm2-fr-010", "level": "CM2", "subject": "Français", "difficulty": 1, "prompt": "Quelle est la nature du mot « vite » ?", "answer": "un adverbe", "accepted": ["adverbe", "un adverbe"], "distractors": ["un adjectif", "un verbe", "un nom", "un déterminant"]},
+    {"id": "cm2-fr-011", "level": "CM2", "subject": "Français", "difficulty": 2, "prompt": "Quel est l'infinitif du verbe dans « je suis content » ?", "answer": "être", "accepted": ["etre"], "distractors": ["avoir", "suivre", "sortir", "savoir"]},
+    {"id": "cm2-fr-012", "level": "CM2", "subject": "Français", "difficulty": 2, "prompt": "Comment appelle-t-on une phrase qui exprime un ordre ?", "answer": "une phrase impérative", "accepted": ["imperative", "une phrase imperative", "phrase imperative", "injonctive"], "distractors": ["une phrase exclamative", "une phrase déclarative", "une phrase interrogative", "une phrase négative"]},
+
+    {"id": "cm2-math-007", "level": "CM2", "subject": "Mathématiques", "difficulty": 3, "prompt": "Combien font 25 % de 80 ?", "answer": "20", "accepted": ["20", "vingt"], "distractors": ["25", "16", "40", "8"], "numeric": true},
+    {"id": "cm2-math-008", "level": "CM2", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien font 7,5 × 2 ?", "answer": "15", "accepted": ["15", "quinze"], "distractors": ["14", "16", "75", "7,5"], "numeric": true},
+    {"id": "cm2-math-009", "level": "CM2", "subject": "Mathématiques", "difficulty": 3, "prompt": "Combien de secondes y a-t-il dans 3 minutes ?", "answer": "180", "accepted": ["180"], "distractors": ["120", "300", "60", "360"], "numeric": true},
+    {"id": "cm2-math-010", "level": "CM2", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien font 144 ÷ 6 ?", "answer": "24", "accepted": ["24", "vingt-quatre"], "distractors": ["22", "26", "18", "36"], "numeric": true},
+    {"id": "cm2-math-011", "level": "CM2", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien de grammes y a-t-il dans 2,5 kilogrammes ?", "answer": "2500", "accepted": ["2500", "2 500"], "distractors": ["250", "25000", "2050", "225"], "numeric": true},
+    {"id": "cm2-math-012", "level": "CM2", "subject": "Mathématiques", "difficulty": 3, "prompt": "Combien font 8 × 25 ?", "answer": "200", "accepted": ["200", "deux cents"], "distractors": ["180", "225", "160", "250"], "numeric": true},
+
+    {"id": "cm2-geo-007", "level": "CM2", "subject": "Géographie", "difficulty": 2, "prompt": "Quel est le plus grand désert froid du monde ?", "answer": "l'Antarctique", "accepted": ["antarctique", "l antarctique"], "distractors": ["le Gobi", "la Sibérie", "le Groenland", "la Patagonie"]},
+    {"id": "cm2-geo-008", "level": "CM2", "subject": "Géographie", "difficulty": 3, "prompt": "Quelle est la capitale du Canada ?", "answer": "Ottawa", "accepted": ["ottawa"], "distractors": ["Toronto", "Montréal", "Vancouver", "Québec"]},
+    {"id": "cm2-geo-009", "level": "CM2", "subject": "Géographie", "difficulty": 3, "prompt": "Comment appelle-t-on l'endroit où un fleuve rejoint la mer ?", "answer": "l'embouchure", "accepted": ["embouchure", "l embouchure"], "distractors": ["la source", "le confluent", "le méandre", "le bassin"]},
+    {"id": "cm2-geo-010", "level": "CM2", "subject": "Géographie", "difficulty": 2, "prompt": "Quel pays est aujourd'hui le plus peuplé du monde ?", "answer": "l'Inde", "accepted": ["inde", "l inde"], "distractors": ["la Chine", "les États-Unis", "l'Indonésie", "le Brésil"]},
+    {"id": "cm2-geo-011", "level": "CM2", "subject": "Géographie", "difficulty": 1, "prompt": "Quelle est la plus haute montagne d'Afrique ?", "answer": "le Kilimandjaro", "accepted": ["kilimandjaro", "le kilimandjaro"], "distractors": ["l'Atlas", "le mont Kenya", "le Drakensberg", "le Ruwenzori"]},
+    {"id": "cm2-geo-012", "level": "CM2", "subject": "Géographie", "difficulty": 3, "prompt": "Comment appelle-t-on une région où les tremblements de terre sont fréquents ?", "answer": "une zone sismique", "accepted": ["zone sismique", "une zone sismique", "sismique"], "distractors": ["une zone volcanique", "une plaine alluviale", "une faille océanique", "un plateau"]},
+
+    {"id": "cm2-hist-007", "level": "CM2", "subject": "Histoire", "difficulty": 1, "prompt": "En quelle année la Seconde Guerre mondiale a-t-elle commencé ?", "answer": "1939", "accepted": ["1939", "en 1939"], "distractors": ["1940", "1938", "1945", "1914"], "numeric": true},
+    {"id": "cm2-hist-008", "level": "CM2", "subject": "Histoire", "difficulty": 2, "prompt": "Qui a peint le plafond de la chapelle Sixtine ?", "answer": "Michel-Ange", "accepted": ["michel ange", "michelangelo"], "distractors": ["Léonard de Vinci", "Raphaël", "Botticelli", "Le Caravage"]},
+    {"id": "cm2-hist-009", "level": "CM2", "subject": "Histoire", "difficulty": 3, "prompt": "Quel roi a signé l'édit de Nantes en 1598 ?", "answer": "Henri IV", "accepted": ["henri iv", "henri 4", "henri quatre"], "distractors": ["Louis XIII", "Charles IX", "François Ier", "Louis XIV"], "strict": true},
+    {"id": "cm2-hist-010", "level": "CM2", "subject": "Histoire", "difficulty": 3, "prompt": "Comment appelle-t-on la déportation forcée d'Africains vers l'Amérique ?", "answer": "la traite négrière", "accepted": ["traite negriere", "la traite negriere", "traite des noirs"], "distractors": ["la colonisation", "l'exode", "le commerce des épices", "la conquête"]},
+    {"id": "cm2-hist-011", "level": "CM2", "subject": "Histoire", "difficulty": 2, "prompt": "En quelle année la Cinquième République a-t-elle été instaurée ?", "answer": "1958", "accepted": ["1958", "en 1958"], "distractors": ["1946", "1962", "1940", "1969"], "numeric": true},
+    {"id": "cm2-hist-012", "level": "CM2", "subject": "Histoire", "difficulty": 2, "prompt": "Comment appelle-t-on la période 1939-1945 en France ?", "answer": "la Seconde Guerre mondiale", "accepted": ["seconde guerre mondiale", "la seconde guerre mondiale", "deuxieme guerre mondiale"], "distractors": ["la Grande Guerre", "la guerre froide", "la Libération", "l'entre-deux-guerres"]},
+
+    {"id": "cm2-angl-007", "level": "CM2", "subject": "Anglais", "difficulty": 2, "prompt": "Comment dit-on « je suis fatigué » en anglais ?", "answer": "I am tired", "accepted": ["i am tired", "i m tired", "im tired"], "distractors": ["I have tired", "I am hungry", "I am sleepy dog", "I tired"]},
+    {"id": "cm2-angl-008", "level": "CM2", "subject": "Anglais", "difficulty": 1, "prompt": "Que veut dire « to sell » en français ?", "answer": "vendre", "accepted": ["vendre"], "distractors": ["acheter", "payer", "prêter", "garder"]},
+    {"id": "cm2-angl-009", "level": "CM2", "subject": "Anglais", "difficulty": 2, "prompt": "Comment dit-on « le petit-déjeuner » en anglais ?", "answer": "breakfast", "accepted": ["breakfast"], "distractors": ["lunch", "dinner", "supper", "brunch"]},
+    {"id": "cm2-angl-010", "level": "CM2", "subject": "Anglais", "difficulty": 2, "prompt": "Que veut dire « never » en français ?", "answer": "jamais", "accepted": ["jamais", "ne jamais"], "distractors": ["toujours", "souvent", "parfois", "bientôt"]},
+    {"id": "cm2-angl-011", "level": "CM2", "subject": "Anglais", "difficulty": 3, "prompt": "Comment dit-on « il y a beaucoup de monde » en anglais ?", "answer": "there are many people", "accepted": ["there are many people", "there are a lot of people"], "distractors": ["there is many people", "it has many people", "there are much people", "they are many people"]},
+    {"id": "cm2-angl-012", "level": "CM2", "subject": "Anglais", "difficulty": 2, "prompt": "Que veut dire « cheap » en français ?", "answer": "bon marché", "accepted": ["bon marche", "pas cher", "peu couteux"], "distractors": ["cher", "gratuit", "rare", "neuf"]},
+
+    {"id": "6e-fr-007", "level": "6ème", "subject": "Français", "difficulty": 1, "prompt": "Comment appelle-t-on le personnage principal d'un récit ?", "answer": "le héros", "accepted": ["heros", "le heros", "protagoniste"], "distractors": ["le narrateur", "l'auteur", "l'antagoniste", "le figurant"]},
+    {"id": "6e-fr-008", "level": "6ème", "subject": "Français", "difficulty": 2, "prompt": "Quel est le pluriel de « un cheveu » ?", "answer": "des cheveux", "accepted": ["cheveux", "des cheveux", "les cheveux"], "distractors": ["des cheveus", "des chevaux", "des cheveuxs", "des chevelus"], "strict": true},
+    {"id": "6e-fr-009", "level": "6ème", "subject": "Français", "difficulty": 3, "prompt": "Dans « Ulysse rentre à Ithaque », quel groupe indique le lieu ?", "answer": "à Ithaque", "accepted": ["a ithaque", "ithaque"], "distractors": ["Ulysse", "rentre", "Ulysse rentre", "rentre à"]},
+    {"id": "6e-fr-010", "level": "6ème", "subject": "Français", "difficulty": 2, "prompt": "Comment appelle-t-on un court récit qui se termine par une morale ?", "answer": "une fable", "accepted": ["fable", "une fable"], "distractors": ["un conte", "une nouvelle", "une épopée", "un roman"]},
+    {"id": "6e-fr-011", "level": "6ème", "subject": "Français", "difficulty": 3, "prompt": "À quel mode est le verbe dans « je voudrais partir » ?", "answer": "le conditionnel", "accepted": ["conditionnel", "le conditionnel"], "distractors": ["l'indicatif", "le subjonctif", "l'impératif", "l'infinitif"]},
+    {"id": "6e-fr-012", "level": "6ème", "subject": "Français", "difficulty": 2, "prompt": "Comment appelle-t-on les paroles prononcées par un personnage au théâtre ?", "answer": "une réplique", "accepted": ["replique", "une replique"], "distractors": ["une didascalie", "un monologue", "un acte", "une scène"]},
+
+    {"id": "6e-math-007", "level": "6ème", "subject": "Mathématiques", "difficulty": 3, "prompt": "Combien font 15 ÷ 4 ?", "answer": "3,75", "accepted": ["3,75", "3.75"], "distractors": ["3,5", "4,25", "3,25", "11"], "numeric": true},
+    {"id": "6e-math-008", "level": "6ème", "subject": "Mathématiques", "difficulty": 2, "prompt": "Quel est le périmètre d'un carré de 7 cm de côté ?", "answer": "28 cm", "accepted": ["28", "28 cm"], "distractors": ["14 cm", "49 cm", "21 cm", "35 cm"], "numeric": true},
+    {"id": "6e-math-009", "level": "6ème", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien de sommets a un cube ?", "answer": "8", "accepted": ["8", "huit"], "distractors": ["6", "12", "4", "10"], "numeric": true},
+    {"id": "6e-math-010", "level": "6ème", "subject": "Mathématiques", "difficulty": 2, "prompt": "Quelle est la moitié de 0,5 ?", "answer": "0,25", "accepted": ["0,25", "0.25"], "distractors": ["0,1", "1", "0,05", "0,75"], "numeric": true},
+    {"id": "6e-math-011", "level": "6ème", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien de degrés mesure un angle plat ?", "answer": "180", "accepted": ["180", "180 degres"], "distractors": ["90", "360", "270", "120"], "numeric": true},
+    {"id": "6e-math-012", "level": "6ème", "subject": "Mathématiques", "difficulty": 3, "prompt": "Sous quelle forme simplifiée s'écrit la fraction 2/4 ?", "answer": "1/2", "accepted": ["1/2", "0,5", "0.5", "un demi"], "distractors": ["2/2", "1/4", "3/4", "4/2"]},
+
+    {"id": "6e-geo-007", "level": "6ème", "subject": "Géographie", "difficulty": 2, "prompt": "Quelle est la plus grande île du monde ?", "answer": "le Groenland", "accepted": ["groenland", "le groenland"], "distractors": ["l'Australie", "Madagascar", "Bornéo", "l'Islande"]},
+    {"id": "6e-geo-008", "level": "6ème", "subject": "Géographie", "difficulty": 1, "prompt": "Quel fleuve traverse l'Allemagne puis se jette aux Pays-Bas ?", "answer": "le Rhin", "accepted": ["rhin", "le rhin"], "distractors": ["le Danube", "l'Elbe", "la Meuse", "l'Oder"]},
+    {"id": "6e-geo-009", "level": "6ème", "subject": "Géographie", "difficulty": 2, "prompt": "Quelle est la capitale de l'Égypte ?", "answer": "Le Caire", "accepted": ["caire", "le caire"], "distractors": ["Alexandrie", "Louxor", "Assouan", "Gizeh"]},
+    {"id": "6e-geo-010", "level": "6ème", "subject": "Géographie", "difficulty": 3, "prompt": "Comment appelle-t-on l'ensemble formé par une ville et sa banlieue ?", "answer": "une agglomération", "accepted": ["agglomeration", "une agglomeration"], "distractors": ["un département", "une métropole mondiale", "une conurbation", "un canton"]},
+    {"id": "6e-geo-011", "level": "6ème", "subject": "Géographie", "difficulty": 2, "prompt": "Quel océan entoure le pôle Nord ?", "answer": "l'océan Arctique", "accepted": ["arctique", "l ocean arctique", "ocean arctique"], "distractors": ["l'océan Austral", "l'océan Atlantique", "la mer de Béring", "l'océan Indien"]},
+    {"id": "6e-geo-012", "level": "6ème", "subject": "Géographie", "difficulty": 3, "prompt": "Comment appelle-t-on les espaces cultivés par les agriculteurs ?", "answer": "des espaces agricoles", "accepted": ["espaces agricoles", "des espaces agricoles", "espace agricole"], "distractors": ["des espaces industriels", "des espaces urbains", "des espaces protégés", "des friches"]},
+
+    {"id": "6e-hist-007", "level": "6ème", "subject": "Histoire", "difficulty": 3, "prompt": "Quel pharaon a fait bâtir la grande pyramide de Gizeh ?", "answer": "Khéops", "accepted": ["kheops"], "distractors": ["Ramsès II", "Toutânkhamon", "Khéphren", "Akhenaton"]},
+    {"id": "6e-hist-008", "level": "6ème", "subject": "Histoire", "difficulty": 2, "prompt": "Quel héros grec a vaincu le Minotaure dans le labyrinthe ?", "answer": "Thésée", "accepted": ["thesee"], "distractors": ["Héraclès", "Persée", "Jason", "Achille"]},
+    {"id": "6e-hist-009", "level": "6ème", "subject": "Histoire", "difficulty": 2, "prompt": "Dans quel édifice les Romains organisaient-ils les combats de gladiateurs ?", "answer": "l'amphithéâtre", "accepted": ["amphitheatre", "l amphitheatre", "arene", "colisee"], "distractors": ["le forum", "les thermes", "le cirque", "la basilique"]},
+    {"id": "6e-hist-010", "level": "6ème", "subject": "Histoire", "difficulty": 2, "prompt": "Quelle religion monothéiste est née chez les Hébreux ?", "answer": "le judaïsme", "accepted": ["judaisme", "le judaisme"], "distractors": ["le christianisme", "l'islam", "le zoroastrisme", "l'hindouisme"]},
+    {"id": "6e-hist-011", "level": "6ème", "subject": "Histoire", "difficulty": 3, "prompt": "Quel roi macédonien a conquis un empire allant jusqu'à l'Inde ?", "answer": "Alexandre le Grand", "accepted": ["alexandre", "alexandre le grand"], "distractors": ["Philippe II", "Périclès", "Darius", "Léonidas"]},
+    {"id": "6e-hist-012", "level": "6ème", "subject": "Histoire", "difficulty": 1, "prompt": "Comment appelle-t-on le chef politique et religieux de l'Égypte antique ?", "answer": "le pharaon", "accepted": ["pharaon", "le pharaon"], "distractors": ["le vizir", "le scribe", "le prêtre", "l'empereur"]},
+
+    {"id": "6e-sci-007", "level": "6ème", "subject": "Sciences", "difficulty": 3, "prompt": "Combien d'os compte le squelette d'un adulte ?", "answer": "206", "accepted": ["206"], "distractors": ["300", "180", "256", "150"], "numeric": true},
+    {"id": "6e-sci-008", "level": "6ème", "subject": "Sciences", "difficulty": 1, "prompt": "Quels organes permettent la respiration ?", "answer": "les poumons", "accepted": ["poumons", "les poumons"], "distractors": ["le cœur", "les reins", "le foie", "l'estomac"]},
+    {"id": "6e-sci-009", "level": "6ème", "subject": "Sciences", "difficulty": 1, "prompt": "Comment appelle-t-on un animal qui se nourrit d'autres animaux ?", "answer": "un carnivore", "accepted": ["carnivore", "un carnivore"], "distractors": ["un herbivore", "un omnivore", "un décomposeur", "un granivore"]},
+    {"id": "6e-sci-010", "level": "6ème", "subject": "Sciences", "difficulty": 2, "prompt": "Comment appelle-t-on le passage de la vapeur d'eau à l'état liquide ?", "answer": "la condensation", "accepted": ["condensation", "la condensation", "liquefaction"], "distractors": ["l'évaporation", "la fusion", "la solidification", "la sublimation"]},
+    {"id": "6e-sci-011", "level": "6ème", "subject": "Sciences", "difficulty": 2, "prompt": "Quelle est la plus grande planète du système solaire ?", "answer": "Jupiter", "accepted": ["jupiter"], "distractors": ["Saturne", "la Terre", "Neptune", "Uranus"]},
+    {"id": "6e-sci-012", "level": "6ème", "subject": "Sciences", "difficulty": 3, "prompt": "Comment appelle-t-on l'ensemble des êtres vivants d'un même milieu ?", "answer": "un peuplement", "accepted": ["peuplement", "un peuplement"], "distractors": ["un écosystème", "une espèce", "une chaîne alimentaire", "un biotope"]},
+
+    {"id": "6e-angl-007", "level": "6ème", "subject": "Anglais", "difficulty": 2, "prompt": "Comment dit-on « il y a trois ans » en anglais ?", "answer": "three years ago", "accepted": ["three years ago"], "distractors": ["since three years", "for three years", "three years before", "there is three years"]},
+    {"id": "6e-angl-008", "level": "6ème", "subject": "Anglais", "difficulty": 2, "prompt": "Que veut dire « to leave » en français ?", "answer": "partir", "accepted": ["partir", "quitter"], "distractors": ["arriver", "rester", "vivre", "laisser tomber"]},
+    {"id": "6e-angl-009", "level": "6ème", "subject": "Anglais", "difficulty": 3, "prompt": "Quel est le pluriel de « mouse » ?", "answer": "mice", "accepted": ["mice"], "distractors": ["mouses", "mices", "mouse", "meese"], "strict": true},
+    {"id": "6e-angl-010", "level": "6ème", "subject": "Anglais", "difficulty": 1, "prompt": "Que veut dire « often » en français ?", "answer": "souvent", "accepted": ["souvent"], "distractors": ["jamais", "toujours", "parfois", "tôt"]},
+    {"id": "6e-angl-011", "level": "6ème", "subject": "Anglais", "difficulty": 1, "prompt": "Comment dit-on « je peux » en anglais ?", "answer": "I can", "accepted": ["i can"], "distractors": ["I must", "I may not", "I want", "I could not"]},
+    {"id": "6e-angl-012", "level": "6ème", "subject": "Anglais", "difficulty": 2, "prompt": "Que veut dire « to bring » en français ?", "answer": "apporter", "accepted": ["apporter", "amener"], "distractors": ["emporter", "acheter", "casser", "chanter"]},
+
+    {"id": "5e-fr-007", "level": "5ème", "subject": "Français", "difficulty": 3, "prompt": "Comment appelle-t-on un vers sans rime ni mètre régulier ?", "answer": "un vers libre", "accepted": ["vers libre", "un vers libre"], "distractors": ["un alexandrin", "un vers blanc rimé", "une strophe", "un hémistiche"]},
+    {"id": "5e-fr-008", "level": "5ème", "subject": "Français", "difficulty": 1, "prompt": "À quel mode est le verbe dans « écoute-moi bien » ?", "answer": "l'impératif", "accepted": ["imperatif", "l imperatif"], "distractors": ["l'indicatif", "le subjonctif", "le conditionnel", "l'infinitif"]},
+    {"id": "5e-fr-009", "level": "5ème", "subject": "Français", "difficulty": 2, "prompt": "Quel auteur du XVIIe siècle a écrit les « Fables » ?", "answer": "Jean de La Fontaine", "accepted": ["la fontaine", "jean de la fontaine"], "distractors": ["Molière", "Racine", "Perrault", "Boileau"]},
+    {"id": "5e-fr-010", "level": "5ème", "subject": "Français", "difficulty": 2, "prompt": "Comment appelle-t-on une image construite avec « comme » ?", "answer": "une comparaison", "accepted": ["comparaison", "une comparaison"], "distractors": ["une métaphore", "une allégorie", "une personnification", "une hyperbole"]},
+    {"id": "5e-fr-011", "level": "5ème", "subject": "Français", "difficulty": 3, "prompt": "Quel est le féminin de « un serviteur » ?", "answer": "une servante", "accepted": ["servante", "une servante"], "distractors": ["une serviteuse", "une servitrice", "une serveuse", "une servienne"], "strict": true},
+    {"id": "5e-fr-012", "level": "5ème", "subject": "Français", "difficulty": 1, "prompt": "Comment appelle-t-on l'espace où jouent les comédiens ?", "answer": "la scène", "accepted": ["scene", "la scene"], "distractors": ["les coulisses", "la salle", "le balcon", "la loge"]},
+
+    {"id": "5e-math-007", "level": "5ème", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien font 3/4 + 1/4 ?", "answer": "1", "accepted": ["1", "un"], "distractors": ["un demi", "un quart", "2", "zero"], "numeric": true},
+    {"id": "5e-math-008", "level": "5ème", "subject": "Mathématiques", "difficulty": 3, "prompt": "Combien vaut 5 puissance 3 ?", "answer": "125", "accepted": ["125"], "distractors": ["15", "25", "75", "225"], "numeric": true},
+    {"id": "5e-math-009", "level": "5ème", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien font (-6) × 3 ?", "answer": "-18", "accepted": ["-18", "moins 18"], "distractors": ["18", "-9", "-3", "-63"], "numeric": true},
+    {"id": "5e-math-010", "level": "5ème", "subject": "Mathématiques", "difficulty": 2, "prompt": "Quelle est l'aire d'un triangle de base 8 cm et de hauteur 5 cm ?", "answer": "20 cm²", "accepted": ["20", "20 cm2", "20 cm²"], "distractors": ["40 cm²", "13 cm²", "80 cm²", "26 cm²"], "numeric": true},
+    {"id": "5e-math-011", "level": "5ème", "subject": "Mathématiques", "difficulty": 3, "prompt": "Combien font 40 % de 150 ?", "answer": "60", "accepted": ["60", "soixante"], "distractors": ["40", "75", "50", "600"], "numeric": true},
+    {"id": "5e-math-012", "level": "5ème", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien de faces a une pyramide à base carrée ?", "answer": "5", "accepted": ["5", "cinq"], "distractors": ["4", "6", "8", "3"], "numeric": true},
+
+    {"id": "5e-geo-007", "level": "5ème", "subject": "Géographie", "difficulty": 2, "prompt": "Quel pays consomme le plus d'énergie dans le monde ?", "answer": "la Chine", "accepted": ["chine", "la chine"], "distractors": ["les États-Unis", "l'Inde", "la Russie", "le Japon"]},
+    {"id": "5e-geo-008", "level": "5ème", "subject": "Géographie", "difficulty": 3, "prompt": "Comment appelle-t-on une agriculture qui nourrit d'abord la famille du paysan ?", "answer": "l'agriculture vivrière", "accepted": ["vivriere", "agriculture vivriere", "l agriculture vivriere"], "distractors": ["l'agriculture intensive", "l'agriculture commerciale", "le maraîchage", "l'élevage extensif"]},
+    {"id": "5e-geo-009", "level": "5ème", "subject": "Géographie", "difficulty": 2, "prompt": "Quelle énergie les barrages produisent-ils ?", "answer": "l'énergie hydraulique", "accepted": ["hydraulique", "l energie hydraulique", "energie hydraulique", "hydroelectrique"], "distractors": ["l'énergie éolienne", "l'énergie solaire", "la géothermie", "l'énergie thermique"]},
+    {"id": "5e-geo-010", "level": "5ème", "subject": "Géographie", "difficulty": 2, "prompt": "Quel climat, doux et humide, règne en Bretagne ?", "answer": "le climat océanique", "accepted": ["oceanique", "climat oceanique", "le climat oceanique"], "distractors": ["le climat méditerranéen", "le climat continental", "le climat montagnard", "le climat tropical"]},
+    {"id": "5e-geo-011", "level": "5ème", "subject": "Géographie", "difficulty": 3, "prompt": "Quelle est la capitale du Brésil ?", "answer": "Brasília", "accepted": ["brasilia"], "distractors": ["Rio de Janeiro", "São Paulo", "Salvador", "Belém"]},
+    {"id": "5e-geo-012", "level": "5ème", "subject": "Géographie", "difficulty": 3, "prompt": "Comment qualifie-t-on un pays riche, industrialisé et fortement urbanisé ?", "answer": "un pays développé", "accepted": ["pays developpe", "un pays developpe", "developpe"], "distractors": ["un pays émergent", "un pays en développement", "un pays neuf", "un pays enclavé"]},
+
+    {"id": "5e-hist-007", "level": "5ème", "subject": "Histoire", "difficulty": 2, "prompt": "Quel prophète est à l'origine de l'islam ?", "answer": "Mahomet", "accepted": ["mahomet", "muhammad"], "distractors": ["Abraham", "Moïse", "Ali", "Omar"]},
+    {"id": "5e-hist-008", "level": "5ème", "subject": "Histoire", "difficulty": 3, "prompt": "Comment appelle-t-on le seigneur qui confie une terre à un vassal ?", "answer": "le suzerain", "accepted": ["suzerain", "le suzerain"], "distractors": ["le serf", "le chevalier", "le bailli", "le prévôt"]},
+    {"id": "5e-hist-009", "level": "5ème", "subject": "Histoire", "difficulty": 3, "prompt": "Quel roi de France a été fait prisonnier à Pavie en 1525 ?", "answer": "François Ier", "accepted": ["francois ier", "francois 1er", "francois premier"], "distractors": ["Charles VIII", "Louis XII", "Henri II", "Charles Quint"]},
+    {"id": "5e-hist-010", "level": "5ème", "subject": "Histoire", "difficulty": 2, "prompt": "Comment appelle-t-on le savant de la Renaissance qui étudie les textes antiques et place l'homme au centre ?", "answer": "un humaniste", "accepted": ["humaniste", "un humaniste"], "distractors": ["un scolastique", "un philosophe des Lumières", "un clerc", "un mécène"]},
+    {"id": "5e-hist-011", "level": "5ème", "subject": "Histoire", "difficulty": 3, "prompt": "Quel empire dominait le Mexique à l'arrivée des Espagnols ?", "answer": "l'Empire aztèque", "accepted": ["azteque", "l empire azteque", "empire azteque", "aztequr"], "distractors": ["l'Empire inca", "l'Empire maya", "l'Empire olmèque", "l'Empire toltèque"]},
+    {"id": "5e-hist-012", "level": "5ème", "subject": "Histoire", "difficulty": 2, "prompt": "Comment appelle-t-on les taxes que les paysans devaient au seigneur ?", "answer": "les redevances", "accepted": ["redevances", "les redevances", "banalites", "la taille"], "distractors": ["la dîme royale", "les impôts d'État", "les corvées militaires", "les dons"]},
+
+    {"id": "5e-sci-007", "level": "5ème", "subject": "Sciences", "difficulty": 2, "prompt": "Quel organe poursuit la digestion après l'estomac ?", "answer": "l'intestin", "accepted": ["intestin", "l intestin", "intestin grele"], "distractors": ["le foie", "le pancréas", "l'œsophage", "le colon terminal"]},
+    {"id": "5e-sci-008", "level": "5ème", "subject": "Sciences", "difficulty": 1, "prompt": "Comment appelle-t-on le passage de l'état solide à l'état liquide ?", "answer": "la fusion", "accepted": ["fusion", "la fusion"], "distractors": ["la solidification", "l'évaporation", "la condensation", "la sublimation"]},
+    {"id": "5e-sci-009", "level": "5ème", "subject": "Sciences", "difficulty": 2, "prompt": "Quel gaz rejetons-nous lorsque nous expirons ?", "answer": "le dioxyde de carbone", "accepted": ["dioxyde de carbone", "le dioxyde de carbone", "co2", "gaz carbonique"], "distractors": ["l'oxygène", "l'azote", "l'hélium", "l'ozone"]},
+    {"id": "5e-sci-010", "level": "5ème", "subject": "Sciences", "difficulty": 3, "prompt": "Quels micro-organismes font lever la pâte à pain ?", "answer": "les levures", "accepted": ["levures", "les levures", "levure"], "distractors": ["les bactéries lactiques", "les moisissures", "les virus", "les algues"]},
+    {"id": "5e-sci-011", "level": "5ème", "subject": "Sciences", "difficulty": 1, "prompt": "Quelle est la température normale du corps humain ?", "answer": "37 °C", "accepted": ["37", "37 degres", "37 c"], "distractors": ["36 °C", "38,5 °C", "35 °C", "40 °C"], "numeric": true},
+    {"id": "5e-sci-012", "level": "5ème", "subject": "Sciences", "difficulty": 3, "prompt": "Comment appelle-t-on la transformation d'un aliment par des micro-organismes ?", "answer": "la fermentation", "accepted": ["fermentation", "la fermentation"], "distractors": ["la digestion", "la pasteurisation", "la putréfaction", "la cuisson"]},
+
+    {"id": "5e-angl-007", "level": "5ème", "subject": "Anglais", "difficulty": 1, "prompt": "Quel est le prétérit du verbe « to have » ?", "answer": "had", "accepted": ["had"], "distractors": ["haved", "has", "having", "hadded"], "strict": true},
+    {"id": "5e-angl-008", "level": "5ème", "subject": "Anglais", "difficulty": 2, "prompt": "Comment dit-on « plus petit que » en anglais ?", "answer": "smaller than", "accepted": ["smaller than"], "distractors": ["more small than", "smallest than", "as small as", "small than"]},
+    {"id": "5e-angl-009", "level": "5ème", "subject": "Anglais", "difficulty": 2, "prompt": "Que veut dire « to keep » en français ?", "answer": "garder", "accepted": ["garder", "conserver"], "distractors": ["jeter", "donner", "perdre", "chercher"]},
+    {"id": "5e-angl-010", "level": "5ème", "subject": "Anglais", "difficulty": 2, "prompt": "Comment dit-on « le plus rapide » en anglais ?", "answer": "the fastest", "accepted": ["the fastest", "fastest"], "distractors": ["the most fast", "the faster", "more fast", "the fastly"]},
+    {"id": "5e-angl-011", "level": "5ème", "subject": "Anglais", "difficulty": 2, "prompt": "Que veut dire « already » en français ?", "answer": "déjà", "accepted": ["deja"], "distractors": ["encore", "toujours", "prêt", "bientôt"]},
+    {"id": "5e-angl-012", "level": "5ème", "subject": "Anglais", "difficulty": 1, "prompt": "Comment dit-on « je n'aime pas » en anglais ?", "answer": "I don't like", "accepted": ["i don t like", "i do not like"], "distractors": ["I not like", "I no like", "I am not like", "I doesn't like"]},
+
+    {"id": "4e-fr-007", "level": "4ème", "subject": "Français", "difficulty": 2, "prompt": "Qui a écrit « Germinal » ?", "answer": "Émile Zola", "accepted": ["zola", "emile zola"], "distractors": ["Victor Hugo", "Balzac", "Flaubert", "Maupassant"]},
+    {"id": "4e-fr-008", "level": "4ème", "subject": "Français", "difficulty": 3, "prompt": "Comment appelle-t-on un récit fantastique où le surnaturel fait douter le lecteur ?", "answer": "le fantastique", "accepted": ["fantastique", "le fantastique", "recit fantastique"], "distractors": ["le merveilleux", "la science-fiction", "le réalisme", "le policier"]},
+    {"id": "4e-fr-009", "level": "4ème", "subject": "Français", "difficulty": 2, "prompt": "Quelle est la fonction du groupe souligné dans « il mange une pomme rouge » pour « rouge » ?", "answer": "épithète", "accepted": ["epithete", "adjectif epithete", "une epithete"], "distractors": ["attribut du sujet", "complément du nom", "apposition", "complément d'objet"]},
+    {"id": "4e-fr-010", "level": "4ème", "subject": "Français", "difficulty": 3, "prompt": "Comment appelle-t-on la reprise d'un même mot en début de phrases successives ?", "answer": "une anaphore", "accepted": ["anaphore", "une anaphore"], "distractors": ["une allitération", "une assonance", "une ellipse", "un chiasme"]},
+    {"id": "4e-fr-011", "level": "4ème", "subject": "Français", "difficulty": 2, "prompt": "Qui a écrit la nouvelle « Le Horla » ?", "answer": "Guy de Maupassant", "accepted": ["maupassant", "guy de maupassant"], "distractors": ["Théophile Gautier", "Prosper Mérimée", "Edgar Poe", "Barbey d'Aurevilly"]},
+    {"id": "4e-fr-012", "level": "4ème", "subject": "Français", "difficulty": 3, "prompt": "À quel temps est « il eut fini » ?", "answer": "le passé antérieur", "accepted": ["passe anterieur", "le passe anterieur"], "distractors": ["le passé simple", "le plus-que-parfait", "le passé composé", "le futur antérieur"]},
+
+    {"id": "4e-math-007", "level": "4ème", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien font (-7) + 12 ?", "answer": "5", "accepted": ["5", "cinq"], "distractors": ["-5", "19", "-19", "7"], "numeric": true},
+    {"id": "4e-math-008", "level": "4ème", "subject": "Mathématiques", "difficulty": 3, "prompt": "Combien vaut 2 puissance 8 ?", "answer": "256", "accepted": ["256"], "distractors": ["128", "64", "512", "16"], "numeric": true},
+    {"id": "4e-math-009", "level": "4ème", "subject": "Mathématiques", "difficulty": 3, "prompt": "Quelle est l'hypoténuse d'un triangle rectangle de côtés 6 cm et 8 cm ?", "answer": "10 cm", "accepted": ["10", "10 cm"], "distractors": ["14 cm", "12 cm", "48 cm", "7 cm"], "numeric": true},
+    {"id": "4e-math-010", "level": "4ème", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien font 3/5 de 100 ?", "answer": "60", "accepted": ["60", "soixante"], "distractors": ["35", "53", "30", "500"], "numeric": true},
+    {"id": "4e-math-011", "level": "4ème", "subject": "Mathématiques", "difficulty": 3, "prompt": "Quelle est la forme développée de (x + 2)(x + 3) ?", "answer": "x² + 5x + 6", "accepted": ["x2 + 5x + 6", "x²+5x+6", "x2+5x+6"], "distractors": ["x² + 6x + 5", "x² + 5x + 5", "x² + 6", "2x + 5"]},
+    {"id": "4e-math-012", "level": "4ème", "subject": "Mathématiques", "difficulty": 2, "prompt": "Combien font 10 puissance moins 2 ?", "answer": "0,01", "accepted": ["0,01", "0.01", "1/100"], "distractors": ["100", "0,1", "-100", "20"]},
+
+    {"id": "4e-geo-007", "level": "4ème", "subject": "Géographie", "difficulty": 3, "prompt": "Comment appelle-t-on le transfert d'une usine vers un pays où la main-d'œuvre coûte moins cher ?", "answer": "une délocalisation", "accepted": ["delocalisation", "une delocalisation"], "distractors": ["une relocalisation", "une externalisation locale", "une friche", "une reconversion"]},
+    {"id": "4e-geo-008", "level": "4ème", "subject": "Géographie", "difficulty": 2, "prompt": "Quel canal relie l'océan Atlantique à l'océan Pacifique ?", "answer": "le canal de Panama", "accepted": ["panama", "canal de panama", "le canal de panama"], "distractors": ["le canal de Suez", "le détroit de Magellan", "le canal de Corinthe", "le passage du Nord-Ouest"]},
+    {"id": "4e-geo-009", "level": "4ème", "subject": "Géographie", "difficulty": 2, "prompt": "Quelle est la première ville touristique du monde par le nombre de visiteurs internationaux ?", "answer": "Bangkok", "accepted": ["bangkok"], "distractors": ["Paris", "Londres", "Dubaï", "New York"]},
+    {"id": "4e-geo-010", "level": "4ème", "subject": "Géographie", "difficulty": 3, "prompt": "Comment appelle-t-on une très grande entreprise implantée dans plusieurs pays ?", "answer": "une firme multinationale", "accepted": ["multinationale", "une multinationale", "firme multinationale", "firme transnationale"], "distractors": ["une PME", "une coopérative", "un consortium local", "une franchise"]},
+    {"id": "4e-geo-011", "level": "4ème", "subject": "Géographie", "difficulty": 2, "prompt": "Quel océan les migrants traversent-ils pour rejoindre l'Europe depuis l'Afrique du Nord ?", "answer": "la mer Méditerranée", "accepted": ["mediterranee", "la mediterranee", "la mer mediterranee"], "distractors": ["l'océan Atlantique", "la mer Rouge", "la mer Noire", "l'océan Indien"]},
+    {"id": "4e-geo-012", "level": "4ème", "subject": "Géographie", "difficulty": 3, "prompt": "Comment appelle-t-on les pays dont l'économie décolle rapidement, comme le Brésil ou l'Inde ?", "answer": "des pays émergents", "accepted": ["emergents", "pays emergents", "des pays emergents"], "distractors": ["des pays développés", "des pays enclavés", "des pays rentiers", "des pays neufs industrialisés du Nord"]},
+
+    {"id": "4e-hist-007", "level": "4ème", "subject": "Histoire", "difficulty": 2, "prompt": "Qui a écrit « De l'esprit des lois » ?", "answer": "Montesquieu", "accepted": ["montesquieu"], "distractors": ["Voltaire", "Rousseau", "Diderot", "Locke"]},
+    {"id": "4e-hist-008", "level": "4ème", "subject": "Histoire", "difficulty": 3, "prompt": "Quel port français s'est enrichi grâce au commerce triangulaire au XVIIIe siècle ?", "answer": "Nantes", "accepted": ["nantes"], "distractors": ["Marseille", "Brest", "Dunkerque", "Toulon"]},
+    {"id": "4e-hist-009", "level": "4ème", "subject": "Histoire", "difficulty": 2, "prompt": "Quelle énergie a fait tourner les usines au début de la révolution industrielle ?", "answer": "le charbon", "accepted": ["charbon", "le charbon", "houille"], "distractors": ["le pétrole", "l'électricité", "le gaz naturel", "le bois"]},
+    {"id": "4e-hist-010", "level": "4ème", "subject": "Histoire", "difficulty": 3, "prompt": "Quelle conférence a organisé le partage de l'Afrique entre 1884 et 1885 ?", "answer": "la conférence de Berlin", "accepted": ["berlin", "conference de berlin", "la conference de berlin"], "distractors": ["le congrès de Vienne", "la conférence de Yalta", "le traité de Versailles", "le congrès de Berlin de 1878"]},
+    {"id": "4e-hist-011", "level": "4ème", "subject": "Histoire", "difficulty": 2, "prompt": "Comment appelle-t-on l'abolition définitive de l'esclavage en France, en 1848 ?", "answer": "l'abolition de l'esclavage", "accepted": ["abolition", "l abolition de l esclavage", "abolition de l esclavage"], "distractors": ["l'émancipation des serfs", "la loi Le Chapelier", "le Code noir", "la loi Guizot"]},
+    {"id": "4e-hist-012", "level": "4ème", "subject": "Histoire", "difficulty": 3, "prompt": "Quel ingénieur a construit la tour de 300 mètres pour l'Exposition de 1889 ?", "answer": "Gustave Eiffel", "accepted": ["eiffel", "gustave eiffel"], "distractors": ["Haussmann", "Garnier", "Le Corbusier", "Viollet-le-Duc"]},
+
+    {"id": "4e-sci-007", "level": "4ème", "subject": "Sciences", "difficulty": 2, "prompt": "Quelle unité mesure une résistance électrique ?", "answer": "l'ohm", "accepted": ["ohm", "l ohm"], "distractors": ["le volt", "l'ampère", "le watt", "le farad"]},
+    {"id": "4e-sci-008", "level": "4ème", "subject": "Sciences", "difficulty": 2, "prompt": "Comment appelle-t-on la cellule reproductrice masculine ?", "answer": "le spermatozoïde", "accepted": ["spermatozoide", "le spermatozoide"], "distractors": ["l'ovule", "le zygote", "le testicule", "l'embryon"]},
+    {"id": "4e-sci-009", "level": "4ème", "subject": "Sciences", "difficulty": 3, "prompt": "Comment appelle-t-on une roche formée par le refroidissement du magma ?", "answer": "une roche magmatique", "accepted": ["magmatique", "roche magmatique", "une roche magmatique", "volcanique"], "distractors": ["une roche sédimentaire", "une roche métamorphique", "un fossile", "un minerai"]},
+    {"id": "4e-sci-010", "level": "4ème", "subject": "Sciences", "difficulty": 2, "prompt": "Dans un circuit en série, que se passe-t-il si une lampe grille ?", "answer": "tout s'éteint", "accepted": ["tout s eteint", "le circuit s ouvre", "plus rien ne fonctionne"], "distractors": ["rien ne change", "les autres brillent plus fort", "le courant augmente", "seule la lampe voisine s'éteint"]},
+    {"id": "4e-sci-011", "level": "4ème", "subject": "Sciences", "difficulty": 3, "prompt": "Comment appelle-t-on le point de départ d'un séisme en profondeur ?", "answer": "le foyer", "accepted": ["foyer", "le foyer", "hypocentre", "l hypocentre"], "distractors": ["l'épicentre", "la faille", "la dorsale", "le cratère"]},
+    {"id": "4e-sci-012", "level": "4ème", "subject": "Sciences", "difficulty": 2, "prompt": "Quel organe contrôle les mouvements volontaires du corps ?", "answer": "le cerveau", "accepted": ["cerveau", "le cerveau"], "distractors": ["la moelle épinière", "le cervelet seul", "le cœur", "le nerf optique"]},
+
+    {"id": "4e-angl-007", "level": "4ème", "subject": "Anglais", "difficulty": 2, "prompt": "Quel est le participe passé de « to take » ?", "answer": "taken", "accepted": ["taken"], "distractors": ["took", "taked", "taking", "tooken"], "strict": true},
+    {"id": "4e-angl-008", "level": "4ème", "subject": "Anglais", "difficulty": 3, "prompt": "Que veut dire « to look after » en français ?", "answer": "s'occuper de", "accepted": ["s occuper de", "prendre soin de", "garder"], "distractors": ["chercher", "regarder derrière", "ressembler à", "attendre"]},
+    {"id": "4e-angl-009", "level": "4ème", "subject": "Anglais", "difficulty": 2, "prompt": "Comment dit-on « pendant deux heures » en anglais ?", "answer": "for two hours", "accepted": ["for two hours"], "distractors": ["since two hours", "during two hours", "in two hours", "at two hours"]},
+    {"id": "4e-angl-010", "level": "4ème", "subject": "Anglais", "difficulty": 3, "prompt": "Que veut dire « actually » — attention au faux ami — en français ?", "answer": "en fait", "accepted": ["en fait", "en realite"], "distractors": ["actuellement", "activement", "en action", "récemment"]},
+    {"id": "4e-angl-011", "level": "4ème", "subject": "Anglais", "difficulty": 2, "prompt": "Comment dit-on « je vais partir » (intention) en anglais ?", "answer": "I am going to leave", "accepted": ["i am going to leave", "i m going to leave"], "distractors": ["I will to leave", "I go to leave", "I am leave", "I would leave"]},
+    {"id": "4e-angl-012", "level": "4ème", "subject": "Anglais", "difficulty": 3, "prompt": "Que veut dire « to borrow » — à ne pas confondre avec « to lend » ?", "answer": "emprunter", "accepted": ["emprunter"], "distractors": ["prêter", "louer", "rendre", "acheter"]},
+
+    {"id": "3e-fr-007", "level": "3ème", "subject": "Français", "difficulty": 2, "prompt": "Qui a écrit « Le Petit Prince » ?", "answer": "Antoine de Saint-Exupéry", "accepted": ["saint exupery", "antoine de saint exupery"], "distractors": ["Albert Camus", "André Malraux", "Jean Giono", "Romain Gary"]},
+    {"id": "3e-fr-008", "level": "3ème", "subject": "Français", "difficulty": 3, "prompt": "Comment appelle-t-on une figure qui dit le contraire de ce qu'on pense pour se moquer ?", "answer": "l'ironie", "accepted": ["ironie", "l ironie", "antiphrase"], "distractors": ["l'euphémisme", "la litote", "l'hyperbole", "la métonymie"]},
+    {"id": "3e-fr-009", "level": "3ème", "subject": "Français", "difficulty": 2, "prompt": "Dans « bien qu'il pleuve, je sors », quel rapport logique est exprimé ?", "answer": "l'opposition", "accepted": ["opposition", "l opposition", "concession"], "distractors": ["la cause", "la conséquence", "le but", "la condition"]},
+    {"id": "3e-fr-010", "level": "3ème", "subject": "Français", "difficulty": 3, "prompt": "Comment appelle-t-on un récit autobiographique centré sur des souvenirs choisis ?", "answer": "des mémoires", "accepted": ["memoires", "des memoires", "recit de memoires"], "distractors": ["un journal intime", "une autofiction", "une biographie", "une chronique"]},
+    {"id": "3e-fr-011", "level": "3ème", "subject": "Français", "difficulty": 2, "prompt": "Quelle est la voix du verbe dans « la maison est construite par l'ouvrier » ?", "answer": "la voix passive", "accepted": ["passive", "la voix passive", "passif"], "distractors": ["la voix active", "la voix pronominale", "l'impératif", "le participe"]},
+    {"id": "3e-fr-012", "level": "3ème", "subject": "Français", "difficulty": 3, "prompt": "Qui a écrit le roman « Le Rouge et le Noir » ?", "answer": "Stendhal", "accepted": ["stendhal"], "distractors": ["Balzac", "Flaubert", "Hugo", "Zola"]},
+
+    {"id": "3e-math-007", "level": "3ème", "subject": "Mathématiques", "difficulty": 3, "prompt": "Quelle est la racine carrée de 169 ?", "answer": "13", "accepted": ["13", "treize"], "distractors": ["12", "14", "17", "23"], "numeric": true},
+    {"id": "3e-math-008", "level": "3ème", "subject": "Mathématiques", "difficulty": 3, "prompt": "Combien font 3 puissance 4 ?", "answer": "81", "accepted": ["81"], "distractors": ["12", "64", "27", "43"], "numeric": true},
+    {"id": "3e-math-009", "level": "3ème", "subject": "Mathématiques", "difficulty": 2, "prompt": "Quelle est la médiane de la série 2, 4, 9, 15, 20 ?", "answer": "9", "accepted": ["9", "neuf"], "distractors": ["4", "10", "15", "50"], "numeric": true},
+    {"id": "3e-math-010", "level": "3ème", "subject": "Mathématiques", "difficulty": 3, "prompt": "Comment appelle-t-on un nombre qui n'a que deux diviseurs, 1 et lui-même ?", "answer": "un nombre premier", "accepted": ["premier", "un nombre premier", "nombre premier"], "distractors": ["un nombre pair", "un nombre entier", "un nombre parfait", "un nombre carré"]},
+    {"id": "3e-math-011", "level": "3ème", "subject": "Mathématiques", "difficulty": 3, "prompt": "Que vaut le sinus d'un angle de 30 degrés ?", "answer": "0,5", "accepted": ["0,5", "0.5", "1/2"], "distractors": ["0,87", "1", "0,71", "0,3"]},
+    {"id": "3e-math-012", "level": "3ème", "subject": "Mathématiques", "difficulty": 2, "prompt": "Quelle est la moyenne de 4, 8 et 12 ?", "answer": "8", "accepted": ["8", "huit"], "distractors": ["6", "10", "24", "12"], "numeric": true},
+
+    {"id": "3e-geo-007", "level": "3ème", "subject": "Géographie", "difficulty": 2, "prompt": "Quelle ville française accueille le Parlement européen ?", "answer": "Strasbourg", "accepted": ["strasbourg"], "distractors": ["Paris", "Lyon", "Lille", "Bruxelles"]},
+    {"id": "3e-geo-008", "level": "3ème", "subject": "Géographie", "difficulty": 3, "prompt": "Comment appelle-t-on l'arrivée d'habitants aisés qui transforment un quartier populaire ?", "answer": "la gentrification", "accepted": ["gentrification", "la gentrification"], "distractors": ["la périurbanisation", "la ségrégation", "la rénovation urbaine", "l'étalement urbain"]},
+    {"id": "3e-geo-009", "level": "3ème", "subject": "Géographie", "difficulty": 2, "prompt": "Quel massif français culmine au Puy de Sancy ?", "answer": "le Massif central", "accepted": ["massif central", "le massif central"], "distractors": ["les Vosges", "le Jura", "les Ardennes", "les Alpes"]},
+    {"id": "3e-geo-010", "level": "3ème", "subject": "Géographie", "difficulty": 3, "prompt": "Quel fleuve français est le plus emprunté par le transport de marchandises ?", "answer": "la Seine", "accepted": ["seine", "la seine"], "distractors": ["la Loire", "le Rhône", "la Garonne", "le Rhin"]},
+    {"id": "3e-geo-011", "level": "3ème", "subject": "Géographie", "difficulty": 2, "prompt": "Comment appelle-t-on la monnaie unique adoptée par une majorité d'États de l'Union européenne ?", "answer": "l'euro", "accepted": ["euro", "l euro"], "distractors": ["l'écu", "le franc européen", "la livre", "le dollar européen"]},
+    {"id": "3e-geo-012", "level": "3ème", "subject": "Géographie", "difficulty": 3, "prompt": "Comment appelle-t-on l'espace économique où les personnes circulent sans contrôle aux frontières ?", "answer": "l'espace Schengen", "accepted": ["schengen", "l espace schengen", "espace schengen"], "distractors": ["la zone euro", "le marché commun", "l'union douanière", "l'espace économique européen"]},
+
+    {"id": "3e-hist-007", "level": "3ème", "subject": "Histoire", "difficulty": 2, "prompt": "Quelle bataille de 1916 est un symbole de la Première Guerre mondiale dans la Somme ?", "answer": "la bataille de la Somme", "accepted": ["la somme", "bataille de la somme", "la bataille de la somme"], "distractors": ["Verdun", "la Marne", "Ypres", "Sedan"]},
+    {"id": "3e-hist-008", "level": "3ème", "subject": "Histoire", "difficulty": 3, "prompt": "Quel régime a dirigé la France entre 1940 et 1944 depuis une ville d'eaux ?", "answer": "le régime de Vichy", "accepted": ["vichy", "le regime de vichy", "regime de vichy", "etat francais"], "distractors": ["la Troisième République", "la France libre", "le Front populaire", "le Gouvernement provisoire"]},
+    {"id": "3e-hist-009", "level": "3ème", "subject": "Histoire", "difficulty": 2, "prompt": "Quel mur a séparé une capitale allemande de 1961 à 1989 ?", "answer": "le mur de Berlin", "accepted": ["mur de berlin", "le mur de berlin"], "distractors": ["le rideau de fer", "la ligne Maginot", "le mur de l'Atlantique", "le mur de Prague"]},
+    {"id": "3e-hist-010", "level": "3ème", "subject": "Histoire", "difficulty": 3, "prompt": "Comment appelle-t-on la crise de 1962 qui a opposé les États-Unis et l'URSS autour d'une île ?", "answer": "la crise de Cuba", "accepted": ["cuba", "la crise de cuba", "crise des missiles"], "distractors": ["le blocus de Berlin", "la guerre de Corée", "la crise de Suez", "le printemps de Prague"]},
+    {"id": "3e-hist-011", "level": "3ème", "subject": "Histoire", "difficulty": 2, "prompt": "Quel accord de 1938 a laissé Hitler annexer une région tchèque ?", "answer": "les accords de Munich", "accepted": ["munich", "les accords de munich", "accords de munich"], "distractors": ["le pacte germano-soviétique", "le traité de Versailles", "l'Anschluss", "le pacte d'acier"]},
+    {"id": "3e-hist-012", "level": "3ème", "subject": "Histoire", "difficulty": 3, "prompt": "Comment appelle-t-on la période de forte croissance économique française de 1945 à 1975 ?", "answer": "les Trente Glorieuses", "accepted": ["trente glorieuses", "les trente glorieuses"], "distractors": ["les Trois Glorieuses", "la Belle Époque", "le baby-boom", "la reconstruction"]},
+
+    {"id": "3e-sci-007", "level": "3ème", "subject": "Sciences", "difficulty": 2, "prompt": "Quel est le symbole chimique du carbone ?", "answer": "C", "accepted": ["c"], "distractors": ["Ca", "Co", "Cu", "Cl"], "strict": true},
+    {"id": "3e-sci-008", "level": "3ème", "subject": "Sciences", "difficulty": 3, "prompt": "Comment appelle-t-on une modification accidentelle de l'ADN ?", "answer": "une mutation", "accepted": ["mutation", "une mutation"], "distractors": ["une transcription", "une réplication", "un clonage", "une hybridation"]},
+    {"id": "3e-sci-009", "level": "3ème", "subject": "Sciences", "difficulty": 2, "prompt": "Quelle unité mesure une puissance électrique ?", "answer": "le watt", "accepted": ["watt", "le watt", "w"], "distractors": ["le volt", "l'ampère", "le joule", "l'ohm"]},
+    {"id": "3e-sci-010", "level": "3ème", "subject": "Sciences", "difficulty": 3, "prompt": "Comment appelle-t-on les cellules porteuses de la moitié des chromosomes ?", "answer": "les gamètes", "accepted": ["gametes", "les gametes", "gamete"], "distractors": ["les cellules somatiques", "les chromatides", "les zygotes", "les gènes"]},
+    {"id": "3e-sci-011", "level": "3ème", "subject": "Sciences", "difficulty": 2, "prompt": "Quel gaz est le principal responsable de l'effet de serre additionnel ?", "answer": "le dioxyde de carbone", "accepted": ["dioxyde de carbone", "le dioxyde de carbone", "co2"], "distractors": ["l'oxygène", "l'azote", "l'argon", "l'hydrogène"]},
+    {"id": "3e-sci-012", "level": "3ème", "subject": "Sciences", "difficulty": 3, "prompt": "Comment appelle-t-on l'énergie stockée par un objet en hauteur ?", "answer": "l'énergie potentielle", "accepted": ["potentielle", "energie potentielle", "l energie potentielle"], "distractors": ["l'énergie cinétique", "l'énergie thermique", "l'énergie chimique", "l'énergie lumineuse"]},
+
+    {"id": "3e-angl-007", "level": "3ème", "subject": "Anglais", "difficulty": 2, "prompt": "Quel est le prétérit du verbe « to buy » ?", "answer": "bought", "accepted": ["bought"], "distractors": ["buyed", "brought", "buy", "boughted"], "strict": true},
+    {"id": "3e-angl-008", "level": "3ème", "subject": "Anglais", "difficulty": 3, "prompt": "Que veut dire « to give up » en français ?", "answer": "abandonner", "accepted": ["abandonner", "renoncer"], "distractors": ["donner", "monter", "offrir", "se lever"]},
+    {"id": "3e-angl-009", "level": "3ème", "subject": "Anglais", "difficulty": 3, "prompt": "Comment dit-on « on m'a dit » (voix passive) en anglais ?", "answer": "I was told", "accepted": ["i was told"], "distractors": ["I was said", "one told me", "I have told", "it was told me"]},
+    {"id": "3e-angl-010", "level": "3ème", "subject": "Anglais", "difficulty": 2, "prompt": "Que veut dire « lonely » en français ?", "answer": "seul", "accepted": ["seul", "solitaire"], "distractors": ["long", "lent", "adorable", "fatigué"]},
+    {"id": "3e-angl-011", "level": "3ème", "subject": "Anglais", "difficulty": 3, "prompt": "Comment dit-on « il faudrait que tu partes » en anglais ?", "answer": "you should leave", "accepted": ["you should leave", "you ought to leave"], "distractors": ["you must to leave", "you would leave", "you shall leaving", "you had leave"]},
+    {"id": "3e-angl-012", "level": "3ème", "subject": "Anglais", "difficulty": 2, "prompt": "Que veut dire « to improve » en français ?", "answer": "améliorer", "accepted": ["ameliorer", "s ameliorer", "progresser"], "distractors": ["prouver", "importer", "empirer", "imposer"]},
+
+    {"id": "2nde-fr-007", "level": "2nde", "subject": "Français", "difficulty": 2, "prompt": "Qui a écrit la tragédie « Phèdre » ?", "answer": "Jean Racine", "accepted": ["racine", "jean racine"], "distractors": ["Corneille", "Molière", "Voltaire", "Euripide"]},
+    {"id": "2nde-fr-008", "level": "2nde", "subject": "Français", "difficulty": 3, "prompt": "Comment appelle-t-on la coupe qui sépare un alexandrin en deux moitiés ?", "answer": "la césure", "accepted": ["cesure", "la cesure"], "distractors": ["l'enjambement", "l'hémistiche", "le rejet", "la diérèse"]},
+    {"id": "2nde-fr-009", "level": "2nde", "subject": "Français", "difficulty": 2, "prompt": "Quel mouvement du XVIIe siècle recherche l'ordre, la mesure et la raison ?", "answer": "le classicisme", "accepted": ["classicisme", "le classicisme"], "distractors": ["le baroque", "le romantisme", "le réalisme", "l'humanisme"]},
+    {"id": "2nde-fr-010", "level": "2nde", "subject": "Français", "difficulty": 3, "prompt": "Comment appelle-t-on le moment où le héros de tragédie prend conscience de son sort ?", "answer": "la péripétie", "accepted": ["peripetie", "la peripetie", "le denouement tragique"], "distractors": ["l'exposition", "le dénouement", "la catharsis", "l'intrigue secondaire"]},
+    {"id": "2nde-fr-011", "level": "2nde", "subject": "Français", "difficulty": 2, "prompt": "Qui a écrit « Les Fleurs du mal » — recueil condamné en 1857 ?", "answer": "Charles Baudelaire", "accepted": ["baudelaire", "charles baudelaire"], "distractors": ["Verlaine", "Rimbaud", "Mallarmé", "Hugo"]},
+    {"id": "2nde-fr-012", "level": "2nde", "subject": "Français", "difficulty": 3, "prompt": "Comment appelle-t-on un discours d'un personnage seul en scène ?", "answer": "un monologue", "accepted": ["monologue", "un monologue"], "distractors": ["un aparté", "un dialogue", "une stichomythie", "une tirade partagée"]},
+
+    {"id": "2nde-math-007", "level": "2nde", "subject": "Mathématiques", "difficulty": 2, "prompt": "Quelle est l'ordonnée à l'origine de la droite d'équation y = 3x − 4 ?", "answer": "-4", "accepted": ["-4", "moins 4"], "distractors": ["4", "3", "-3", "0"], "numeric": true},
+    {"id": "2nde-math-008", "level": "2nde", "subject": "Mathématiques", "difficulty": 3, "prompt": "Combien vaut la somme des probabilités de toutes les issues d'une expérience aléatoire ?", "answer": "1", "accepted": ["1", "un", "100 %"], "distractors": ["0", "0,5", "2", "l'infini"], "numeric": true},
+    {"id": "2nde-math-009", "level": "2nde", "subject": "Mathématiques", "difficulty": 3, "prompt": "Quelle est l'image de -3 par la fonction f(x) = x² + 1 ?", "answer": "10", "accepted": ["10", "dix"], "distractors": ["-8", "8", "-10", "7"], "numeric": true},
+    {"id": "2nde-math-010", "level": "2nde", "subject": "Mathématiques", "difficulty": 2, "prompt": "Comment appelle-t-on la fonction définie par f(x) = ax + b ?", "answer": "une fonction affine", "accepted": ["affine", "une fonction affine", "fonction affine"], "distractors": ["une fonction linéaire", "une fonction carré", "une fonction inverse", "une fonction constante"]},
+    {"id": "2nde-math-011", "level": "2nde", "subject": "Mathématiques", "difficulty": 3, "prompt": "Quel est le volume d'une boule de rayon 3, arrondi à l'unité ?", "answer": "113", "accepted": ["113", "113 cm3"], "distractors": ["36", "108", "27", "84"], "numeric": true},
+    {"id": "2nde-math-012", "level": "2nde", "subject": "Mathématiques", "difficulty": 2, "prompt": "Quelle est la probabilité de tirer une carte de cœur dans un jeu de 52 cartes ?", "answer": "1/4", "accepted": ["1/4", "0,25", "0.25", "un quart"], "distractors": ["1/13", "1/52", "1/2", "13/13"]},
+
+    {"id": "2nde-geo-007", "level": "2nde", "subject": "Géographie", "difficulty": 2, "prompt": "Comment appelle-t-on le nombre moyen d'enfants par femme ?", "answer": "l'indice de fécondité", "accepted": ["fecondite", "indice de fecondite", "l indice de fecondite", "taux de fecondite"], "distractors": ["le taux de natalité", "l'accroissement naturel", "l'espérance de vie", "le taux de mortalité"]},
+    {"id": "2nde-geo-008", "level": "2nde", "subject": "Géographie", "difficulty": 3, "prompt": "Comment appelle-t-on l'installation croissante des populations près des côtes ?", "answer": "la littoralisation", "accepted": ["littoralisation", "la littoralisation"], "distractors": ["la maritimisation", "l'urbanisation", "la métropolisation", "la conurbation"]},
+    {"id": "2nde-geo-009", "level": "2nde", "subject": "Géographie", "difficulty": 2, "prompt": "Quelle énergie fossile est la plus utilisée dans le monde pour produire de l'électricité ?", "answer": "le charbon", "accepted": ["charbon", "le charbon"], "distractors": ["le pétrole", "le gaz naturel", "l'uranium", "la tourbe"]},
+    {"id": "2nde-geo-010", "level": "2nde", "subject": "Géographie", "difficulty": 3, "prompt": "Comment appelle-t-on un développement qui préserve les ressources pour les générations futures ?", "answer": "le développement durable", "accepted": ["developpement durable", "le developpement durable", "durable"], "distractors": ["la croissance verte", "la transition énergétique", "la décroissance", "l'aménagement du territoire"]},
+    {"id": "2nde-geo-011", "level": "2nde", "subject": "Géographie", "difficulty": 2, "prompt": "Quel continent compte le plus d'habitants ?", "answer": "l'Asie", "accepted": ["asie", "l asie"], "distractors": ["l'Afrique", "l'Europe", "l'Amérique", "l'Océanie"]},
+    {"id": "2nde-geo-012", "level": "2nde", "subject": "Géographie", "difficulty": 3, "prompt": "Comment appelle-t-on la différence entre les naissances et les décès d'une population ?", "answer": "l'accroissement naturel", "accepted": ["accroissement naturel", "l accroissement naturel", "solde naturel"], "distractors": ["le solde migratoire", "la transition démographique", "l'indice de développement", "la densité"]},
+
+    {"id": "2nde-hist-007", "level": "2nde", "subject": "Histoire", "difficulty": 2, "prompt": "Quelle cité grecque a inventé la démocratie ?", "answer": "Athènes", "accepted": ["athenes"], "distractors": ["Sparte", "Rome", "Corinthe", "Thèbes"]},
+    {"id": "2nde-hist-008", "level": "2nde", "subject": "Histoire", "difficulty": 3, "prompt": "Quel empereur romain a fait du christianisme une religion autorisée en 313 ?", "answer": "Constantin", "accepted": ["constantin"], "distractors": ["Théodose", "Dioclétien", "Néron", "Auguste"]},
+    {"id": "2nde-hist-009", "level": "2nde", "subject": "Histoire", "difficulty": 2, "prompt": "Quel navigateur a réalisé le premier tour du monde, achevé en 1522 ?", "answer": "Magellan", "accepted": ["magellan", "fernand de magellan"], "distractors": ["Christophe Colomb", "Vasco de Gama", "Cabot", "Drake"]},
+    {"id": "2nde-hist-010", "level": "2nde", "subject": "Histoire", "difficulty": 3, "prompt": "Comment appelle-t-on le massacre des protestants à Paris en août 1572 ?", "answer": "la Saint-Barthélemy", "accepted": ["saint barthelemy", "la saint barthelemy"], "distractors": ["la Fronde", "les Vêpres siciliennes", "la Terreur blanche", "la nuit des Longs Couteaux"]},
+    {"id": "2nde-hist-011", "level": "2nde", "subject": "Histoire", "difficulty": 2, "prompt": "Quel texte de 1789 proclame que les hommes naissent libres et égaux en droits ?", "answer": "la Déclaration des droits de l'homme et du citoyen", "accepted": ["declaration des droits de l homme", "la declaration des droits de l homme et du citoyen", "ddhc"], "distractors": ["la Constitution civile du clergé", "le serment du Jeu de paume", "le Code civil", "la Charte de 1814"]},
+    {"id": "2nde-hist-012", "level": "2nde", "subject": "Histoire", "difficulty": 3, "prompt": "Quel philosophe des Lumières a défendu la séparation des pouvoirs ?", "answer": "Montesquieu", "accepted": ["montesquieu"], "distractors": ["Rousseau", "Voltaire", "Diderot", "Condorcet"]},
+
+    {"id": "2nde-sci-007", "level": "2nde", "subject": "Sciences", "difficulty": 2, "prompt": "Quel est le symbole chimique du sodium ?", "answer": "Na", "accepted": ["na"], "distractors": ["So", "Sd", "N", "Ni"], "strict": true},
+    {"id": "2nde-sci-008", "level": "2nde", "subject": "Sciences", "difficulty": 3, "prompt": "Comment appelle-t-on un atome qui a gagné ou perdu des électrons ?", "answer": "un ion", "accepted": ["ion", "un ion"], "distractors": ["un isotope", "une molécule", "un noyau", "un radical libre"]},
+    {"id": "2nde-sci-009", "level": "2nde", "subject": "Sciences", "difficulty": 2, "prompt": "Quelle unité mesure une force ?", "answer": "le newton", "accepted": ["newton", "le newton", "n"], "distractors": ["le joule", "le pascal", "le watt", "le kilogramme"]},
+    {"id": "2nde-sci-010", "level": "2nde", "subject": "Sciences", "difficulty": 3, "prompt": "Comment appelle-t-on la molécule qui porte l'information héréditaire dans le noyau ?", "answer": "l'ADN", "accepted": ["adn", "l adn"], "distractors": ["l'ARN messager", "une protéine", "un ribosome", "un chromatide isolé"]},
+    {"id": "2nde-sci-011", "level": "2nde", "subject": "Sciences", "difficulty": 2, "prompt": "Quel organite réalise la photosynthèse dans la cellule végétale ?", "answer": "le chloroplaste", "accepted": ["chloroplaste", "le chloroplaste"], "distractors": ["la mitochondrie", "le noyau", "la vacuole", "le ribosome"]},
+    {"id": "2nde-sci-012", "level": "2nde", "subject": "Sciences", "difficulty": 3, "prompt": "Quelle grandeur reste inchangée quand un objet passe de la Terre à la Lune : le poids ou la masse ?", "answer": "la masse", "accepted": ["masse", "la masse"], "distractors": ["le poids", "la densité apparente", "la force", "l'accélération"]},
+
+    {"id": "2nde-angl-007", "level": "2nde", "subject": "Anglais", "difficulty": 2, "prompt": "Quel est le participe passé de « to speak » ?", "answer": "spoken", "accepted": ["spoken"], "distractors": ["spoke", "speaked", "speaken", "speaking"], "strict": true},
+    {"id": "2nde-angl-008", "level": "2nde", "subject": "Anglais", "difficulty": 3, "prompt": "Que veut dire « to point out » en français ?", "answer": "souligner", "accepted": ["souligner", "faire remarquer", "signaler"], "distractors": ["pointer du doigt une sortie", "montrer la porte", "sortir", "supprimer"]},
+    {"id": "2nde-angl-009", "level": "2nde", "subject": "Anglais", "difficulty": 3, "prompt": "Comment dit-on « cela fait trois ans que j'apprends l'anglais » ?", "answer": "I have been learning English for three years", "accepted": ["i have been learning english for three years", "i have learnt english for three years"], "distractors": ["I learn English since three years", "I am learning English for three years", "I learned English for three years", "It makes three years I learn English"]},
+    {"id": "2nde-angl-010", "level": "2nde", "subject": "Anglais", "difficulty": 2, "prompt": "Que veut dire « a warning » en français ?", "answer": "un avertissement", "accepted": ["avertissement", "un avertissement", "mise en garde"], "distractors": ["une garantie", "une récompense", "une alarme incendie", "un panneau publicitaire"]},
+    {"id": "2nde-angl-011", "level": "2nde", "subject": "Anglais", "difficulty": 3, "prompt": "Que veut dire « to afford » — hors contexte financier, « pouvoir se permettre » ?", "answer": "avoir les moyens", "accepted": ["avoir les moyens", "pouvoir se permettre", "se permettre"], "distractors": ["offrir", "affronter", "renoncer", "économiser"]},
+    {"id": "2nde-angl-012", "level": "2nde", "subject": "Anglais", "difficulty": 2, "prompt": "Comment dit-on « le plus intéressant » en anglais ?", "answer": "the most interesting", "accepted": ["the most interesting"], "distractors": ["the interestingest", "the more interesting", "most interesting than", "the interestest"]},
+
+    {"id": "1ere-fr-007", "level": "1ère", "subject": "Français", "difficulty": 2, "prompt": "Qui a écrit « Madame Bovary », procès de 1857 à l'appui ?", "answer": "Gustave Flaubert", "accepted": ["flaubert", "gustave flaubert"], "distractors": ["Balzac", "Stendhal", "Zola", "Maupassant"]},
+    {"id": "1ere-fr-008", "level": "1ère", "subject": "Français", "difficulty": 3, "prompt": "Comment appelle-t-on l'ensemble des mots d'un texte appartenant à un même thème ?", "answer": "un champ lexical", "accepted": ["champ lexical", "un champ lexical"], "distractors": ["un champ sémantique", "un registre", "une isotopie sonore", "un paradigme verbal"]},
+    {"id": "1ere-fr-009", "level": "1ère", "subject": "Français", "difficulty": 3, "prompt": "Quel mouvement du XIXe siècle place le sentiment et le moi au centre de l'œuvre ?", "answer": "le romantisme", "accepted": ["romantisme", "le romantisme"], "distractors": ["le réalisme", "le symbolisme", "le classicisme", "le Parnasse"]},
+    {"id": "1ere-fr-010", "level": "1ère", "subject": "Français", "difficulty": 2, "prompt": "Comment appelle-t-on une pièce en vers de Molière où l'on rit des travers humains ?", "answer": "une comédie", "accepted": ["comedie", "une comedie"], "distractors": ["une tragédie", "un drame romantique", "une farce médiévale", "un vaudeville"]},
+    {"id": "1ere-fr-011", "level": "1ère", "subject": "Français", "difficulty": 3, "prompt": "Comment appelle-t-on la reprise du dernier mot d'un vers au début du suivant ?", "answer": "une anadiplose", "accepted": ["anadiplose", "une anadiplose"], "distractors": ["une anaphore", "un chiasme", "une épanalepse", "un zeugme"]},
+    {"id": "1ere-fr-012", "level": "1ère", "subject": "Français", "difficulty": 2, "prompt": "Qui a écrit le recueil poétique « Les Contemplations » ?", "answer": "Victor Hugo", "accepted": ["victor hugo", "hugo"], "distractors": ["Lamartine", "Vigny", "Musset", "Nerval"]},
+
+    {"id": "1ere-math-007", "level": "1ère", "subject": "Mathématiques", "difficulty": 3, "prompt": "Que peut-on dire des solutions d'une équation du second degré si le discriminant est négatif ?", "answer": "il n'y en a aucune", "accepted": ["aucune", "il n y en a aucune", "aucune solution", "pas de solution"], "distractors": ["il y en a une seule", "il y en a deux", "il y en a une infinité", "il y en a trois"]},
+    {"id": "1ere-math-008", "level": "1ère", "subject": "Mathématiques", "difficulty": 3, "prompt": "Quelle est la dérivée de la fonction 1/x ?", "answer": "-1/x²", "accepted": ["-1/x2", "-1/x²", "moins 1 sur x2"], "distractors": ["1/x²", "ln x", "-x", "1/2x"]},
+    {"id": "1ere-math-009", "level": "1ère", "subject": "Mathématiques", "difficulty": 2, "prompt": "Comment appelle-t-on une suite où l'on ajoute toujours le même nombre ?", "answer": "une suite arithmétique", "accepted": ["arithmetique", "une suite arithmetique", "suite arithmetique"], "distractors": ["une suite géométrique", "une suite convergente", "une suite alternée", "une suite bornée"]},
+    {"id": "1ere-math-010", "level": "1ère", "subject": "Mathématiques", "difficulty": 3, "prompt": "Quel est le taux d'évolution global après deux hausses successives de 10 % ?", "answer": "21 %", "accepted": ["21", "21 %", "21%"], "distractors": ["20 %", "22 %", "10 %", "121 %"], "numeric": true},
+    {"id": "1ere-math-011", "level": "1ère", "subject": "Mathématiques", "difficulty": 2, "prompt": "Quelle est la dérivée de la fonction 5x ?", "answer": "5", "accepted": ["5", "cinq"], "distractors": ["cinq x", "zero", "x", "dix x"], "numeric": true},
+    {"id": "1ere-math-012", "level": "1ère", "subject": "Mathématiques", "difficulty": 3, "prompt": "Comment appelle-t-on le point où la dérivée d'une fonction change de signe ?", "answer": "un extremum", "accepted": ["extremum", "un extremum", "maximum ou minimum"], "distractors": ["un point d'inflexion", "une asymptote", "une racine", "un pôle"]},
+
+    {"id": "1ere-geo-007", "level": "1ère", "subject": "Géographie", "difficulty": 3, "prompt": "Comment appelle-t-on l'étalement d'une ville sur les campagnes voisines ?", "answer": "l'étalement urbain", "accepted": ["etalement urbain", "l etalement urbain"], "distractors": ["la rénovation urbaine", "la densification", "la métropolisation", "la reconversion"]},
+    {"id": "1ere-geo-008", "level": "1ère", "subject": "Géographie", "difficulty": 2, "prompt": "Quelle région française est la première pour la production de vin en valeur ?", "answer": "la Nouvelle-Aquitaine", "accepted": ["nouvelle aquitaine", "la nouvelle aquitaine", "bordelais"], "distractors": ["l'Occitanie", "la Bourgogne", "la Champagne", "la Provence"]},
+    {"id": "1ere-geo-009", "level": "1ère", "subject": "Géographie", "difficulty": 3, "prompt": "Comment appelle-t-on un espace productif tourné vers la recherche et l'innovation ?", "answer": "un technopôle", "accepted": ["technopole", "un technopole"], "distractors": ["une zone industrielle", "une friche", "un port franc", "un pôle commercial"]},
+    {"id": "1ere-geo-010", "level": "1ère", "subject": "Géographie", "difficulty": 2, "prompt": "Quel secteur emploie aujourd'hui la majorité des actifs en France ?", "answer": "le tertiaire", "accepted": ["tertiaire", "le tertiaire", "les services"], "distractors": ["le secondaire", "le primaire", "l'industrie lourde", "l'agriculture"]},
+    {"id": "1ere-geo-011", "level": "1ère", "subject": "Géographie", "difficulty": 3, "prompt": "Comment appelle-t-on l'aménagement visant à réduire les inégalités entre territoires ?", "answer": "l'aménagement du territoire", "accepted": ["amenagement du territoire", "l amenagement du territoire"], "distractors": ["la décentralisation", "la métropolisation", "la péréquation fiscale", "le zonage"]},
+    {"id": "1ere-geo-012", "level": "1ère", "subject": "Géographie", "difficulty": 2, "prompt": "Quelle est la deuxième aire urbaine française après Paris ?", "answer": "Lyon", "accepted": ["lyon"], "distractors": ["Marseille", "Lille", "Toulouse", "Bordeaux"]},
+
+    {"id": "1ere-hist-007", "level": "1ère", "subject": "Histoire", "difficulty": 2, "prompt": "Quel événement de 1848 a mis fin à la monarchie de Juillet ?", "answer": "la révolution de 1848", "accepted": ["revolution de 1848", "la revolution de 1848", "revolution de fevrier"], "distractors": ["les Trois Glorieuses", "la Commune", "le coup d'État de 1851", "la Fronde"]},
+    {"id": "1ere-hist-008", "level": "1ère", "subject": "Histoire", "difficulty": 3, "prompt": "Quel traité a mis fin à la guerre franco-prussienne en 1871 ?", "answer": "le traité de Francfort", "accepted": ["francfort", "le traite de francfort"], "distractors": ["le traité de Versailles", "la paix de Prague", "le traité de Vienne", "l'armistice de Sedan"]},
+    {"id": "1ere-hist-009", "level": "1ère", "subject": "Histoire", "difficulty": 2, "prompt": "Quelles lois de 1881-1882 ont rendu l'école gratuite, laïque et obligatoire ?", "answer": "les lois Jules Ferry", "accepted": ["jules ferry", "les lois jules ferry", "lois ferry"], "distractors": ["les lois Guizot", "la loi Falloux", "les lois Waldeck-Rousseau", "la loi Debré"]},
+    {"id": "1ere-hist-010", "level": "1ère", "subject": "Histoire", "difficulty": 3, "prompt": "Comment appelle-t-on la guerre de position dans les tranchées de 1915 à 1917 ?", "answer": "la guerre de position", "accepted": ["guerre de position", "la guerre de position", "guerre des tranchees"], "distractors": ["la guerre de mouvement", "la guerre éclair", "la drôle de guerre", "la guerre totale"]},
+    {"id": "1ere-hist-011", "level": "1ère", "subject": "Histoire", "difficulty": 2, "prompt": "Quel empire s'est effondré en Russie en 1917 ?", "answer": "l'Empire russe", "accepted": ["empire russe", "l empire russe", "tsarisme", "le tsarisme"], "distractors": ["l'Empire ottoman", "l'Empire austro-hongrois", "l'Empire allemand", "l'Empire perse"]},
+    {"id": "1ere-hist-012", "level": "1ère", "subject": "Histoire", "difficulty": 3, "prompt": "Quel mouvement ouvrier a obtenu les congés payés en 1936 ?", "answer": "le Front populaire", "accepted": ["front populaire", "le front populaire"], "distractors": ["la CGT seule", "les Trente Glorieuses", "la Commune", "le Cartel des gauches"]},
+
+    {"id": "1ere-sci-007", "level": "1ère", "subject": "Sciences", "difficulty": 3, "prompt": "Comment appelle-t-on une réaction chimique qui absorbe de la chaleur ?", "answer": "endothermique", "accepted": ["endothermique", "une reaction endothermique"], "distractors": ["exothermique", "isotherme", "athermique", "catalytique"]},
+    {"id": "1ere-sci-008", "level": "1ère", "subject": "Sciences", "difficulty": 2, "prompt": "Quelle est l'unité de la charge électrique ?", "answer": "le coulomb", "accepted": ["coulomb", "le coulomb", "c"], "distractors": ["l'ampère", "le volt", "le farad", "le tesla"]},
+    {"id": "1ere-sci-009", "level": "1ère", "subject": "Sciences", "difficulty": 3, "prompt": "Comment appelle-t-on la copie de l'ADN en ARN messager ?", "answer": "la transcription", "accepted": ["transcription", "la transcription"], "distractors": ["la traduction", "la réplication", "la mutation", "l'épissage"]},
+    {"id": "1ere-sci-010", "level": "1ère", "subject": "Sciences", "difficulty": 2, "prompt": "Quel gaz est produit par la photosynthèse ?", "answer": "l'oxygène", "accepted": ["oxygene", "l oxygene", "o2"], "distractors": ["le dioxyde de carbone", "l'azote", "le méthane", "l'hydrogène"]},
+    {"id": "1ere-sci-011", "level": "1ère", "subject": "Sciences", "difficulty": 3, "prompt": "Comment appelle-t-on deux atomes de même élément avec des nombres de neutrons différents ?", "answer": "des isotopes", "accepted": ["isotopes", "des isotopes", "isotope"], "distractors": ["des ions", "des isomères", "des allotropes", "des radicaux"]},
+    {"id": "1ere-sci-012", "level": "1ère", "subject": "Sciences", "difficulty": 2, "prompt": "Quelle grandeur physique se mesure en pascals ?", "answer": "la pression", "accepted": ["pression", "la pression"], "distractors": ["la force", "l'énergie", "la puissance", "la température"]},
+
+    {"id": "1ere-angl-007", "level": "1ère", "subject": "Anglais", "difficulty": 3, "prompt": "Que veut dire « to carry out » en français ?", "answer": "mener à bien", "accepted": ["mener a bien", "realiser", "effectuer", "mener"], "distractors": ["transporter dehors", "emporter", "supporter", "annuler"]},
+    {"id": "1ere-angl-008", "level": "1ère", "subject": "Anglais", "difficulty": 3, "prompt": "Comment dit-on « si j'avais su, je serais venu » en anglais ?", "answer": "if I had known, I would have come", "accepted": ["if i had known i would have come"], "distractors": ["if I knew, I would come", "if I had known, I would come", "if I would have known, I came", "if I know, I will come"]},
+    {"id": "1ere-angl-009", "level": "1ère", "subject": "Anglais", "difficulty": 2, "prompt": "Que veut dire « a survey » en français ?", "answer": "une enquête", "accepted": ["enquete", "une enquete", "sondage", "un sondage"], "distractors": ["une surveillance", "un aperçu", "un relevé topographique", "une survie"]},
+    {"id": "1ere-angl-010", "level": "1ère", "subject": "Anglais", "difficulty": 3, "prompt": "Que veut dire « to be about to » en français ?", "answer": "être sur le point de", "accepted": ["etre sur le point de", "sur le point de"], "distractors": ["être à propos de", "parler de", "être autour de", "avoir l'habitude de"]},
+    {"id": "1ere-angl-011", "level": "1ère", "subject": "Anglais", "difficulty": 2, "prompt": "Quel est le comparatif de l'adjectif « bad » ?", "answer": "worse", "accepted": ["worse"], "distractors": ["badder", "worst", "more bad", "worser"], "strict": true},
+    {"id": "1ere-angl-012", "level": "1ère", "subject": "Anglais", "difficulty": 3, "prompt": "Que veut dire « nevertheless » en français ?", "answer": "néanmoins", "accepted": ["neanmoins", "cependant", "toutefois"], "distractors": ["jamais moins", "d'autant plus", "par conséquent", "de toute façon"]},
+
+    {"id": "term-fr-007", "level": "Terminale", "subject": "Français", "difficulty": 3, "prompt": "Qui a écrit « L'Étranger » ?", "answer": "Albert Camus", "accepted": ["camus", "albert camus"], "distractors": ["Sartre", "Malraux", "Gide", "Céline"]},
+    {"id": "term-fr-008", "level": "Terminale", "subject": "Français", "difficulty": 3, "prompt": "Quel mouvement littéraire du XXe siècle explore le rêve et l'inconscient ?", "answer": "le surréalisme", "accepted": ["surrealisme", "le surrealisme"], "distractors": ["le dadaïsme", "l'existentialisme", "le nouveau roman", "le naturalisme"]},
+    {"id": "term-fr-009", "level": "Terminale", "subject": "Français", "difficulty": 2, "prompt": "Qui a écrit la pièce « En attendant Godot » ?", "answer": "Samuel Beckett", "accepted": ["beckett", "samuel beckett"], "distractors": ["Eugène Ionesco", "Jean Genet", "Bertolt Brecht", "Arthur Adamov"]},
+    {"id": "term-fr-010", "level": "Terminale", "subject": "Français", "difficulty": 3, "prompt": "Comment appelle-t-on un texte qui raconte l'histoire d'une vie écrite par un autre ?", "answer": "une biographie", "accepted": ["biographie", "une biographie"], "distractors": ["une autobiographie", "un mémoire", "une hagiographie", "un journal"]},
+    {"id": "term-fr-011", "level": "Terminale", "subject": "Français", "difficulty": 3, "prompt": "Quel écrivain a lancé le « Nouveau Roman » avec « La Jalousie » ?", "answer": "Alain Robbe-Grillet", "accepted": ["robbe grillet", "alain robbe grillet"], "distractors": ["Michel Butor", "Claude Simon", "Nathalie Sarraute", "Marguerite Duras"]},
+    {"id": "term-fr-012", "level": "Terminale", "subject": "Français", "difficulty": 2, "prompt": "Qui a écrit « L'Amant », prix Goncourt 1984 ?", "answer": "Marguerite Duras", "accepted": ["duras", "marguerite duras"], "distractors": ["Simone de Beauvoir", "Annie Ernaux", "Françoise Sagan", "Colette"]},
+
+    {"id": "term-math-007", "level": "Terminale", "subject": "Mathématiques", "difficulty": 3, "prompt": "Quelle est la dérivée de la fonction e puissance 2x ?", "answer": "2e^2x", "accepted": ["2e^2x", "2 e 2x", "2exp(2x)", "2 exp 2x"], "distractors": ["e^2x", "2x e^2x", "e^x", "2^x"]},
+    {"id": "term-math-008", "level": "Terminale", "subject": "Mathématiques", "difficulty": 3, "prompt": "Comment appelle-t-on la limite d'une suite qui se rapproche d'un nombre fini ?", "answer": "une suite convergente", "accepted": ["convergente", "une suite convergente", "convergence"], "distractors": ["une suite divergente", "une suite bornée", "une suite alternée", "une suite stationnaire"]},
+    {"id": "term-math-009", "level": "Terminale", "subject": "Mathématiques", "difficulty": 3, "prompt": "Que vaut l'intégrale de 0 à 1 de la fonction x ?", "answer": "0,5", "accepted": ["0,5", "0.5", "1/2"], "distractors": ["1", "0", "2", "0,25"]},
+    {"id": "term-math-010", "level": "Terminale", "subject": "Mathématiques", "difficulty": 2, "prompt": "Comment note-t-on la fonction réciproque du logarithme népérien ?", "answer": "exp", "accepted": ["exp", "exponentielle", "e puissance x"], "distractors": ["ln", "log", "sin", "sqrt"]},
+    {"id": "term-math-011", "level": "Terminale", "subject": "Mathématiques", "difficulty": 3, "prompt": "Dans une loi binomiale, que représente le paramètre n ?", "answer": "le nombre de répétitions", "accepted": ["nombre de repetitions", "le nombre de repetitions", "nombre d epreuves", "nombre de tirages"], "distractors": ["la probabilité de succès", "l'espérance", "la variance", "l'écart type"]},
+    {"id": "term-math-012", "level": "Terminale", "subject": "Mathématiques", "difficulty": 3, "prompt": "Comment appelle-t-on une droite dont la courbe se rapproche indéfiniment ?", "answer": "une asymptote", "accepted": ["asymptote", "une asymptote"], "distractors": ["une tangente", "une sécante", "une médiatrice", "une directrice"]},
+
+    {"id": "term-geo-007", "level": "Terminale", "subject": "Géographie", "difficulty": 3, "prompt": "Comment appelle-t-on la mise en réseau des grandes villes mondiales ?", "answer": "l'archipel métropolitain mondial", "accepted": ["archipel metropolitain mondial", "l archipel metropolitain mondial", "archipel megalopolitain"], "distractors": ["la mégalopole", "la conurbation", "la mondialisation financière", "le réseau urbain national"]},
+    {"id": "term-geo-008", "level": "Terminale", "subject": "Géographie", "difficulty": 2, "prompt": "Quel pays possède la plus grande zone économique exclusive du monde ?", "answer": "les États-Unis", "accepted": ["etats unis", "les etats unis", "usa"], "distractors": ["la France", "l'Australie", "la Russie", "le Japon"]},
+    {"id": "term-geo-009", "level": "Terminale", "subject": "Géographie", "difficulty": 3, "prompt": "Comment appelle-t-on le transport de marchandises par grands conteneurs standardisés ?", "answer": "la conteneurisation", "accepted": ["conteneurisation", "la conteneurisation"], "distractors": ["la maritimisation", "le cabotage", "le transbordement", "la logistique intégrée"]},
+    {"id": "term-geo-010", "level": "Terminale", "subject": "Géographie", "difficulty": 2, "prompt": "Quel détroit contrôle l'accès au golfe Persique ?", "answer": "le détroit d'Ormuz", "accepted": ["ormuz", "le detroit d ormuz"], "distractors": ["le détroit de Malacca", "le canal de Suez", "le Bosphore", "le détroit de Bab-el-Mandeb"]},
+    {"id": "term-geo-011", "level": "Terminale", "subject": "Géographie", "difficulty": 3, "prompt": "Comment appelle-t-on un territoire d'un État séparé du reste par un autre État ?", "answer": "une enclave", "accepted": ["enclave", "une enclave", "exclave"], "distractors": ["une frontière", "un couloir", "une zone tampon", "un condominium"]},
+    {"id": "term-geo-012", "level": "Terminale", "subject": "Géographie", "difficulty": 2, "prompt": "Quelle institution européenne siège à Francfort ?", "answer": "la Banque centrale européenne", "accepted": ["banque centrale europeenne", "la banque centrale europeenne", "bce"], "distractors": ["la Commission européenne", "le Parlement européen", "la Cour de justice", "le Conseil de l'Europe"]},
+
+    {"id": "term-hist-007", "level": "Terminale", "subject": "Histoire", "difficulty": 2, "prompt": "Quelle conférence de février 1945 a réuni Roosevelt, Churchill et Staline ?", "answer": "la conférence de Yalta", "accepted": ["yalta", "la conference de yalta"], "distractors": ["la conférence de Potsdam", "la conférence de Téhéran", "la conférence de Munich", "la conférence de Bretton Woods"]},
+    {"id": "term-hist-008", "level": "Terminale", "subject": "Histoire", "difficulty": 3, "prompt": "Quel mur de doctrine américaine visait à « contenir » le communisme dès 1947 ?", "answer": "la doctrine Truman", "accepted": ["doctrine truman", "la doctrine truman", "containment", "endiguement"], "distractors": ["le plan Marshall", "la doctrine Monroe", "la doctrine Brejnev", "le pacte Atlantique"]},
+    {"id": "term-hist-009", "level": "Terminale", "subject": "Histoire", "difficulty": 2, "prompt": "En quelle année le mur de Berlin a-t-il été construit ?", "answer": "1961", "accepted": ["1961", "en 1961"], "distractors": ["1949", "1953", "1968", "1989"], "numeric": true},
+    {"id": "term-hist-010", "level": "Terminale", "subject": "Histoire", "difficulty": 3, "prompt": "Quel dirigeant soviétique a lancé la perestroïka ?", "answer": "Mikhaïl Gorbatchev", "accepted": ["gorbatchev", "mikhail gorbatchev"], "distractors": ["Léonid Brejnev", "Nikita Khrouchtchev", "Boris Eltsine", "Iouri Andropov"]},
+    {"id": "term-hist-011", "level": "Terminale", "subject": "Histoire", "difficulty": 2, "prompt": "Quels accords ont mis fin à la guerre d'Algérie ?", "answer": "les accords d'Évian", "accepted": ["evian", "les accords d evian", "accords d evian"], "distractors": ["les accords de Genève", "les accords de Camp David", "le traité de Rome", "les accords d'Oslo"]},
+    {"id": "term-hist-012", "level": "Terminale", "subject": "Histoire", "difficulty": 3, "prompt": "Comment appelle-t-on la crise sociale et étudiante qui a paralysé la France au printemps 1968 ?", "answer": "Mai 68", "accepted": ["mai 68", "mai 1968", "la crise de mai 68", "les evenements de mai 68"], "distractors": ["le putsch d'Alger", "la crise du 13 mai 1958", "la marche pour l'égalité", "les émeutes de 2005"]},
+
+    {"id": "term-sci-007", "level": "Terminale", "subject": "Sciences", "difficulty": 3, "prompt": "Quelle est la valeur approchée du nombre e ?", "answer": "2,718", "accepted": ["2,718", "2.718", "2,72"], "distractors": ["3,14", "1,618", "2,302", "1,414"], "numeric": true},
+    {"id": "term-sci-008", "level": "Terminale", "subject": "Sciences", "difficulty": 3, "prompt": "Comment appelle-t-on la désintégration spontanée d'un noyau instable ?", "answer": "la radioactivité", "accepted": ["radioactivite", "la radioactivite", "desintegration radioactive"], "distractors": ["la fission contrôlée", "la fusion nucléaire", "l'ionisation", "la sublimation"]},
+    {"id": "term-sci-009", "level": "Terminale", "subject": "Sciences", "difficulty": 2, "prompt": "Quel est le pH d'une solution acide ?", "answer": "inférieur à 7", "accepted": ["inferieur a 7", "moins de 7", "sous 7"], "distractors": ["supérieur à 7", "égal à 7", "égal à 14", "toujours nul"]},
+    {"id": "term-sci-010", "level": "Terminale", "subject": "Sciences", "difficulty": 3, "prompt": "Comment appelle-t-on l'ensemble des réactions qui produisent l'ATP dans la cellule ?", "answer": "la respiration cellulaire", "accepted": ["respiration cellulaire", "la respiration cellulaire", "metabolisme energetique"], "distractors": ["la photosynthèse", "la fermentation lactique", "la glycolyse seule", "la digestion"]},
+    {"id": "term-sci-011", "level": "Terminale", "subject": "Sciences", "difficulty": 3, "prompt": "Quelle loi affirme que la quantité de matière est conservée lors d'une réaction chimique ?", "answer": "la loi de Lavoisier", "accepted": ["lavoisier", "la loi de lavoisier", "conservation de la masse"], "distractors": ["la loi de Boyle", "la loi d'Avogadro", "la loi de Dalton", "la loi de Hess"]},
+    {"id": "term-sci-012", "level": "Terminale", "subject": "Sciences", "difficulty": 2, "prompt": "Quelle unité mesure une fréquence ?", "answer": "le hertz", "accepted": ["hertz", "le hertz", "hz"], "distractors": ["le décibel", "le watt", "le newton", "le kelvin"]},
+
+    {"id": "term-angl-007", "level": "Terminale", "subject": "Anglais", "difficulty": 3, "prompt": "Que veut dire « to overlook » en français ?", "answer": "négliger", "accepted": ["negliger", "ne pas voir", "omettre", "passer a cote"], "distractors": ["surveiller", "regarder de haut", "surplomber uniquement", "revoir"]},
+    {"id": "term-angl-008", "level": "Terminale", "subject": "Anglais", "difficulty": 3, "prompt": "Comment dit-on « il est temps que tu partes » en anglais ?", "answer": "it is time you left", "accepted": ["it is time you left", "it s time you left", "it is time for you to leave"], "distractors": ["it is time you leave", "it is time that you will leave", "it has time you left", "it is time you leaving"]},
+    {"id": "term-angl-009", "level": "Terminale", "subject": "Anglais", "difficulty": 2, "prompt": "Que veut dire « a breakthrough » en français ?", "answer": "une percée", "accepted": ["percee", "une percee", "avancee majeure"], "distractors": ["une rupture", "un effondrement", "une pause", "une évasion"]},
+    {"id": "term-angl-010", "level": "Terminale", "subject": "Anglais", "difficulty": 3, "prompt": "Que veut dire « to be entitled to » en français ?", "answer": "avoir droit à", "accepted": ["avoir droit a", "avoir le droit a"], "distractors": ["être intitulé", "avoir un titre", "être obligé de", "être capable de"]},
+    {"id": "term-angl-011", "level": "Terminale", "subject": "Anglais", "difficulty": 2, "prompt": "Que veut dire « whereas » en français ?", "answer": "alors que", "accepted": ["alors que", "tandis que"], "distractors": ["où était", "puisque", "malgré", "sauf si"]},
+    {"id": "term-angl-012", "level": "Terminale", "subject": "Anglais", "difficulty": 3, "prompt": "Que veut dire « to look forward to hearing from you » ?", "answer": "attendre votre réponse avec impatience", "accepted": ["attendre votre reponse avec impatience", "j attends votre reponse avec impatience", "avoir hate de vous lire"], "distractors": ["regarder devant vous", "vous entendre plus tard", "espérer vous voir", "prévoir un appel"]}
   ]
 }
 ;</script>
 <script>var RELAX = {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "themes": ["Culture générale", "Cinéma", "Sport", "Musique"],
   "questions": [
     {"id": "det-cg-001", "theme": "Culture générale", "difficulty": 1, "prompt": "Quel animal est surnommé « le roi des animaux » ?", "answer": "le lion", "accepted": ["lion", "le lion"], "distractors": ["le tigre", "l'éléphant", "l'aigle", "l'ours"]},
@@ -1364,64 +1887,100 @@
     {"id": "det-cg-003", "theme": "Culture générale", "difficulty": 1, "prompt": "Quelle planète est la plus proche du Soleil ?", "answer": "Mercure", "accepted": ["mercure"], "distractors": ["Vénus", "Mars", "la Terre", "Jupiter"]},
     {"id": "det-cg-004", "theme": "Culture générale", "difficulty": 1, "prompt": "Quel est le plus grand animal du monde ?", "answer": "la baleine bleue", "accepted": ["baleine bleue", "la baleine bleue", "baleine"], "distractors": ["l'éléphant d'Afrique", "le requin blanc", "le cachalot", "la girafe"]},
     {"id": "det-cg-005", "theme": "Culture générale", "difficulty": 1, "prompt": "Quel fruit est associé à la légende d'Isaac Newton ?", "answer": "la pomme", "accepted": ["pomme", "la pomme"], "distractors": ["la poire", "l'orange", "la cerise", "la noix"]},
-    {"id": "det-cg-006", "theme": "Culture générale", "difficulty": 2, "prompt": "Quel métal est liquide à température ambiante ?", "answer": "le mercure", "accepted": ["mercure", "le mercure"], "distractors": ["le plomb", "l'étain", "le zinc", "l'aluminium"]},
-    {"id": "det-cg-007", "theme": "Culture générale", "difficulty": 2, "prompt": "Qui a peint « La Nuit étoilée » ?", "answer": "Vincent van Gogh", "accepted": ["van gogh", "vincent van gogh"], "distractors": ["Claude Monet", "Pablo Picasso", "Paul Gauguin", "Salvador Dalí"]},
-    {"id": "det-cg-008", "theme": "Culture générale", "difficulty": 2, "prompt": "Quelle est la monnaie du Japon ?", "answer": "le yen", "accepted": ["yen", "le yen"], "distractors": ["le yuan", "le won", "le dollar", "le baht"]},
-    {"id": "det-cg-009", "theme": "Culture générale", "difficulty": 2, "prompt": "Quel est le plus petit État du monde ?", "answer": "le Vatican", "accepted": ["vatican", "le vatican"], "distractors": ["Monaco", "Saint-Marin", "le Liechtenstein", "Malte"]},
-    {"id": "det-cg-010", "theme": "Culture générale", "difficulty": 2, "prompt": "Quels organes filtrent le sang dans le corps humain ?", "answer": "les reins", "accepted": ["reins", "les reins", "rein"], "distractors": ["les poumons", "le foie", "la rate", "le cœur"]},
-    {"id": "det-cg-011", "theme": "Culture générale", "difficulty": 3, "prompt": "Quel scientifique a formulé la théorie de la relativité ?", "answer": "Albert Einstein", "accepted": ["einstein", "albert einstein"], "distractors": ["Isaac Newton", "Niels Bohr", "Max Planck", "Galilée"]},
-    {"id": "det-cg-012", "theme": "Culture générale", "difficulty": 3, "prompt": "Quelle langue compte le plus de locuteurs natifs dans le monde ?", "answer": "le mandarin", "accepted": ["mandarin", "le mandarin", "chinois mandarin"], "distractors": ["l'anglais", "l'espagnol", "l'hindi", "l'arabe"]},
-    {"id": "det-cg-013", "theme": "Culture générale", "difficulty": 3, "prompt": "Qui a inventé l'écriture en relief pour les aveugles ?", "answer": "Louis Braille", "accepted": ["braille", "louis braille"], "distractors": ["Thomas Edison", "Alexander Bell", "Valentin Haüy", "Charles Barbier"]},
-    {"id": "det-cg-014", "theme": "Culture générale", "difficulty": 3, "prompt": "De quel pays le tango est-il originaire ?", "answer": "l'Argentine", "accepted": ["argentine", "l argentine"], "distractors": ["le Brésil", "l'Espagne", "Cuba", "le Mexique"]},
-    {"id": "det-cg-015", "theme": "Culture générale", "difficulty": 3, "prompt": "Combien de côtés a un dodécagone ?", "answer": "12", "accepted": ["12", "douze"], "distractors": ["10", "20", "8", "16"], "numeric": true},
+    {"id": "det-cg-006", "theme": "Culture générale", "difficulty": 1, "prompt": "Quel astre éclaire la Terre pendant la nuit ?", "answer": "la Lune", "accepted": ["lune", "la lune"], "distractors": ["le Soleil", "Mars", "Vénus", "une comète"]},
+    {"id": "det-cg-007", "theme": "Culture générale", "difficulty": 1, "prompt": "Combien de couleurs compte un arc-en-ciel ?", "answer": "7", "accepted": ["7", "sept"], "distractors": ["5", "6", "8", "10"], "numeric": true},
+    {"id": "det-cg-008", "theme": "Culture générale", "difficulty": 1, "prompt": "Quel liquide représente environ 60 % du corps humain ?", "answer": "l'eau", "accepted": ["eau", "l eau"], "distractors": ["le sang", "la lymphe", "la salive", "l'huile"]},
+    {"id": "det-cg-009", "theme": "Culture générale", "difficulty": 2, "prompt": "Quel est l'organe le plus étendu du corps humain ?", "answer": "la peau", "accepted": ["peau", "la peau"], "distractors": ["le foie", "l'intestin", "les poumons", "le cerveau"]},
+    {"id": "det-cg-010", "theme": "Culture générale", "difficulty": 2, "prompt": "Quelle est la capitale de l'Australie ?", "answer": "Canberra", "accepted": ["canberra"], "distractors": ["Sydney", "Melbourne", "Perth", "Brisbane"]},
+    {"id": "det-cg-011", "theme": "Culture générale", "difficulty": 2, "prompt": "Quel métal conduit le mieux l'électricité ?", "answer": "l'argent", "accepted": ["argent", "l argent"], "distractors": ["le cuivre", "l'or", "l'aluminium", "le fer"]},
+    {"id": "det-cg-012", "theme": "Culture générale", "difficulty": 2, "prompt": "Combien de minutes met la lumière du Soleil pour atteindre la Terre ?", "answer": "8", "accepted": ["8", "huit", "8 minutes"], "distractors": ["1", "24", "60", "3"], "numeric": true},
+    {"id": "det-cg-013", "theme": "Culture générale", "difficulty": 2, "prompt": "Quel est le plus long fleuve d'Europe ?", "answer": "la Volga", "accepted": ["volga", "la volga"], "distractors": ["le Danube", "le Rhin", "le Dniepr", "la Loire"]},
+    {"id": "det-cg-014", "theme": "Culture générale", "difficulty": 2, "prompt": "Quel pays compte le plus de fuseaux horaires ?", "answer": "la France", "accepted": ["france", "la france"], "distractors": ["la Russie", "les États-Unis", "la Chine", "le Royaume-Uni"]},
+    {"id": "det-cg-015", "theme": "Culture générale", "difficulty": 2, "prompt": "Quel est le seul mammifère capable de vol battu ?", "answer": "la chauve-souris", "accepted": ["chauve souris", "la chauve souris"], "distractors": ["l'écureuil volant", "le colibri", "le pétrel", "le lémurien volant"]},
+    {"id": "det-cg-016", "theme": "Culture générale", "difficulty": 2, "prompt": "Quelle est la planète la plus chaude du système solaire ?", "answer": "Vénus", "accepted": ["venus"], "distractors": ["Mercure", "Mars", "Jupiter", "Saturne"]},
+    {"id": "det-cg-017", "theme": "Culture générale", "difficulty": 3, "prompt": "Quelle est la seule mer du monde sans aucune côte ?", "answer": "la mer des Sargasses", "accepted": ["mer des sargasses", "la mer des sargasses", "sargasses"], "distractors": ["la mer Morte", "la mer Caspienne", "la mer de Corail", "la mer Noire"]},
+    {"id": "det-cg-018", "theme": "Culture générale", "difficulty": 3, "prompt": "Qui a écrit le traité politique « Le Prince » ?", "answer": "Machiavel", "accepted": ["machiavel", "nicolas machiavel"], "distractors": ["Hobbes", "Rousseau", "Montesquieu", "Érasme"]},
+    {"id": "det-cg-019", "theme": "Culture générale", "difficulty": 3, "prompt": "Quel élément chimique a pour symbole Sn ?", "answer": "l'étain", "accepted": ["etain", "l etain"], "distractors": ["le sodium", "le soufre", "le strontium", "le scandium"]},
+    {"id": "det-cg-020", "theme": "Culture générale", "difficulty": 3, "prompt": "Quelle ville abrite la Cour internationale de justice ?", "answer": "La Haye", "accepted": ["haye", "la haye"], "distractors": ["Genève", "Bruxelles", "Strasbourg", "New York"]},
+    {"id": "det-cg-021", "theme": "Culture générale", "difficulty": 3, "prompt": "Quel est le plus petit os du corps humain ?", "answer": "l'étrier", "accepted": ["etrier", "l etrier"], "distractors": ["le marteau", "l'enclume", "la phalange", "le coccyx"]},
+    {"id": "det-cg-022", "theme": "Culture générale", "difficulty": 3, "prompt": "En quelle année Constantinople est-elle tombée aux mains des Ottomans ?", "answer": "1453", "accepted": ["1453", "en 1453"], "distractors": ["1492", "1204", "1517", "1071"], "numeric": true},
+    {"id": "det-cg-023", "theme": "Culture générale", "difficulty": 3, "prompt": "Combien de cordes compte une harpe de concert ?", "answer": "47", "accepted": ["47"], "distractors": ["36", "52", "88", "24"], "numeric": true},
+    {"id": "det-cg-024", "theme": "Culture générale", "difficulty": 3, "prompt": "Quel élément est le plus abondant de l'univers ?", "answer": "l'hydrogène", "accepted": ["hydrogene", "l hydrogene"], "distractors": ["l'hélium", "l'oxygène", "le carbone", "l'azote"]},
 
     {"id": "det-cin-001", "theme": "Cinéma", "difficulty": 1, "prompt": "Dans quelle saga apparaît le personnage de Dark Vador ?", "answer": "Star Wars", "accepted": ["star wars", "la guerre des etoiles"], "distractors": ["Star Trek", "Le Seigneur des anneaux", "Dune", "Avatar"]},
     {"id": "det-cin-002", "theme": "Cinéma", "difficulty": 1, "prompt": "Quel studio a créé Mickey Mouse ?", "answer": "Disney", "accepted": ["disney", "walt disney"], "distractors": ["Pixar", "Warner Bros", "Universal", "DreamWorks"]},
     {"id": "det-cin-003", "theme": "Cinéma", "difficulty": 1, "prompt": "Comment s'appelle le poisson-clown perdu dans le film de Pixar ?", "answer": "Nemo", "accepted": ["nemo"], "distractors": ["Dory", "Marin", "Bruce", "Gill"]},
     {"id": "det-cin-004", "theme": "Cinéma", "difficulty": 1, "prompt": "Quel acteur incarne Jack dans « Titanic » ?", "answer": "Leonardo DiCaprio", "accepted": ["leonardo dicaprio", "dicaprio"], "distractors": ["Brad Pitt", "Tom Cruise", "Matt Damon", "Johnny Depp"]},
     {"id": "det-cin-005", "theme": "Cinéma", "difficulty": 1, "prompt": "Dans quel film un garçon est-il oublié seul à la maison pendant Noël ?", "answer": "Maman, j'ai raté l'avion", "accepted": ["maman j ai rate l avion", "home alone"], "distractors": ["Le Grinch", "Elfe", "Un fauteuil pour deux", "Le Pôle Express"]},
-    {"id": "det-cin-006", "theme": "Cinéma", "difficulty": 2, "prompt": "Qui a réalisé « Pulp Fiction » ?", "answer": "Quentin Tarantino", "accepted": ["tarantino", "quentin tarantino"], "distractors": ["Martin Scorsese", "Francis Ford Coppola", "Robert Rodriguez", "David Fincher"]},
-    {"id": "det-cin-007", "theme": "Cinéma", "difficulty": 2, "prompt": "Dans quel film Marty McFly voyage-t-il dans le temps ?", "answer": "Retour vers le futur", "accepted": ["retour vers le futur", "back to the future"], "distractors": ["Interstellar", "Looper", "L'Effet papillon", "Bill et Ted"]},
-    {"id": "det-cin-008", "theme": "Cinéma", "difficulty": 2, "prompt": "Quelle récompense suprême est remise au festival de Cannes ?", "answer": "la Palme d'or", "accepted": ["palme d or", "la palme d or"], "distractors": ["l'Ours d'or", "le Lion d'or", "l'Oscar", "le César"]},
-    {"id": "det-cin-009", "theme": "Cinéma", "difficulty": 2, "prompt": "Quel acteur joue Neo dans « Matrix » ?", "answer": "Keanu Reeves", "accepted": ["keanu reeves", "reeves"], "distractors": ["Laurence Fishburne", "Hugo Weaving", "Christian Bale", "Ethan Hawke"]},
-    {"id": "det-cin-010", "theme": "Cinéma", "difficulty": 2, "prompt": "Quel film d'animation japonais suit une fillette nommée Chihiro ?", "answer": "Le Voyage de Chihiro", "accepted": ["le voyage de chihiro", "voyage de chihiro"], "distractors": ["Mon voisin Totoro", "Princesse Mononoké", "Le Château ambulant", "Ponyo"]},
-    {"id": "det-cin-011", "theme": "Cinéma", "difficulty": 3, "prompt": "Qui a réalisé « 2001, l'Odyssée de l'espace » ?", "answer": "Stanley Kubrick", "accepted": ["kubrick", "stanley kubrick"], "distractors": ["Ridley Scott", "Steven Spielberg", "George Lucas", "Andreï Tarkovski"]},
-    {"id": "det-cin-012", "theme": "Cinéma", "difficulty": 3, "prompt": "Quel film sud-coréen a remporté l'Oscar du meilleur film en 2020 ?", "answer": "Parasite", "accepted": ["parasite"], "distractors": ["1917", "Joker", "Le Cas Richard Jewell", "Minari"]},
-    {"id": "det-cin-013", "theme": "Cinéma", "difficulty": 3, "prompt": "Quel réalisateur était surnommé « le maître du suspense » ?", "answer": "Alfred Hitchcock", "accepted": ["hitchcock", "alfred hitchcock"], "distractors": ["Orson Welles", "Fritz Lang", "Brian De Palma", "Roman Polanski"]},
-    {"id": "det-cin-014", "theme": "Cinéma", "difficulty": 3, "prompt": "Quel est le premier long métrage d'animation des studios Disney ?", "answer": "Blanche-Neige et les Sept Nains", "accepted": ["blanche neige", "blanche neige et les sept nains"], "distractors": ["Pinocchio", "Bambi", "Dumbo", "Fantasia"]},
-    {"id": "det-cin-015", "theme": "Cinéma", "difficulty": 3, "prompt": "Quelle actrice française a reçu l'Oscar pour son rôle d'Édith Piaf ?", "answer": "Marion Cotillard", "accepted": ["marion cotillard", "cotillard"], "distractors": ["Juliette Binoche", "Audrey Tautou", "Isabelle Huppert", "Sophie Marceau"]},
+    {"id": "det-cin-006", "theme": "Cinéma", "difficulty": 1, "prompt": "Quel studio a produit « Toy Story » ?", "answer": "Pixar", "accepted": ["pixar"], "distractors": ["DreamWorks", "Illumination", "Blue Sky", "Ghibli"]},
+    {"id": "det-cin-007", "theme": "Cinéma", "difficulty": 1, "prompt": "Comment s'appelle le lionceau héros du « Roi Lion » ?", "answer": "Simba", "accepted": ["simba"], "distractors": ["Mufasa", "Scar", "Nala", "Timon"]},
+    {"id": "det-cin-008", "theme": "Cinéma", "difficulty": 1, "prompt": "De quelle couleur est l'ogre Shrek ?", "answer": "vert", "accepted": ["vert", "verte"], "distractors": ["bleu", "marron", "gris", "jaune"]},
+    {"id": "det-cin-009", "theme": "Cinéma", "difficulty": 2, "prompt": "Qui a réalisé « Le Parrain » ?", "answer": "Francis Ford Coppola", "accepted": ["coppola", "francis ford coppola"], "distractors": ["Martin Scorsese", "Brian De Palma", "Sergio Leone", "Sidney Lumet"]},
+    {"id": "det-cin-010", "theme": "Cinéma", "difficulty": 2, "prompt": "Qui a réalisé « Le Fabuleux Destin d'Amélie Poulain » ?", "answer": "Jean-Pierre Jeunet", "accepted": ["jeunet", "jean pierre jeunet"], "distractors": ["Luc Besson", "Cédric Klapisch", "Michel Gondry", "Jacques Audiard"]},
+    {"id": "det-cin-011", "theme": "Cinéma", "difficulty": 2, "prompt": "Quel film de James Cameron a longtemps détenu le record des recettes mondiales ?", "answer": "Avatar", "accepted": ["avatar"], "distractors": ["Titanic", "Avengers: Endgame", "Star Wars VII", "Jurassic World"]},
+    {"id": "det-cin-012", "theme": "Cinéma", "difficulty": 2, "prompt": "Qui incarne le jeune Vito Corleone dans « Le Parrain 2 » ?", "answer": "Robert De Niro", "accepted": ["de niro", "robert de niro"], "distractors": ["Al Pacino", "Marlon Brando", "Joe Pesci", "James Caan"]},
+    {"id": "det-cin-013", "theme": "Cinéma", "difficulty": 2, "prompt": "Quel réalisateur japonais a signé « Les Sept Samouraïs » ?", "answer": "Akira Kurosawa", "accepted": ["kurosawa", "akira kurosawa"], "distractors": ["Yasujirō Ozu", "Hayao Miyazaki", "Takeshi Kitano", "Kenji Mizoguchi"]},
+    {"id": "det-cin-014", "theme": "Cinéma", "difficulty": 2, "prompt": "Qui a composé la musique de « Star Wars » ?", "answer": "John Williams", "accepted": ["john williams", "williams"], "distractors": ["Hans Zimmer", "Ennio Morricone", "Danny Elfman", "James Horner"]},
+    {"id": "det-cin-015", "theme": "Cinéma", "difficulty": 2, "prompt": "Qui a réalisé « Inception » ?", "answer": "Christopher Nolan", "accepted": ["nolan", "christopher nolan"], "distractors": ["Denis Villeneuve", "Ridley Scott", "David Fincher", "Alfonso Cuarón"]},
+    {"id": "det-cin-016", "theme": "Cinéma", "difficulty": 2, "prompt": "Dans quel film Robin Williams incarne-t-il un professeur de lettres inspirant ?", "answer": "Le Cercle des poètes disparus", "accepted": ["le cercle des poetes disparus", "cercle des poetes disparus"], "distractors": ["Will Hunting", "Jack", "Madame Doubtfire", "Le Club des empereurs"]},
+    {"id": "det-cin-017", "theme": "Cinéma", "difficulty": 3, "prompt": "Qui a réalisé le film « Stalker » sorti en 1979 ?", "answer": "Andreï Tarkovski", "accepted": ["tarkovski", "andrei tarkovski"], "distractors": ["Sergueï Eisenstein", "Andrzej Wajda", "Krzysztof Kieślowski", "Béla Tarr"]},
+    {"id": "det-cin-018", "theme": "Cinéma", "difficulty": 3, "prompt": "Quel film est considéré comme le premier long métrage parlant ?", "answer": "Le Chanteur de jazz", "accepted": ["le chanteur de jazz", "chanteur de jazz", "the jazz singer"], "distractors": ["Naissance d'une nation", "Metropolis", "Le Kid", "Les Lumières de la ville"]},
+    {"id": "det-cin-019", "theme": "Cinéma", "difficulty": 3, "prompt": "En quelle année les frères Lumière ont-ils organisé leur première projection publique payante ?", "answer": "1895", "accepted": ["1895", "en 1895"], "distractors": ["1900", "1888", "1910", "1927"], "numeric": true},
+    {"id": "det-cin-020", "theme": "Cinéma", "difficulty": 3, "prompt": "Combien d'Oscars « Titanic » a-t-il remportés ?", "answer": "11", "accepted": ["11", "onze"], "distractors": ["7", "9", "13", "5"], "numeric": true},
+    {"id": "det-cin-021", "theme": "Cinéma", "difficulty": 3, "prompt": "Quel film français a remporté la Palme d'or en 2013 ?", "answer": "La Vie d'Adèle", "accepted": ["la vie d adele", "vie d adele"], "distractors": ["Entre les murs", "Amour", "Dheepan", "Titane"]},
+    {"id": "det-cin-022", "theme": "Cinéma", "difficulty": 3, "prompt": "Quelle actrice détient le record de nominations aux Oscars ?", "answer": "Meryl Streep", "accepted": ["meryl streep", "streep"], "distractors": ["Katharine Hepburn", "Bette Davis", "Cate Blanchett", "Judi Dench"]},
+    {"id": "det-cin-023", "theme": "Cinéma", "difficulty": 3, "prompt": "Qui a réalisé « Le Mépris » en 1963 ?", "answer": "Jean-Luc Godard", "accepted": ["godard", "jean luc godard"], "distractors": ["François Truffaut", "Claude Chabrol", "Éric Rohmer", "Alain Resnais"]},
+    {"id": "det-cin-024", "theme": "Cinéma", "difficulty": 3, "prompt": "Quel acteur a remporté trois Oscars du meilleur acteur ?", "answer": "Daniel Day-Lewis", "accepted": ["daniel day lewis", "day lewis"], "distractors": ["Jack Nicholson", "Marlon Brando", "Tom Hanks", "Anthony Hopkins"]},
 
     {"id": "det-spo-001", "theme": "Sport", "difficulty": 1, "prompt": "Combien de joueurs de champ compte une équipe de football sur le terrain ?", "answer": "11", "accepted": ["11", "onze"], "distractors": ["10", "12", "9", "15"], "numeric": true},
     {"id": "det-spo-002", "theme": "Sport", "difficulty": 1, "prompt": "Quel sport se joue à Roland-Garros ?", "answer": "le tennis", "accepted": ["tennis", "le tennis"], "distractors": ["le golf", "le badminton", "le squash", "le padel"]},
     {"id": "det-spo-003", "theme": "Sport", "difficulty": 1, "prompt": "Combien de minutes dure un match de football, hors prolongations ?", "answer": "90", "accepted": ["90", "90 minutes", "quatre-vingt-dix"], "distractors": ["60", "120", "80", "100"], "numeric": true},
     {"id": "det-spo-004", "theme": "Sport", "difficulty": 1, "prompt": "Quel sport a rendu Michael Jordan célèbre ?", "answer": "le basket", "accepted": ["basket", "le basket", "basketball", "le basketball"], "distractors": ["le baseball", "le football américain", "le hockey", "le volley"]},
     {"id": "det-spo-005", "theme": "Sport", "difficulty": 1, "prompt": "Tous les combien d'années ont lieu les Jeux olympiques d'été ?", "answer": "4", "accepted": ["4", "quatre", "4 ans"], "distractors": ["2", "5", "3", "6"], "numeric": true},
-    {"id": "det-spo-006", "theme": "Sport", "difficulty": 2, "prompt": "Quel pays a remporté la Coupe du monde de football 2018 ?", "answer": "la France", "accepted": ["france", "la france"], "distractors": ["la Croatie", "l'Allemagne", "le Brésil", "l'Argentine"]},
-    {"id": "det-spo-007", "theme": "Sport", "difficulty": 2, "prompt": "Comment s'appelle la plus grande course cycliste française ?", "answer": "le Tour de France", "accepted": ["tour de france", "le tour de france"], "distractors": ["le Giro", "la Vuelta", "Paris-Roubaix", "le Critérium"]},
-    {"id": "det-spo-008", "theme": "Sport", "difficulty": 2, "prompt": "Dans quel sport réalise-t-on un « strike » ?", "answer": "le bowling", "accepted": ["bowling", "le bowling"], "distractors": ["le baseball", "le curling", "le golf", "la pétanque"]},
-    {"id": "det-spo-009", "theme": "Sport", "difficulty": 2, "prompt": "Combien de joueurs compte une équipe de rugby à XV sur le terrain ?", "answer": "15", "accepted": ["15", "quinze"], "distractors": ["13", "11", "14", "16"], "numeric": true},
-    {"id": "det-spo-010", "theme": "Sport", "difficulty": 2, "prompt": "Quelle épreuve d'athlétisme réunit dix disciplines ?", "answer": "le décathlon", "accepted": ["decathlon", "le decathlon"], "distractors": ["l'heptathlon", "le pentathlon", "le triathlon", "le biathlon"]},
-    {"id": "det-spo-011", "theme": "Sport", "difficulty": 3, "prompt": "Quel nageur détient le record de médailles olympiques ?", "answer": "Michael Phelps", "accepted": ["michael phelps", "phelps"], "distractors": ["Mark Spitz", "Ian Thorpe", "Caeleb Dressel", "Alain Bernard"]},
-    {"id": "det-spo-012", "theme": "Sport", "difficulty": 3, "prompt": "En quelle année la France a-t-elle gagné sa première Coupe du monde de football ?", "answer": "1998", "accepted": ["1998", "en 1998"], "distractors": ["2018", "1986", "2006", "1994"], "numeric": true},
-    {"id": "det-spo-013", "theme": "Sport", "difficulty": 3, "prompt": "Dans quel pays le judo a-t-il été créé ?", "answer": "le Japon", "accepted": ["japon", "le japon"], "distractors": ["la Chine", "la Corée", "le Brésil", "la Thaïlande"]},
-    {"id": "det-spo-014", "theme": "Sport", "difficulty": 3, "prompt": "Quelle est la distance officielle d'un marathon, en kilomètres ?", "answer": "42,195 km", "accepted": ["42,195", "42.195", "42,195 km", "42"], "distractors": ["21,097 km", "40 km", "50 km", "45 km"], "numeric": true},
-    {"id": "det-spo-015", "theme": "Sport", "difficulty": 3, "prompt": "Quel joueur de tennis détient le record de titres à Roland-Garros ?", "answer": "Rafael Nadal", "accepted": ["nadal", "rafael nadal", "rafa nadal"], "distractors": ["Roger Federer", "Novak Djokovic", "Björn Borg", "Pete Sampras"]},
+    {"id": "det-spo-006", "theme": "Sport", "difficulty": 1, "prompt": "De quelle couleur est le maillot du leader du Tour de France ?", "answer": "jaune", "accepted": ["jaune"], "distractors": ["vert", "blanc à pois rouges", "blanc", "rose"]},
+    {"id": "det-spo-007", "theme": "Sport", "difficulty": 1, "prompt": "Dans quel sport utilise-t-on un ballon ovale ?", "answer": "le rugby", "accepted": ["rugby", "le rugby"], "distractors": ["le handball", "le volley", "le water-polo", "le football"]},
+    {"id": "det-spo-008", "theme": "Sport", "difficulty": 1, "prompt": "Combien de joueurs s'affrontent dans un match de tennis en simple ?", "answer": "2", "accepted": ["2", "deux"], "distractors": ["4", "1", "6", "3"], "numeric": true},
+    {"id": "det-spo-009", "theme": "Sport", "difficulty": 2, "prompt": "Quel pays a remporté le plus de Coupes du monde de football ?", "answer": "le Brésil", "accepted": ["bresil", "le bresil"], "distractors": ["l'Allemagne", "l'Italie", "l'Argentine", "la France"]},
+    {"id": "det-spo-010", "theme": "Sport", "difficulty": 2, "prompt": "Combien de trous compte un parcours de golf complet ?", "answer": "18", "accepted": ["18", "dix-huit"], "distractors": ["9", "12", "24", "20"], "numeric": true},
+    {"id": "det-spo-011", "theme": "Sport", "difficulty": 2, "prompt": "Combien de joueurs par équipe se trouvent dans l'eau au water-polo ?", "answer": "7", "accepted": ["7", "sept"], "distractors": ["6", "8", "5", "11"], "numeric": true},
+    {"id": "det-spo-012", "theme": "Sport", "difficulty": 2, "prompt": "Quelle épreuve enchaîne natation, cyclisme et course à pied ?", "answer": "le triathlon", "accepted": ["triathlon", "le triathlon"], "distractors": ["le décathlon", "le pentathlon", "le biathlon", "l'heptathlon"]},
+    {"id": "det-spo-013", "theme": "Sport", "difficulty": 2, "prompt": "Combien de sets un homme doit-il gagner pour remporter un match à Roland-Garros ?", "answer": "3", "accepted": ["3", "trois"], "distractors": ["2", "4", "5", "6"], "numeric": true},
+    {"id": "det-spo-014", "theme": "Sport", "difficulty": 2, "prompt": "Quel boxeur était surnommé « The Greatest » ?", "answer": "Mohamed Ali", "accepted": ["mohamed ali", "muhammad ali", "ali", "cassius clay"], "distractors": ["Mike Tyson", "Joe Frazier", "Sugar Ray Robinson", "George Foreman"]},
+    {"id": "det-spo-015", "theme": "Sport", "difficulty": 2, "prompt": "Quelle est la distance officielle d'un marathon, en kilomètres ?", "answer": "42,195 km", "accepted": ["42,195", "42.195", "42,195 km", "42"], "distractors": ["21,097 km", "40 km", "50 km", "45 km"], "numeric": true},
+    {"id": "det-spo-016", "theme": "Sport", "difficulty": 2, "prompt": "Combien de joueurs compte une équipe de rugby à XV sur le terrain ?", "answer": "15", "accepted": ["15", "quinze"], "distractors": ["13", "11", "14", "16"], "numeric": true},
+    {"id": "det-spo-017", "theme": "Sport", "difficulty": 3, "prompt": "Combien de médailles d'or olympiques Usain Bolt a-t-il remportées ?", "answer": "8", "accepted": ["8", "huit"], "distractors": ["9", "6", "11", "3"], "numeric": true},
+    {"id": "det-spo-018", "theme": "Sport", "difficulty": 3, "prompt": "En quelle année se sont tenus les premiers Jeux olympiques modernes ?", "answer": "1896", "accepted": ["1896", "en 1896"], "distractors": ["1900", "1888", "1912", "1924"], "numeric": true},
+    {"id": "det-spo-019", "theme": "Sport", "difficulty": 3, "prompt": "Quel est le record du monde du 100 mètres masculin, en secondes ?", "answer": "9,58", "accepted": ["9,58", "9.58"], "distractors": ["9,69", "9,85", "10,49", "9,72"], "numeric": true},
+    {"id": "det-spo-020", "theme": "Sport", "difficulty": 3, "prompt": "Dans quel pays le curling est-il né ?", "answer": "l'Écosse", "accepted": ["ecosse", "l ecosse"], "distractors": ["le Canada", "la Norvège", "la Suède", "la Suisse"]},
+    {"id": "det-spo-021", "theme": "Sport", "difficulty": 3, "prompt": "Combien de minutes dure un match de NBA, hors prolongation ?", "answer": "48", "accepted": ["48"], "distractors": ["40", "60", "45", "36"], "numeric": true},
+    {"id": "det-spo-022", "theme": "Sport", "difficulty": 3, "prompt": "Quelle nation a remporté la première Coupe du monde de rugby, en 1987 ?", "answer": "la Nouvelle-Zélande", "accepted": ["nouvelle zelande", "la nouvelle zelande"], "distractors": ["l'Australie", "l'Afrique du Sud", "la France", "l'Angleterre"]},
+    {"id": "det-spo-023", "theme": "Sport", "difficulty": 3, "prompt": "Quel nageur détient le record de médailles olympiques ?", "answer": "Michael Phelps", "accepted": ["michael phelps", "phelps"], "distractors": ["Mark Spitz", "Ian Thorpe", "Caeleb Dressel", "Alain Bernard"]},
+    {"id": "det-spo-024", "theme": "Sport", "difficulty": 3, "prompt": "Quel joueur détient le record de titres à Roland-Garros ?", "answer": "Rafael Nadal", "accepted": ["nadal", "rafael nadal", "rafa nadal"], "distractors": ["Roger Federer", "Novak Djokovic", "Björn Borg", "Pete Sampras"]},
 
     {"id": "det-mus-001", "theme": "Musique", "difficulty": 1, "prompt": "Combien de cordes a une guitare classique ?", "answer": "6", "accepted": ["6", "six"], "distractors": ["4", "5", "7", "12"], "numeric": true},
     {"id": "det-mus-002", "theme": "Musique", "difficulty": 1, "prompt": "Quel instrument possède des touches blanches et noires ?", "answer": "le piano", "accepted": ["piano", "le piano"], "distractors": ["l'orgue de Barbarie", "l'accordéon", "la harpe", "le xylophone"]},
     {"id": "det-mus-003", "theme": "Musique", "difficulty": 1, "prompt": "Dans quel groupe britannique chantait John Lennon ?", "answer": "les Beatles", "accepted": ["beatles", "les beatles"], "distractors": ["les Rolling Stones", "Queen", "Pink Floyd", "The Who"]},
     {"id": "det-mus-004", "theme": "Musique", "difficulty": 1, "prompt": "De quel instrument joue-t-on avec un archet ?", "answer": "le violon", "accepted": ["violon", "le violon"], "distractors": ["la flûte", "la trompette", "la batterie", "la guitare"]},
     {"id": "det-mus-005", "theme": "Musique", "difficulty": 1, "prompt": "Comment appelle-t-on un grand ensemble de musiciens dirigé par un chef ?", "answer": "un orchestre", "accepted": ["orchestre", "un orchestre"], "distractors": ["une chorale", "un quatuor", "une fanfare", "un duo"]},
-    {"id": "det-mus-006", "theme": "Musique", "difficulty": 2, "prompt": "Qui a composé « La Lettre à Élise » ?", "answer": "Ludwig van Beethoven", "accepted": ["beethoven", "ludwig van beethoven"], "distractors": ["Mozart", "Chopin", "Bach", "Schubert"]},
-    {"id": "det-mus-007", "theme": "Musique", "difficulty": 2, "prompt": "Combien de notes compte la gamme de do majeur, sans répéter l'octave ?", "answer": "7", "accepted": ["7", "sept"], "distractors": ["8", "5", "12", "6"], "numeric": true},
-    {"id": "det-mus-008", "theme": "Musique", "difficulty": 2, "prompt": "Quel chanteur américain était surnommé « le King » ?", "answer": "Elvis Presley", "accepted": ["elvis", "elvis presley", "presley"], "distractors": ["Michael Jackson", "Frank Sinatra", "Chuck Berry", "Johnny Cash"]},
-    {"id": "det-mus-009", "theme": "Musique", "difficulty": 2, "prompt": "De quel pays le reggae est-il originaire ?", "answer": "la Jamaïque", "accepted": ["jamaique", "la jamaique"], "distractors": ["Cuba", "le Brésil", "Haïti", "le Nigeria"]},
-    {"id": "det-mus-010", "theme": "Musique", "difficulty": 2, "prompt": "Qui a chanté « Ne me quitte pas » ?", "answer": "Jacques Brel", "accepted": ["jacques brel", "brel"], "distractors": ["Georges Brassens", "Charles Aznavour", "Léo Ferré", "Serge Gainsbourg"]},
-    {"id": "det-mus-011", "theme": "Musique", "difficulty": 3, "prompt": "Quel compositeur autrichien est mort en 1791 à l'âge de 35 ans ?", "answer": "Mozart", "accepted": ["mozart", "wolfgang amadeus mozart"], "distractors": ["Haydn", "Beethoven", "Salieri", "Schubert"]},
-    {"id": "det-mus-012", "theme": "Musique", "difficulty": 3, "prompt": "Combien de symphonies Beethoven a-t-il achevées ?", "answer": "9", "accepted": ["9", "neuf"], "distractors": ["5", "7", "12", "41"], "numeric": true},
-    {"id": "det-mus-013", "theme": "Musique", "difficulty": 3, "prompt": "Quelle chanteuse américaine est surnommée « Queen of Soul » ?", "answer": "Aretha Franklin", "accepted": ["aretha franklin", "aretha"], "distractors": ["Tina Turner", "Whitney Houston", "Diana Ross", "Nina Simone"]},
-    {"id": "det-mus-014", "theme": "Musique", "difficulty": 3, "prompt": "Quel instrument à vent en cuivre possède une coulisse ?", "answer": "le trombone", "accepted": ["trombone", "le trombone"], "distractors": ["la trompette", "le tuba", "le cor", "le saxophone"]},
-    {"id": "det-mus-015", "theme": "Musique", "difficulty": 3, "prompt": "Quel album de Michael Jackson est le plus vendu de l'histoire ?", "answer": "Thriller", "accepted": ["thriller"], "distractors": ["Bad", "Dangerous", "Off the Wall", "Invincible"]}
+    {"id": "det-mus-006", "theme": "Musique", "difficulty": 1, "prompt": "Quel instrument frappe-t-on avec des baguettes ?", "answer": "la batterie", "accepted": ["batterie", "la batterie", "tambour"], "distractors": ["le piano", "la contrebasse", "la clarinette", "le violoncelle"]},
+    {"id": "det-mus-007", "theme": "Musique", "difficulty": 1, "prompt": "Comment appelle-t-on un morceau chanté par deux personnes ?", "answer": "un duo", "accepted": ["duo", "un duo"], "distractors": ["un solo", "un trio", "un choeur", "un quatuor"]},
+    {"id": "det-mus-008", "theme": "Musique", "difficulty": 1, "prompt": "De quel instrument Louis Armstrong jouait-il ?", "answer": "la trompette", "accepted": ["trompette", "la trompette"], "distractors": ["le saxophone", "le piano", "la clarinette", "le trombone"]},
+    {"id": "det-mus-009", "theme": "Musique", "difficulty": 2, "prompt": "Combien de touches compte un piano de concert ?", "answer": "88", "accepted": ["88"], "distractors": ["76", "61", "96", "108"], "numeric": true},
+    {"id": "det-mus-010", "theme": "Musique", "difficulty": 2, "prompt": "Quel groupe a enregistré « Bohemian Rhapsody » ?", "answer": "Queen", "accepted": ["queen"], "distractors": ["Led Zeppelin", "The Beatles", "Pink Floyd", "David Bowie"]},
+    {"id": "det-mus-011", "theme": "Musique", "difficulty": 2, "prompt": "Qui a composé « La Lettre à Élise » ?", "answer": "Ludwig van Beethoven", "accepted": ["beethoven", "ludwig van beethoven"], "distractors": ["Mozart", "Chopin", "Bach", "Schubert"]},
+    {"id": "det-mus-012", "theme": "Musique", "difficulty": 2, "prompt": "De quel pays le reggae est-il originaire ?", "answer": "la Jamaïque", "accepted": ["jamaique", "la jamaique"], "distractors": ["Cuba", "le Brésil", "Haïti", "le Nigeria"]},
+    {"id": "det-mus-013", "theme": "Musique", "difficulty": 2, "prompt": "Qui a chanté « Ne me quitte pas » ?", "answer": "Jacques Brel", "accepted": ["jacques brel", "brel"], "distractors": ["Georges Brassens", "Charles Aznavour", "Léo Ferré", "Serge Gainsbourg"]},
+    {"id": "det-mus-014", "theme": "Musique", "difficulty": 2, "prompt": "Quel chanteur américain était surnommé « le King » ?", "answer": "Elvis Presley", "accepted": ["elvis", "elvis presley", "presley"], "distractors": ["Michael Jackson", "Frank Sinatra", "Chuck Berry", "Johnny Cash"]},
+    {"id": "det-mus-015", "theme": "Musique", "difficulty": 2, "prompt": "Combien de musiciens compte un quintette ?", "answer": "5", "accepted": ["5", "cinq"], "distractors": ["4", "6", "3", "7"], "numeric": true},
+    {"id": "det-mus-016", "theme": "Musique", "difficulty": 2, "prompt": "À quelle note française correspond le « A » de la notation anglo-saxonne ?", "answer": "la", "accepted": ["la", "note la"], "distractors": ["do", "ré", "si", "sol"]},
+    {"id": "det-mus-017", "theme": "Musique", "difficulty": 3, "prompt": "Combien de symphonies Mozart a-t-il composées ?", "answer": "41", "accepted": ["41"], "distractors": ["9", "27", "104", "35"], "numeric": true},
+    {"id": "det-mus-018", "theme": "Musique", "difficulty": 3, "prompt": "Qui a composé « Le Sacre du printemps » ?", "answer": "Igor Stravinsky", "accepted": ["stravinsky", "igor stravinsky"], "distractors": ["Claude Debussy", "Maurice Ravel", "Sergueï Prokofiev", "Béla Bartók"]},
+    {"id": "det-mus-019", "theme": "Musique", "difficulty": 3, "prompt": "Dans quelle ville se déroule l'opéra « Carmen » de Bizet ?", "answer": "Séville", "accepted": ["seville"], "distractors": ["Madrid", "Grenade", "Barcelone", "Naples"]},
+    {"id": "det-mus-020", "theme": "Musique", "difficulty": 3, "prompt": "Combien de cordes compte une contrebasse d'orchestre ?", "answer": "4", "accepted": ["4", "quatre"], "distractors": ["5", "6", "3", "7"], "numeric": true},
+    {"id": "det-mus-021", "theme": "Musique", "difficulty": 3, "prompt": "Quelle chanteuse américaine est surnommée « Queen of Soul » ?", "answer": "Aretha Franklin", "accepted": ["aretha franklin", "aretha"], "distractors": ["Tina Turner", "Whitney Houston", "Diana Ross", "Nina Simone"]},
+    {"id": "det-mus-022", "theme": "Musique", "difficulty": 3, "prompt": "Quel album de Michael Jackson est le plus vendu de l'histoire ?", "answer": "Thriller", "accepted": ["thriller"], "distractors": ["Bad", "Dangerous", "Off the Wall", "Invincible"]},
+    {"id": "det-mus-023", "theme": "Musique", "difficulty": 3, "prompt": "Qui a fondé le label Motown ?", "answer": "Berry Gordy", "accepted": ["berry gordy", "gordy"], "distractors": ["Quincy Jones", "Phil Spector", "Ahmet Ertegun", "Sam Phillips"]},
+    {"id": "det-mus-024", "theme": "Musique", "difficulty": 3, "prompt": "Quel instrument à vent en cuivre possède une coulisse ?", "answer": "le trombone", "accepted": ["trombone", "le trombone"], "distractors": ["la trompette", "le tuba", "le cor", "le saxophone"]}
   ]
 }
 ;</script>
@@ -1431,6 +1990,7 @@
   "anonKey": ""
 }
 ;</script>
+<script>var BUILD = {"version":"4646485","date":"2026-07-27 14:18"};</script>
 <script>
 (function () {
   'use strict';
@@ -1446,7 +2006,7 @@
 
   var view = 'title';        // title | modes | play | map | diploma | endBac | endRelax | ranking
   var game = null, tick = null, feedback = null, mcOpen = false, revealed = null;
-  var recognizing = false, draft = '', anim = null, pseudoAsked = false, rank = null;
+  var recognizing = false, draft = '', anim = null, pseudoAsked = false, rank = null, lastQ = null;
 
   function muted() { return localStorage.getItem(MUTE_KEY) === '1'; }
   function toggleMute() { localStorage.setItem(MUTE_KEY, muted() ? '0' : '1'); render(); }
@@ -1666,7 +2226,37 @@
   }
 
   // ------------------------------------------------------------------ écrans
+  /** Affiche une panne au lieu de laisser l'écran figé, avec de quoi diagnostiquer. */
+  function showFailure(err, where) {
+    stopTimer();
+    var msg = String((err && err.message) || err);
+    var stack = String((err && err.stack) || '').split('\n').slice(1, 4).join('\n');
+    app.innerHTML =
+      '<div class="card center">' +
+        '<h1>Oups 😅</h1>' +
+        '<p class="muted">Un souci pendant « ' + esc(where) + ' ». Ton meilleur score est enregistré.</p>' +
+        '<pre style="text-align:left;font-size:11px;white-space:pre-wrap;background:#ffe0e3;' +
+          'border:3px solid var(--ink);border-radius:12px;padding:10px">' + esc(msg + '\n' + stack) + '</pre>' +
+        '<div class="hint">version ' + esc(BUILD.version) + '</div>' +
+        '<button class="btn go" id="back-menu">Retour au menu</button>' +
+      '</div>';
+    var b = document.getElementById('back-menu');
+    if (b) b.onclick = function () { view = 'modes'; anim = null; feedback = null; revealed = null; render(); };
+  }
+
+  // une erreur asynchrone (chrono, son, stockage) ne doit pas non plus tout arrêter
+  window.onerror = function (msg, src, line, col, err) { showFailure(err || msg, 'exécution, ligne ' + line); };
+  window.addEventListener('unhandledrejection', function (e) { showFailure(e.reason, 'tâche de fond'); });
+
   function render() {
+    try {
+      draw();
+    } catch (err) {
+      return showFailure(err, 'affichage');
+    }
+  }
+
+  function draw() {
     if (view === 'title') return renderTitle();
     if (view === 'modes') return renderModes();
     if (view === 'map') return renderMap();
@@ -1726,6 +2316,7 @@
           '<div class="scene">' + classroom() + '</div>' +
           '<p class="muted" style="margin:14px 0 0">Du CP à la Terminale.<br>Réponds vite, réponds juste.</p>' +
           '<button class="btn go" id="start">Commencer</button>' +
+          '<div class="hint" style="margin-top:10px">version ' + esc(BUILD.version) + ' · ' + esc(BUILD.date) + '</div>' +
         '</div>' +
       '</div>';
     document.getElementById('mute').onclick = toggleMute;
@@ -1770,7 +2361,8 @@
     fx.innerHTML =
       '<div class="modal"><div class="modal-card">' +
         '<button class="close-x" id="px">✕</button>' +
-        '<h2 class="center" style="margin:0 0 14px">Choisis ton pseudo</h2>' +
+        '<h2 class="center" style="margin:0 0 4px">Choisis ton pseudo</h2>' +
+        '<div class="hint center" style="margin:0 0 12px">Ton numéro de joueur : <b>#' + esc(S.getTag()) + '</b></div>' +
         '<input type="text" id="pseudo" maxlength="14" placeholder="3 à 14 caractères" value="' + esc(S.getPseudo()) + '">' +
         '<div class="hint center" id="perr"></div>' +
         '<button class="btn go" id="pok">Valider</button>' +
@@ -1790,26 +2382,57 @@
     input.onkeydown = function (e) { if (e.key === 'Enter') submit(); };
   }
 
+  /** Chapeau de diplômé et feuille, dessinés pour rester nets à toute taille. */
+  function icoBac() {
+    return '<svg width="30" height="30" viewBox="0 0 30 30">' +
+      '<path d="M2 11 L15 5 L28 11 L15 17 Z" fill="#fff" stroke="#2a2140" stroke-width="2.4" stroke-linejoin="round"/>' +
+      '<path d="M8 14 v6 c0 2 14 2 14 0 v-6" fill="none" stroke="#2a2140" stroke-width="2.4"/>' +
+      '<path d="M26 12 v8" stroke="#2a2140" stroke-width="2.4"/><circle cx="26" cy="22" r="2.2" fill="#2a2140"/></svg>';
+  }
+  function icoRelax() {
+    return '<svg width="30" height="30" viewBox="0 0 30 30">' +
+      '<path d="M15 26 C15 14 20 6 27 4 C27 14 23 24 15 26 Z" fill="#fff" stroke="#2a2140" stroke-width="2.4" stroke-linejoin="round"/>' +
+      '<path d="M15 26 C13 18 9 12 3 10 C4 18 8 24 15 26 Z" fill="#fff" stroke="#2a2140" stroke-width="2.4" stroke-linejoin="round"/>' +
+      '<path d="M15 27 v-9" stroke="#2a2140" stroke-width="2.4"/></svg>';
+  }
+
   function renderModes() {
-    var p = S.getPseudo();
+    var p = S.getPseudo(), tag = S.getTag();
+    var bestBac = S.best('bac'), bestRelax = S.best('detente');
     app.innerHTML =
       '<div class="card">' + muteBtn() +
-        '<h1 class="center">Choisis ton mode</h1>' +
+        '<h1 class="center" style="margin-bottom:14px">Choisis ton mode</h1>' +
+        '<button class="player" id="edit-pseudo">' +
+          '<span class="avatar"><svg width="26" height="30" viewBox="0 0 12 16">' + sprite(1, 0) + '</svg></span>' +
+          '<span class="who">' +
+            '<span class="name">' + (p ? esc(p) + ' <span class="num">#' + esc(tag) + '</span>' : 'Choisis ton pseudo') + '</span>' +
+            (p ? '' : '<span class="edit">Pour apparaître au classement</span>') +
+          '</span>' +
+          '<span class="pencil">✏️</span>' +
+        '</button>' +
+
         '<button class="mode bac" id="m-bac">' +
-          '<b>🎓 Quizz BAC</b>' +
-          '<p>Le parcours complet, du CP à la Terminale.</p>' +
-          '<span class="tag">Record : ' + S.best('bac') + ' pts</span>' +
+          '<span class="band"><span class="ico">' + icoBac() + '</span>' +
+            '<span class="ttl"><b>Quizz BAC</b><small>12 CLASSES · 6 MATIÈRES</small></span>' +
+            '</span>' +
+          '<span class="body">' +
+            '<p>Le parcours complet, du CP à la Terminale.</p>' +
+            '<span class="rec">Record : ' + bestBac + ' pts</span>' +
+          '</span>' +
         '</button>' +
+
         '<button class="mode relax" id="m-relax">' +
-          '<b>🌿 Quizz détente</b>' +
-          '<p>30 questions, thèmes variés (culture générale, cinéma, sport, musique).</p>' +
-          '<span class="tag">Record : ' + S.best('detente') + ' pts</span>' +
+          '<span class="band"><span class="ico">' + icoRelax() + '</span>' +
+            '<span class="ttl"><b>Quizz détente</b><small>30 QUESTIONS · 4 THÈMES</small></span>' +
+            '</span>' +
+          '<span class="body">' +
+            '<p>30 questions, thèmes variés (culture générale, cinéma, sport, musique).</p>' +
+            '<span class="rec">Record : ' + bestRelax + ' pts</span>' +
+          '</span>' +
         '</button>' +
-        '<div class="between" style="margin-top:16px">' +
-          '<small class="muted">' + (p ? 'Joueur : <b>' + esc(p) + '</b>' : 'Aucun pseudo') + '</small>' +
-          '<button class="chip" id="edit-pseudo">' + (p ? 'Changer' : 'Choisir un pseudo') + '</button>' +
-        '</div>' +
+
         '<button class="btn ghost" id="see-rank">Voir le classement</button>' +
+        '<div class="hint center">version ' + esc(BUILD.version) + '</div>' +
       '</div>';
     document.getElementById('mute').onclick = toggleMute;
     document.getElementById('m-bac').onclick = function () { startMode('bac'); };
@@ -1826,7 +2449,7 @@
     }
     if (mode === 'bac') game = E.createGame(BANK, { seen: seenIds() });
     else game = E.createRelax(RELAX, {});
-    feedback = null; revealed = null; mcOpen = false; draft = ''; anim = null;
+    feedback = null; revealed = null; mcOpen = false; draft = ''; anim = null; lastQ = null;
     view = 'play'; startTimer(); render();
   }
 
@@ -1839,14 +2462,20 @@
   }
 
   function renderPlay() {
-    var p = E.progress(game), q = game.current;
+    // sur la toute dernière question, le moteur a déjà terminé la partie : on garde l'énoncé
+    // sous la main pour afficher le retour, l'écran de fin arrive juste après
+    var q = game.current || lastQ;
     if (!q) return finishGame();
+    var p = E.progress(game);
     var pct = Math.max(0, Math.min(100, game.timeLeft / game.config.timerSeconds * 100));
     var cls = game.timeLeft <= 5 ? 'crit' : (game.timeLeft <= 10 ? 'low' : '');
     var fb = feedback ? (feedback.good ? ' pop-good' : ' pop-bad') : '';
     var head;
 
-    if (p.mode === 'bac') {
+    if (game.finished) {                            // partie terminée : bandeau minimal
+      head = '<div class="scorebar"><span class="lbl">SCORE</span>' + coins(3) +
+        '<span class="val">' + game.score + '</span></div>';
+    } else if (p.mode === 'bac') {
       var pips = '';
       for (var i = 0; i < p.steps; i++) {
         pips += '<span class="pip ' + (i < game.subjectIndex ? 'done' : (i === game.subjectIndex ? 'now' : '')) + '"></span>';
@@ -2033,12 +2662,14 @@
   }
 
   function renderRanking() {
-    var me = S.getPseudo();
+    var me = S.getPseudo(), myTag = S.getTag();
     var rows = (rank && rank.rows) || [];
     var body = rows.map(function (r, i) {
-      var mine = r.pseudo === me;
-      return '<tr' + (mine ? ' class="me"' : '') + '><td class="n">' + (i + 1) + '</td>' +
-        '<td>' + esc(r.pseudo) + '</td><td class="s">' + r.score + '</td></tr>';
+      var mine = r.pseudo === me && (!r.tag || r.tag === myTag);
+      var medal = i === 0 ? '🥇 ' : (i === 1 ? '🥈 ' : (i === 2 ? '🥉 ' : ''));
+      return '<tr' + (mine ? ' class="me"' : '') + '><td class="n">' + medal + (i + 1) + '</td>' +
+        '<td>' + esc(r.pseudo) + ' <span class="muted" style="font-weight:700">#' + esc(r.tag || '?????') + '</span></td>' +
+        '<td class="s">' + r.score + '</td></tr>';
     }).join('');
     app.innerHTML =
       '<div class="card">' + muteBtn() +
@@ -2173,6 +2804,7 @@
 
   function onTimeout() {
     var q = game.current;
+    if (!q || game.finished) return finishGame();    // le chrono a sonné après la fin : on sort proprement
     game.__lastOptions = game.options.slice();
     var r = E.timeout(game);
     revealed = { answer: q.answer, given: null };
@@ -2183,7 +2815,8 @@
 
   function after(r, q, text) {
     stopTimer();
-    mcOpen = false; draft = '';
+    lastQ = q;                                      // pour pouvoir afficher le retour même si
+    mcOpen = false; draft = '';                     // le moteur a déjà clos la partie
     var delta = r.points ? r.points : (r.lost ? -r.lost : 0);
     feedback = { good: !!r.correct, text: text, delta: delta };
     if (r.correct) sfx.good();
@@ -2211,21 +2844,30 @@
   /** Fin de partie : on enregistre le score, puis diplôme ou écran de fin. */
   function finishGame() {
     stopTimer();
-    var mode = game.mode === 'bac' ? 'bac' : 'detente';
-    if (game.mode === 'bac') saveSeen(game.seen);
-    S.submit({
-      pseudo: S.getPseudo(), score: game.score, mode: mode,
-      level: game.mode === 'bac' ? ALL_LEVELS[Math.min(game.levelIndex, ALL_LEVELS.length - 1)] : null
-    });
-    if (game.mode === 'detente') { sfx.win(); view = 'endRelax'; return render(); }
-    if (game.won) { sfx.win(); view = 'diploma'; return render(); }
-    view = 'endBac'; render();
+    if (game.__submitted) {                         // déjà fait : on ne réenregistre pas
+      view = game.mode === 'detente' ? 'endRelax' : (game.won ? 'diploma' : 'endBac');
+      return render();
+    }
+    game.__submitted = true;
+    // enregistrement et son isolés : s'ils échouent, l'écran de fin s'affiche quand même
+    try {
+      if (game.mode === 'bac') saveSeen(game.seen);
+      S.submit({
+        pseudo: S.getPseudo(), score: game.score, mode: game.mode === 'bac' ? 'bac' : 'detente',
+        level: game.mode === 'bac' ? ALL_LEVELS[Math.min(game.levelIndex, ALL_LEVELS.length - 1)] : null
+      });
+    } catch (e) { /* score non enregistré, la partie reste jouable */ }
+    try { sfx.win(); } catch (e) { /* son indisponible */ }
+    view = game.mode === 'detente' ? 'endRelax' : (game.won ? 'diploma' : 'endBac');
+    render();
   }
 
   function startTimer() {
     stopTimer();
+    if (!game || game.finished) return;
     var last = Date.now();
     tick = setInterval(function () {
+      if (!game || game.finished || !game.current || view !== 'play') { stopTimer(); return; }
       var now = Date.now(); game.timeLeft -= (now - last) / 1000; last = now;
       if (game.timeLeft <= 0) { game.timeLeft = 0; stopTimer(); return onTimeout(); }
       var bar = document.querySelector('.timer > i'), lbl = document.querySelector('.timer + .between small');
@@ -2251,6 +2893,13 @@
     rec.onerror = rec.onend = function () { if (recognizing) { recognizing = false; render(); } };
     rec.start();
   }
+
+  // sur téléphone, passer l'app en arrière-plan met le chrono en pause plutôt que de le laisser
+  // filer : au retour, le joueur reprend là où il en était
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { stopTimer(); return; }
+    if (view === 'play' && game && !game.finished && game.current && !feedback) startTimer();
+  });
 
   S.flush();          // envoie les scores restés en attente
   render();

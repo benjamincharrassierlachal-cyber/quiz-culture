@@ -146,8 +146,10 @@ Avec 1 question par matière, une partie ne consomme que 5 questions par classe 
 volume vient donc du **rejeu**, pas de la longueur d'une partie. Pour qu'un joueur régulier ne
 recroise pas une question avant une vingtaine de parties :
 
-- **État actuel : 360 questions** (12 classes × 5 matières × 6), soit une banque complète du CP
-  au Bac, jouable de bout en bout. C'est le minimum pour que le jeu tienne debout.
+- **État actuel : 804 questions en mode BAC** — 12 par pool sur les 67 couples (classe, matière) —
+  et **96 en mode détente** (32 par palier). Les paliers 2 et 3 du mode détente ont été durcis
+  après les retours des testeurs, qui les trouvaient trop faciles.
+- Prochaine étape de contenu : passer de 12 à 30 par pool, soit environ 2 000 questions.
 - Le pool de chaque couple (classe, matière) devrait contenir **au moins 30 questions** en
   production, soit **1 800 questions** (2 400 en cible confortable) : c'est l'objectif de contenu
   qui reste à produire avant publication.
@@ -161,8 +163,13 @@ recroise pas une question avant une vingtaine de parties :
 
 ## 5 bis. Pseudo et classement
 
-Le joueur choisit un **pseudo** (3 à 14 caractères) avant sa première partie. Rien d'autre n'est
-demandé : ni e-mail, ni compte, ni mot de passe.
+Le joueur choisit un **pseudo** (3 à 14 caractères) avant sa première partie — pop-up avec une
+croix pour passer et jouer sans être classé. Rien d'autre n'est demandé : ni e-mail, ni compte, ni
+mot de passe.
+
+À la première ouverture, un **numéro de joueur à 5 chiffres** est tiré au hasard et conservé sur
+l'appareil : le classement affiche « Benji #04217 », ce qui évite la confusion entre deux joueurs
+au même pseudo. Le pseudo s'affiche en haut du menu, dans une barre cliquable pour le modifier.
 
 - Sans configuration, le classement affiche les parties de l'appareil.
 - Avec un projet **Supabase** gratuit (voir `SUPABASE.md`), les scores partent dans une table
