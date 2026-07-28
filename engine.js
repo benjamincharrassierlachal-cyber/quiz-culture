@@ -28,7 +28,11 @@
     perfectBonusLife: 1,      // classe sans faute au secondaire
     bonusLifeFromLevel: 5,    // index de la 6ème : à partir de là, le bonus est une vie
     relaxQuestions: 30,       // mode détente
-    relaxTiers: 3             // 3 paliers de difficulté (10 questions chacun)
+    relaxTiers: 3,            // 3 paliers de difficulté (10 questions chacun)
+    jokerCost: 6,             // chaque joker coûte 6 points
+    jokersFromLevel: 5,       // disponibles à partir de la 6ème
+    jokerHideCount: 3,        // « 40/60 » : trois mauvaises réponses barrées
+    resumeMinSeconds: 5       // à la reprise, on garde le temps restant, jamais moins de 5 s
   };
 
   // ---------------------------------------------------------------- normalisation
@@ -191,6 +195,10 @@
       seen: (options.seen || []).slice(),
       freeWrongStreak: 0,
       timeLeft: cfg.timerSeconds,
+      budget: cfg.timerSeconds,     // secondes accordées pour la question en cours
+      spent: 0,                     // temps de jeu cumulé, hors pauses
+      jokers: { fifty: true, swap: true, pass: true },
+      hiddenWrong: [],              // mauvaises réponses barrées par le joker 40/60
       current: null,
       options: [],
       finished: false,
@@ -228,6 +236,8 @@
     state.current = q;
     state.options = makeOptions(state, q);
     state.timeLeft = state.config.timerSeconds;
+    state.budget = state.config.timerSeconds;
+    state.hiddenWrong = [];
     return q;
   }
 
@@ -238,6 +248,12 @@
   function mustUseMC(state) {
     var n = state.config.forceMCAfterFreeWrong;
     return state.mode === 'bac' && n > 0 && state.freeWrongStreak >= n;
+  }
+
+  /** Ajoute au compteur de temps ce que la question vient de coûter. */
+  function tickSpent(state) {
+    var used = (state.budget || state.config.timerSeconds) - state.timeLeft;
+    state.spent = Math.round((state.spent || 0) + Math.max(0, used));
   }
 
   function award(state, points) {
@@ -329,12 +345,17 @@
 
   // ---------------------------------------------------------------- mode détente
 
-  /** 30 questions, thèmes mélangés, difficulté croissante par paliers de 10. */
+  /** 30 questions, thèmes mélangés, difficulté croissante par paliers de 10.
+   *  Les questions déjà vues lors des parties précédentes passent en dernier recours :
+   *  sans cela, on retombe vite sur les mêmes d'une partie à l'autre. */
   function createRelax(bank, options) {
     options = options || {};
     var cfg = Object.assign({}, CONFIG, options.config || {});
     var rng = rngFor(options);
     var total = cfg.relaxQuestions, tiers = cfg.relaxTiers, perTier = Math.round(total / tiers);
+    var seen = (options.seen || []).slice();
+    var isSeen = {};
+    seen.forEach(function (id) { isSeen[id] = 1; });
 
     var byTier = {};
     bank.questions.forEach(function (q) {
@@ -345,8 +366,10 @@
     var queue = [], used = {};
     for (var t = 1; t <= tiers; t++) {
       var wanted = (t === tiers) ? total - queue.length : perTier;
-      var pool = shuffle((byTier[t] || []).filter(function (q) { return !used[q.id]; }), rng);
-      // pas assez de questions dans ce palier : on complète avec les paliers voisins
+      var all = (byTier[t] || []).filter(function (q) { return !used[q.id]; });
+      // d'abord les questions jamais vues, puis les autres si le palier est trop petit
+      var pool = shuffle(all.filter(function (q) { return !isSeen[q.id]; }), rng)
+        .concat(shuffle(all.filter(function (q) { return isSeen[q.id]; }), rng));
       if (pool.length < wanted) {
         var extra = shuffle(bank.questions.filter(function (q) {
           return !used[q.id] && pool.indexOf(q) === -1;
@@ -367,9 +390,13 @@
       pointsSinceCheckpoint: 0,
       correctCount: 0,
       lives: 0,
-      seen: [],
+      seen: seen,
       freeWrongStreak: 0,
       timeLeft: cfg.timerSeconds,
+      budget: cfg.timerSeconds,
+      spent: 0,
+      jokers: { fifty: false, swap: false, pass: false },   // réservés au mode BAC
+      hiddenWrong: [],
       current: queue[0] || null,
       options: [],
       finished: !queue.length,
@@ -382,6 +409,7 @@
 
   /** Détente : on passe simplement à la question suivante, juste ou faux. */
   function relaxNext(state) {
+    markSeen(state, state.current);        // mémorisé pour les parties suivantes
     state.index++;
     state.freeWrongStreak = 0;
     if (state.index >= state.queue.length) {
@@ -391,6 +419,8 @@
     state.current = state.queue[state.index];
     state.options = makeOptions(state, state.current);
     state.timeLeft = state.config.timerSeconds;
+    state.budget = state.config.timerSeconds;
+    state.hiddenWrong = [];
     return 'nextQuestion';
   }
 
@@ -400,6 +430,7 @@
     if (state.finished) return { ok: false, reason: 'finished' };
     if (mustUseMC(state)) return { ok: false, reason: 'mcForced' };
     var q = state.current;
+    tickSpent(state);
     var correct = checkFree(q, input);
     var res = { mode: 'free', correct: correct, question: q, given: input, points: 0, lost: 0 };
 
@@ -430,6 +461,7 @@
   function answerMC(state, choice) {
     if (state.finished) return { ok: false, reason: 'finished' };
     var q = state.current;
+    tickSpent(state);
     var correct = normalize(choice) === normalize(q.answer);
     var res = { mode: 'mc', correct: correct, question: q, given: choice, points: 0, lost: 0 };
 
@@ -456,12 +488,64 @@
     return res;
   }
 
+  // ---------------------------------------------------------------- jokers
+
+  /** Les jokers s'ouvrent à partir de la 6ème, en mode BAC uniquement. */
+  function jokersAvailable(state) {
+    return state.mode === 'bac' && state.levelIndex >= state.config.jokersFromLevel;
+  }
+
+  /** Un joker est-il utilisable ici et maintenant ? */
+  function canUseJoker(state, kind) {
+    if (state.finished || !state.current) return false;
+    if (!jokersAvailable(state)) return false;
+    if (!state.jokers || !state.jokers[kind]) return false;          // déjà utilisé
+    if (kind === 'fifty' && state.hiddenWrong.length) return false;  // rien à révéler deux fois
+    return state.score >= state.config.jokerCost;
+  }
+
+  /**
+   * Trois aides, 6 points chacune, une seule fois par partie :
+   *   - « fifty » (40/60) : barre trois mauvaises réponses du choix multiple ;
+   *   - « swap »          : remplace la question par une autre de la même matière ;
+   *   - « pass »          : passe la question, sans point et sans pénalité.
+   */
+  function useJoker(state, kind) {
+    if (!canUseJoker(state, kind)) {
+      return { ok: false, reason: !jokersAvailable(state) ? 'tooEarly'
+        : (state.jokers && !state.jokers[kind] ? 'used' : 'noPoints') };
+    }
+    penalize(state, state.config.jokerCost);
+    state.jokers[kind] = false;
+    state.classErrors++;              // toute aide utilisée annule le bonus de classe sans faute
+    var res = { ok: true, kind: kind, cost: state.config.jokerCost, score: state.score };
+
+    if (kind === 'fifty') {
+      var wrong = state.options.filter(function (o) {
+        return normalize(o) !== normalize(state.current.answer);
+      });
+      state.hiddenWrong = shuffle(wrong, state.rng).slice(0, state.config.jokerHideCount);
+      res.hidden = state.hiddenWrong.slice();
+      res.event = 'reveal';
+    } else if (kind === 'swap') {
+      markSeen(state, state.current);
+      nextQuestion(state);
+      res.event = 'replaced';
+    } else {
+      res.event = advance(state);
+      res.bonus = state.bonus;
+    }
+    state.log.push({ mode: 'joker', kind: kind, correct: false, points: 0, lost: res.cost });
+    return res;
+  }
+
   /** Sacrifier 1 point pour +15 s (les deux modes). */
   function buyTime(state) {
     if (state.finished) return { ok: false, reason: 'finished' };
     if (state.score < state.config.timeBuyCost) return { ok: false, reason: 'noPoints' };
     penalize(state, state.config.timeBuyCost);
     state.timeLeft += state.config.timeBuySeconds;
+    state.budget += state.config.timeBuySeconds;
     return { ok: true, timeLeft: state.timeLeft, score: state.score };
   }
 
@@ -469,6 +553,7 @@
   function timeout(state) {
     if (state.finished) return { ok: false, reason: 'finished' };
     var q = state.current;
+    tickSpent(state);
     var res = { mode: 'timeout', correct: false, question: q, points: 0, lost: 0 };
     if (state.mode === 'detente') {
       res.event = relaxNext(state);
@@ -492,6 +577,7 @@
         of: state.queue.length,
         theme: state.current ? state.current.theme : null,
         score: state.score,
+        spent: state.spent || 0,
         correct: state.correctCount,
         mcForced: false
       };
@@ -510,8 +596,92 @@
       atRisk: state.pointsSinceCheckpoint,
       lives: state.lives,
       perfectSoFar: state.classErrors === 0,
+      spent: state.spent || 0,
+      jokers: state.jokers,
+      jokersOpen: jokersAvailable(state),
+      jokerCost: state.config.jokerCost,
+      hiddenWrong: state.hiddenWrong || [],
       mcForced: mustUseMC(state)
     };
+  }
+
+  /** Photographie d'une partie, sérialisable en JSON : de quoi reprendre plus tard. */
+  function serialize(state) {
+    return {
+      v: 1,
+      mode: state.mode,
+      levelIndex: state.levelIndex || 0,
+      subjectIndex: state.subjectIndex || 0,
+      qIndex: state.qIndex || 0,
+      score: state.score,
+      pointsSinceCheckpoint: state.pointsSinceCheckpoint || 0,
+      lives: state.lives,
+      classErrors: state.classErrors || 0,
+      levelPoints: (state.levelPoints || []).slice(),
+      seen: (state.seen || []).slice(),
+      freeWrongStreak: state.freeWrongStreak || 0,
+      spent: state.spent || 0,
+      jokers: state.jokers ? Object.assign({}, state.jokers) : null,
+      timeLeft: Math.round(state.timeLeft),
+      currentId: state.current ? state.current.id : null,
+      queueIds: state.queue ? state.queue.map(function (q) { return q.id; }) : null,
+      index: state.index || 0,
+      correctCount: state.correctCount || 0,
+      answered: (state.answeredBefore || 0) + state.log.length,
+      level: state.levels ? state.levels[state.levelIndex] : null,
+      date: Date.now()
+    };
+  }
+
+  /** Reconstruit une partie à partir d'une photographie. */
+  function restore(data, banks, options) {
+    if (!data || !data.mode) return null;
+    var bank = data.mode === 'detente' ? banks.detente : banks.bac;
+    if (!bank) return null;
+    var byId = {};
+    bank.questions.forEach(function (q) { byId[q.id] = q; });
+
+    var state = data.mode === 'detente'
+      ? createRelax(bank, options)
+      : createGame(bank, options);
+
+    if (data.mode === 'detente') {
+      var queue = (data.queueIds || []).map(function (id) { return byId[id]; }).filter(Boolean);
+      if (queue.length) state.queue = queue;
+      state.index = Math.min(data.index || 0, state.queue.length - 1);
+      state.correctCount = data.correctCount || 0;
+      state.current = state.queue[state.index];
+    } else {
+      state.levelIndex = data.levelIndex || 0;
+      state.subjectIndex = data.subjectIndex || 0;
+      state.qIndex = data.qIndex || 0;
+      state.lives = data.lives || state.config.lives;
+      state.classErrors = data.classErrors || 0;
+      state.levelPoints = (data.levelPoints || []).slice();
+      state.pointsSinceCheckpoint = data.pointsSinceCheckpoint || 0;
+      state.current = byId[data.currentId] || null;
+      if (!state.current) nextQuestion(state);          // question disparue : on en tire une autre
+    }
+
+    state.score = data.score || 0;
+    state.spent = data.spent || 0;
+    if (data.jokers) state.jokers = Object.assign({}, data.jokers);
+    state.seen = (data.seen || []).slice();
+    state.freeWrongStreak = data.freeWrongStreak || 0;
+    state.answeredBefore = data.answered || 0;
+    // le chrono reprend là où il s'était arrêté : mettre la partie de côté ne rend pas du temps.
+    // Un plancher de quelques secondes laisse le temps de relire la question, et ce supplément
+    // est ajouté au budget pour qu'il ne soit pas compté comme du temps de réflexion.
+    var saved = typeof data.timeLeft === 'number' ? data.timeLeft : state.config.timerSeconds;
+    saved = Math.max(0, Math.min(saved, state.config.timerSeconds));
+    var granted = Math.max(saved, Math.min(state.config.resumeMinSeconds, state.config.timerSeconds));
+    state.timeLeft = granted;
+    state.budget = granted;
+    state.hiddenWrong = [];
+    if (state.current) state.options = makeOptions(state, state.current);
+    state.finished = false;
+    state.won = false;
+    return state;
   }
 
   /** Score maximum théorique d'une partie parfaite (bonus compris). */
@@ -539,9 +709,13 @@
     answerFree: answerFree,
     answerMC: answerMC,
     buyTime: buyTime,
+    useJoker: useJoker,
+    canUseJoker: canUseJoker,
     timeout: timeout,
     mustUseMC: mustUseMC,
     progress: progress,
+    serialize: serialize,
+    restore: restore,
     maxScore: maxScore,
     mulberry32: mulberry32
   };

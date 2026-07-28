@@ -82,8 +82,11 @@
 
   /* bandeau du haut */
   .hud{position:relative; text-align:center; margin:2px 0 14px}
-  .hud .mute{position:absolute; right:2px; top:2px; font-size:20px}
-  .hud .quit{position:absolute; left:2px; top:2px; font-size:13px; color:var(--muted)}
+  .hud .info{right:0; top:0}
+  .hud .quit{position:absolute; left:0; top:0; font-size:13px; font-weight:800; padding:6px 12px;
+             border:2px solid var(--ink); border-radius:99px; background:#fff;
+             box-shadow:2px 2px 0 var(--ink); transition:transform .06s, box-shadow .06s}
+  .hud .quit:active{transform:translate(2px,2px); box-shadow:0 0 0 var(--ink)}
   .lvl{display:inline-block; font-size:26px; font-weight:900; letter-spacing:-.5px;
        padding:6px 20px; border-radius:14px; border:3px solid var(--ink);
        background:var(--violet); color:#fff; box-shadow:4px 4px 0 var(--ink)}
@@ -181,6 +184,65 @@
   .map svg{display:block; width:100%; height:auto; image-rendering:pixelated}
   .map text{font:700 10px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
 
+  /* bouton « i » et page des règles */
+  .info{position:absolute; right:12px; top:12px; width:34px; height:34px; padding:0;
+        display:flex; align-items:center; justify-content:center; color:var(--ink); opacity:.75}
+  .info svg{width:26px; height:26px}
+  .info:active{transform:translateY(1px)}
+  .scroll{margin-top:12px; filter:drop-shadow(3px 4px 0 rgba(42,33,64,.16))}
+  .roll{display:block; width:100%; height:auto}
+  .roll.top{margin-bottom:-10px}
+  .roll.bot{margin-top:-10px}
+  .sheet{position:relative; padding:26px 28px 30px; text-align:left;
+         font-family:Georgia,"Times New Roman",serif; color:#3a3350}
+  .sheet .paper{position:absolute; left:0; top:0; width:100%; height:100%}
+  .sheet-in{position:relative}
+  .sheet h2{font-family:inherit; font-size:14px; letter-spacing:2.4px; text-transform:uppercase;
+            color:#a9812a; margin:18px 0 5px}
+  .sheet h2:first-child{margin-top:0}
+  .sheet p{margin:0 0 6px; font-size:15px; line-height:1.5}
+  .sheet ul{margin:4px 0 8px; padding-left:20px}
+  .sheet li{font-size:15px; line-height:1.5; margin-bottom:3px}
+  .sheet b{color:#2a2140}
+  .sheet .seal{display:block; margin:16px auto 0}
+
+  /* jokers : trois pastilles rondes */
+  .jokers{display:flex; gap:16px; justify-content:center; margin:12px 0 2px}
+  .jk{width:76px; text-align:center}
+  .joker{width:58px; height:58px; margin:0 auto; display:flex; align-items:center; justify-content:center;
+         border:3px solid var(--ink); border-radius:50%; box-shadow:3px 3px 0 var(--ink);
+         background:radial-gradient(circle at 34% 30%, #ffe9a8 0%, #ffc531 46%, #e09b12 100%);
+         transition:transform .06s, box-shadow .06s}
+  .joker svg{width:30px; height:30px; display:block}
+  .joker:active{transform:translate(3px,3px); box-shadow:0 0 0 var(--ink)}
+  .joker:disabled{opacity:.45; box-shadow:3px 3px 0 var(--ink)}
+  .jk b{display:block; margin-top:4px; font-size:12px; line-height:1.1}
+  .jk small{display:block; font-size:10px; color:var(--muted); font-weight:700}
+  .jk.spent .joker{background:var(--pale); filter:grayscale(.7)}
+  .jk-row{display:flex; align-items:center; gap:12px; text-align:left; margin-top:12px;
+          padding:10px 12px; border:3px solid var(--ink); border-radius:16px; background:#fff;
+          box-shadow:4px 4px 0 var(--ink)}
+  .jk-row .joker.big{flex:none}
+  .jk-txt{flex:1}
+  .jk-txt b{display:block; font-size:18px}
+  .jk-txt small{display:block; color:var(--muted); font-size:13px}
+  .jk-cost{font-weight:800; font-size:15px; white-space:nowrap}
+  .jk.spent b{text-decoration:line-through}
+  .opt.out{background:#ffe0e3; color:#a3313c; text-decoration:line-through; opacity:.75}
+
+  /* écran de pause */
+  .choice{display:block; width:100%; text-align:left; margin-top:12px; padding:14px 16px;
+          border:3px solid var(--ink); border-radius:16px; background:#fff;
+          box-shadow:4px 4px 0 var(--ink); transition:transform .06s, box-shadow .06s}
+  .choice:active{transform:translate(3px,3px); box-shadow:1px 1px 0 var(--ink)}
+  .choice b{display:block; font-size:22px; letter-spacing:-.3px; line-height:1.15}
+  .choice small{display:block; margin-top:4px; color:var(--muted); font-size:13px}
+  .choice.go{background:linear-gradient(120deg,#eef3ff,#fff)}
+  .choice.save{background:linear-gradient(120deg,#fff6da,#fff)}
+  .choice.pub{background:linear-gradient(120deg,#eafff5,#fff)}
+  .choice.quit{background:linear-gradient(120deg,#ffeef0,#fff)}
+  .resume{background:linear-gradient(120deg,#fff2c9,#fff8e4)}
+
   /* diplôme et classement */
   .diploma{border:3px solid var(--ink); border-radius:14px; overflow:hidden; box-shadow:5px 5px 0 var(--ink); margin-top:10px}
   .diploma svg{display:block; width:100%; height:auto}
@@ -189,6 +251,9 @@
   table.rank td.n{width:34px; color:var(--muted); font-weight:800}
   table.rank td.s{text-align:right; font-weight:900}
   table.rank tr.me td{background:#fff7d9}
+  .rank-head{margin:16px 0 2px; font-size:13px; font-weight:800; letter-spacing:1px;
+             text-transform:uppercase; color:var(--violet)}
+  .rank-head:first-child{margin-top:6px}
 </style>
 </head>
 <body>
@@ -214,12 +279,13 @@
     'Histoire': '#ff5566', 'Sciences': '#0aa2c0', 'Anglais': '#c98a00'
   };
 
-  var view = 'title';        // title | modes | play | map | diploma | endBac | endRelax | ranking
+  var view = 'title';        // title | modes | play | pause | map | diploma | endBac | endRelax | ranking
   var game = null, tick = null, feedback = null, mcOpen = false, revealed = null;
+  var jokersAnnounced = false;   // l'écran « tu as 3 jokers » ne s'affiche qu'une fois par partie
   var recognizing = false, draft = '', anim = null, pseudoAsked = false, rank = null, lastQ = null;
 
   function muted() { return localStorage.getItem(MUTE_KEY) === '1'; }
-  function toggleMute() { localStorage.setItem(MUTE_KEY, muted() ? '0' : '1'); render(); }
+  // plus de bouton son : le joueur coupe le son de son téléphone. La clé reste lue par les tests.
   function esc(s) { return String(s).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); }
 
   // ------------------------------------------------------------------ sons
@@ -289,6 +355,13 @@
       }
     }
     return out;
+  }
+
+  /** 754 secondes → « 12:34 ». */
+  function clock(sec) {
+    if (!sec) return '';
+    var m = Math.floor(sec / 60), r = sec % 60;
+    return m + ':' + (r < 10 ? '0' : '') + r;
   }
 
   function coins(n) {
@@ -469,7 +542,10 @@
   function draw() {
     if (view === 'title') return renderTitle();
     if (view === 'modes') return renderModes();
+    if (view === 'pause') return renderPause();
     if (view === 'map') return renderMap();
+    if (view === 'jokers') return renderJokersIntro();
+    if (view === 'rules') return renderRules();
     if (view === 'diploma') return renderDiploma();
     if (view === 'endBac') return renderEndBac();
     if (view === 'endRelax') return renderEndRelax();
@@ -477,9 +553,12 @@
     renderPlay();
   }
 
-  function muteBtn(pos) {
-    return '<button class="mute" id="mute" style="position:absolute;right:14px;top:12px;font-size:20px">' +
-      (muted() ? '🔇' : '🔊') + '</button>';
+  /** Bouton « i » : ouvre la page des règles depuis n'importe quel écran. */
+  function infoBtn() {
+    return '<button class="info" id="info" aria-label="Les règles" title="Les règles">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">' +
+      '<circle cx="12" cy="12" r="10.2"/><circle cx="12" cy="6.9" r="1.9" fill="currentColor" stroke="none"/>' +
+      '<path d="M12 11v7"/></svg></button>';
   }
 
   /** La salle de classe : mur, sol, pupitre, tableau noir, et le héros devant. */
@@ -519,21 +598,33 @@
 
   function renderTitle() {
     app.innerHTML =
-      '<div class="card center">' + muteBtn() +
+      '<div class="card center">' + infoBtn() +
         '<div class="title-wrap">' +
           '<div class="game-title">Le Quizz</div>' +
           '<h1 class="game-title-main">DU <span>BAC</span></h1>' +
           '<div class="scene">' + classroom() + '</div>' +
           '<p class="muted" style="margin:14px 0 0">Du CP à la Terminale.<br>Réponds vite, réponds juste.</p>' +
           '<button class="btn go" id="start">Commencer</button>' +
+          (slotLabel() ? '<button class="btn resume" id="resume">Reprendre<br><small style="font-weight:600">' +
+            slotLabel() + '</small></button>' : '') +
           '<div class="hint" style="margin-top:10px">version ' + esc(BUILD.version) + ' · ' + esc(BUILD.date) + '</div>' +
         '</div>' +
       '</div>';
-    document.getElementById('mute').onclick = toggleMute;
+    document.getElementById('info').onclick = openRules;
     document.getElementById('start').onclick = function () {
       audio();                       // premier geste : le son est débloqué
       vortex(function () { view = 'modes'; render(); });
     };
+    var rz = document.getElementById('resume');
+    if (rz) rz.onclick = function () { audio(); resumeGame(); };
+  }
+
+  /** Décrit la partie mise de côté : « Quizz BAC — CM2, 34 points ». */
+  function slotLabel() {
+    var d = S.loadSlot();
+    if (!d || !d.mode) return '';
+    if (d.mode === 'detente') return 'Quizz détente — question ' + ((d.index || 0) + 1) + '/30, ' + d.score + ' pts';
+    return 'Quizz BAC — ' + (d.level || '?') + ', ' + d.score + ' pts';
   }
 
   /** Le tableau s'ouvre en vortex et aspire le héros vers la forêt. */
@@ -610,7 +701,7 @@
     var p = S.getPseudo(), tag = S.getTag();
     var bestBac = S.best('bac'), bestRelax = S.best('detente');
     app.innerHTML =
-      '<div class="card">' + muteBtn() +
+      '<div class="card">' + infoBtn() +
         '<h1 class="center" style="margin-bottom:14px">Choisis ton mode</h1>' +
         '<button class="player" id="edit-pseudo">' +
           '<span class="avatar"><svg width="26" height="30" viewBox="0 0 12 16">' + sprite(1, 0) + '</svg></span>' +
@@ -644,7 +735,7 @@
         '<button class="btn ghost" id="see-rank">Voir le classement</button>' +
         '<div class="hint center">version ' + esc(BUILD.version) + '</div>' +
       '</div>';
-    document.getElementById('mute').onclick = toggleMute;
+    document.getElementById('info').onclick = openRules;
     document.getElementById('m-bac').onclick = function () { startMode('bac'); };
     document.getElementById('m-relax').onclick = function () { startMode('detente'); };
     document.getElementById('edit-pseudo').onclick = function () { askPseudo(render); };
@@ -660,6 +751,28 @@
     if (mode === 'bac') game = E.createGame(BANK, { seen: seenIds() });
     else game = E.createRelax(RELAX, {});
     feedback = null; revealed = null; mcOpen = false; draft = ''; anim = null; lastQ = null;
+    jokersAnnounced = false;
+    view = 'play'; startTimer(); render();
+  }
+
+  /** Sauvegarde silencieuse après chaque question : fermer l'app ne perd plus rien. */
+  function autoSave() {
+    if (!game || game.finished) return;
+    try { S.saveSlot(E.serialize(game)); } catch (e) { /* stockage indisponible */ }
+  }
+
+  /** Reprise de la partie mise de côté. */
+  function resumeGame() {
+    var data = S.loadSlot();
+    if (!data) { view = 'modes'; return render(); }
+    var g = E.restore(data, { bac: BANK, detente: RELAX }, {});
+    if (!g || !g.current) { S.clearSlot(); view = 'modes'; return render(); }
+    game = g;
+    feedback = null; revealed = null; mcOpen = false; draft = ''; anim = null; lastQ = null;
+    // partie reprise en secondaire sans avoir encore vu l'écran des jokers : on l'annonce
+    var pr = E.progress(game);
+    jokersAnnounced = !(pr.jokersOpen && pr.jokers && pr.jokers.fifty && pr.jokers.swap && pr.jokers.pass);
+    if (!jokersAnnounced) { jokersAnnounced = true; view = 'jokers'; return render(); }
     view = 'play'; startTimer(); render();
   }
 
@@ -668,13 +781,15 @@
     try { return JSON.parse(localStorage.getItem('quizculture.seen')) || []; } catch (e) { return []; }
   }
   function saveSeen(ids) {
-    try { localStorage.setItem('quizculture.seen', JSON.stringify(ids.slice(-600))); } catch (e) { /* ignore */ }
+    try { localStorage.setItem('quizculture.seen', JSON.stringify(ids.slice(-1200))); } catch (e) { /* ignore */ }
   }
 
   function renderPlay() {
     // sur la toute dernière question, le moteur a déjà terminé la partie : on garde l'énoncé
     // sous la main pour afficher le retour, l'écran de fin arrive juste après
-    var q = game.current || lastQ;
+    // pendant le retour, on garde l'énoncé de la question à laquelle le joueur vient de répondre :
+    // le moteur a déjà tiré la suivante, et on l'apercevait le temps d'un éclair
+    var q = (feedback && lastQ) || game.current || lastQ;
     if (!q) return finishGame();
     var p = E.progress(game);
     var pct = Math.max(0, Math.min(100, game.timeLeft / game.config.timerSeconds * 100));
@@ -710,8 +825,8 @@
 
     var body =
       '<div class="hud">' +
-        '<button class="quit" id="quit">← Menu</button>' +
-        '<button class="mute" id="mute" style="position:absolute;right:2px;top:2px;font-size:20px">' + (muted() ? '🔇' : '🔊') + '</button>' +
+        '<button class="quit" id="quit">‖ Pause</button>' +
+        infoBtn() +
         head +
       '</div>' +
       '<div class="card' + fb + '">' +
@@ -719,8 +834,9 @@
         '<div class="timer ' + cls + '"><i style="width:' + pct + '%"></i></div>' +
         '<div class="between"><small class="muted">' + Math.ceil(game.timeLeft) + ' s</small>' +
           '<button class="chip" id="buy" ' + (game.score < 1 ? 'disabled' : '') + '>−1 point → +15 s</button></div>' +
-        '<div class="subject" style="color:' + (SUBJECT_COLORS[p.subject] || '#0aa2c0') + '">' +
-          esc(p.mode === 'bac' ? p.subject : (p.theme || '')) + '</div>' +
+        (p.jokersOpen ? jokerBar(p) : '') +
+        '<div class="subject" style="color:' + (SUBJECT_COLORS[q.subject || p.subject] || '#0aa2c0') + '">' +
+          esc(p.mode === 'bac' ? (q.subject || p.subject) : (q.theme || p.theme || '')) + '</div>' +
         '<div class="q">' + esc(q.prompt) + '</div>';
 
     if (feedback) {
@@ -734,7 +850,9 @@
     } else if (mcOpen || p.mcForced) {
       if (p.mcForced) body += '<div class="hint">Réponse libre manquée : cette question se joue en choix multiple.</div>';
       body += game.options.map(function (o, k) {
-        return '<button class="opt" data-opt="' + k + '">' + esc(o) + '</button>';
+        var out = (p.hiddenWrong || []).indexOf(o) !== -1;      // barrée par le joker 40/60
+        return '<button class="opt' + (out ? ' out' : '') + '" ' + (out ? 'disabled' : 'data-opt="' + k + '"') +
+          '>' + esc(o) + '</button>';
       }).join('');
       body += '<div class="hint">' + (p.mode === 'bac'
         ? 'Bonne réponse : +1 point. Erreur : retour au début de la classe, un cœur perdu.'
@@ -742,16 +860,238 @@
       if (!p.mcForced) body += '<button class="btn ghost" id="closemc">Revenir à la réponse libre (2 pts)</button>';
     } else {
       body +=
-        '<div class="row">' +
-          '<input type="text" id="free" placeholder="Ta réponse…" autocomplete="off" autocapitalize="off" spellcheck="false">' +
-          '<button class="mic' + (recognizing ? ' rec' : '') + '" id="mic" title="Dicter la réponse">🎤</button>' +
-        '</div>' +
-        '<button class="btn go" id="send">Valider (2 pts)</button>' +
+        // formulaire : la touche « OK » du clavier mobile valide directement, sans le masquer
+        '<form id="answer-form" autocomplete="off">' +
+          '<div class="row">' +
+            '<input type="text" id="free" placeholder="Ta réponse…" autocomplete="off" ' +
+              'autocapitalize="off" spellcheck="false" enterkeyhint="send" inputmode="text">' +
+            '<button type="button" class="mic' + (recognizing ? ' rec' : '') + '" id="mic" title="Dicter la réponse">🎤</button>' +
+          '</div>' +
+          '<button type="submit" class="btn go" id="send">Valider (2 pts)</button>' +
+        '</form>' +
         '<button class="btn ghost" id="openmc">Voir 5 propositions (1 pt)</button>';
     }
     body += '</div>';
     app.innerHTML = body;
     wirePlay();
+  }
+
+  /** Pause : quatre issues claires, sans message du navigateur. */
+  function renderPause() {
+    var p = E.progress(game);
+    var where = game.mode === 'detente'
+      ? 'Question ' + p.question + ' / ' + p.of
+      : p.level + ' · ' + p.subject;
+    app.innerHTML =
+      '<div class="card">' + infoBtn() +
+        '<h1 class="center">Pause</h1>' +
+        '<p class="center muted" style="margin-top:0">' + esc(where) + ' — <b>' + game.score + ' points</b></p>' +
+        '<button class="choice go" id="p-resume"><b>▶ Continuer à jouer</b>' +
+          '<small>Le chrono reprend où tu l\'as laissé : ' + Math.ceil(game.timeLeft) + ' s.</small></button>' +
+        '<button class="choice save" id="p-save"><b>💾 M\'arrêter ici</b>' +
+          '<small>Ta partie est mise de côté, chrono compris : tu la reprendras depuis l\'accueil.</small></button>' +
+        '<button class="choice pub" id="p-publish"><b>🏆 Publier mon score</b>' +
+          '<small>Ton score de ' + game.score + ' points rejoint le classement' +
+          (game.mode === 'detente' ? '' : ' de la classe ' + esc(p.level)) + ', et la partie s\'arrête.</small></button>' +
+        '<button class="choice quit" id="p-quit"><b>✕ Abandonner</b>' +
+          '<small>Retour à l\'accueil sans enregistrer ni sauvegarder.</small></button>' +
+      '</div>';
+    document.getElementById('info').onclick = openRules;
+    document.getElementById('p-resume').onclick = function () { view = 'play'; startTimer(); render(); };
+    document.getElementById('p-save').onclick = function () {
+      autoSave();
+      view = 'title'; render();
+    };
+    document.getElementById('p-publish').onclick = function () { publishScore(); };
+    document.getElementById('p-quit').onclick = function () {
+      S.clearSlot();
+      view = 'title'; render();
+    };
+  }
+
+  /** Publier en cours de partie : le score compte pour la classe atteinte. */
+  function publishScore() {
+    stopTimer();
+    var level = game.mode === 'bac' ? E.progress(game).level : null;
+    try {
+      if (game.mode === 'bac') saveSeen(game.seen);
+      S.submit({ pseudo: S.getPseudo(), score: game.score, mode: game.mode, level: level,
+        seconds: E.progress(game).spent });
+    } catch (e) { /* score non enregistré */ }
+    S.clearSlot();
+    game.__submitted = true;
+    published = { score: game.score, level: level, mode: game.mode };
+    openRanking(game.mode === 'detente' ? 'detente' : 'bac');
+  }
+  var published = null;
+
+  /** Pictogrammes des jokers, dessinés au trait pour rester lisibles en petit. */
+  var JOKER_ICONS = {
+    // 40/60 : trois propositions barrées en rouge, une épargnée en vert
+    fifty: '<svg viewBox="0 0 24 24">' +
+      '<g fill="#fffdf5"><rect x="3" y="2.4" width="18" height="3.4" rx="1.7"/>' +
+      '<rect x="3" y="8.4" width="18" height="3.4" rx="1.7"/>' +
+      '<rect x="3" y="14.4" width="18" height="3.4" rx="1.7"/></g>' +
+      '<rect x="3" y="20.4" width="18" height="3.4" rx="1.7" fill="#17a06a"/>' +
+      '<g stroke="#d63c4c" stroke-width="2" stroke-linecap="round" fill="none">' +
+      '<path d="M4 6.6 20 1.6"/><path d="M4 12.6 20 7.6"/><path d="M4 18.6 20 13.6"/></g></svg>',
+    // changer : les deux flèches en cercle
+    swap: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">' +
+      '<path d="M4 12A8 8 0 0 1 19 8.2"/>' +
+      '<path d="M16.4 10.6 22.8 9.2 21.4 15.6Z" fill="currentColor" stroke-width="1" stroke-linejoin="round"/>' +
+      '<path d="M20 12A8 8 0 0 1 5 15.8"/>' +
+      '<path d="M7.6 13.4 1.2 14.8 2.6 8.4Z" fill="currentColor" stroke-width="1" stroke-linejoin="round"/></svg>',
+    // passer : la flèche qui saute par-dessus
+    pass: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">' +
+      '<path d="M2.4 19.6C2.4 9 9.6 9 9.6 19.6C9.6 9.6 16.4 7.4 18.8 12.8"/>' +
+      '<path d="M20.2 15.6 16.7 13.8 21.4 11.4Z" fill="currentColor" stroke-width="1" stroke-linejoin="round"/></svg>'
+  };
+
+  var rulesFrom = 'title';
+  /** Le « i » ouvre les règles ; le chrono s'arrête si une question était en cours. */
+  function openRules() {
+    if (view === 'rules') return;
+    rulesFrom = view;
+    if (view === 'play') stopTimer();
+    view = 'rules'; render();
+  }
+  function closeRules() {
+    view = rulesFrom;
+    if (view === 'play') startTimer();
+    render();
+  }
+
+  /** Page des règles, façon parchemin. */
+  function renderRules() {
+    app.innerHTML =
+      '<div class="card">' +
+        '<h1 class="center">Les règles</h1>' +
+        '<div class="scroll">' + rollSvg('top') +
+        '<div class="sheet">' + paperSvg() + '<div class="sheet-in">' +
+          '<h2>Le but</h2>' +
+          '<p>Partir du CP et décrocher le BAC.</p>' +
+
+          '<h2>Répondre</h2>' +
+          '<p>Deux façons, au choix, à chaque question :</p>' +
+          '<ul><li><b>Réponse libre</b> (clavier ou micro) : <b>2 points</b></li>' +
+          '<li><b>5 propositions</b> : <b>1 point</b></li></ul>' +
+
+          '<h2>Le temps</h2>' +
+          '<p>30 secondes par question. Tu peux acheter <b>+15 secondes contre 1 point</b>, autant de ' +
+          'fois que tu as des points. Temps écoulé : <b>−2 points</b>, tu gardes ta place et une ' +
+          'nouvelle question arrive.</p>' +
+
+          '<h2>Se tromper</h2>' +
+          '<ul><li><b>Réponse libre fausse</b> : aucune perte, mais la question suivante se joue ' +
+          'obligatoirement en 5 propositions.</li>' +
+          '<li><b>Proposition fausse</b> : retour à la première matière de la classe, les points ' +
+          'gagnés dans cette classe sont effacés, et tu perds une vie.</li></ul>' +
+
+          '<h2>Les vies</h2>' +
+          '<p>Tu en as 3. À la dernière vie perdue, tu <b>redoubles</b> avec 3 nouvelles vies — et les ' +
+          'points que cette classe t\'avait rapportés sont repris.</p>' +
+
+          '<h2>La classe parfaite</h2>' +
+          '<p>Une classe terminée sans aucune faute rapporte <b>+2 points</b> du CP au CM2, et ' +
+          '<b>+1 vie</b> de la 6ème à la Terminale.</p>' +
+
+          '<h2>Les jokers — à partir de la 6ème</h2>' +
+          '<p>Trois aides. Elles coûtent <b>6 points</b> chacune, une seule utilisation par partie, ' +
+          'et font perdre le bonus de classe sans faute :</p>' +
+          '<ul><li><b>40/60</b> — trois mauvaises réponses barrées</li>' +
+          '<li><b>Changer</b> — une autre question à la place</li>' +
+          '<li><b>Passer</b> — on saute la question</li></ul>' +
+          sealSvg() +
+        '</div></div>' + rollSvg('bot') + '</div>' +
+        '<button class="btn go" id="back">Retour</button>' +
+      '</div>';
+    document.getElementById('back').onclick = closeRules;
+  }
+
+  /** Rouleau de bois et papier enroulé, en haut et en bas du parchemin. */
+  function rollSvg(where) {
+    var top = where === 'top';
+    return '<svg class="roll ' + (top ? 'top' : 'bot') + '" viewBox="0 0 372 58" xmlns="http://www.w3.org/2000/svg">' +
+      '<defs><linearGradient id="rl' + where + '" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#e7cfa4"/><stop offset=".35" stop-color="#fbf0d8"/>' +
+        '<stop offset=".75" stop-color="#eddcb6"/><stop offset="1" stop-color="#d9bd8c"/></linearGradient>' +
+      '<linearGradient id="wd' + where + '" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#8b5e34"/><stop offset=".5" stop-color="#6b4423"/>' +
+        '<stop offset="1" stop-color="#4d3018"/></linearGradient></defs>' +
+      '<rect x="30" y="9" width="312" height="40" rx="20" fill="url(#rl' + where + ')" stroke="#b8965c" stroke-width="2"/>' +
+      '<path d="M44 ' + (top ? '21 C124 13 250 13 330 21' : '37 C124 45 250 45 330 37') +
+        '" fill="none" stroke="#e3caa0" stroke-width="3" opacity=".8"/>' +
+      '<ellipse cx="38" cy="29" rx="9" ry="20" fill="#e9d3a8" stroke="#b8965c" stroke-width="2"/>' +
+      '<ellipse cx="334" cy="29" rx="9" ry="20" fill="#e9d3a8" stroke="#b8965c" stroke-width="2"/>' +
+      '<path d="M38 17 C32 22 32 36 38 41" fill="none" stroke="#c8ab7a" stroke-width="2"/>' +
+      '<rect x="8" y="24" width="34" height="10" rx="5" fill="url(#wd' + where + ')"/>' +
+      '<rect x="330" y="24" width="34" height="10" rx="5" fill="url(#wd' + where + ')"/>' +
+      '<circle cx="11" cy="29" r="8" fill="url(#wd' + where + ')" stroke="#3a2412" stroke-width="1.5"/>' +
+      '<circle cx="361" cy="29" r="8" fill="url(#wd' + where + ')" stroke="#3a2412" stroke-width="1.5"/>' +
+      '</svg>';
+  }
+
+  /** La feuille elle-même : bords irréguliers, teinte vieillie. Elle s'étire avec le texte. */
+  function paperSvg() {
+    return '<svg class="paper" viewBox="0 0 340 420" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<defs><linearGradient id="pap" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#fdf3dd"/><stop offset=".5" stop-color="#f7e7c4"/>' +
+        '<stop offset="1" stop-color="#f0dbb2"/></linearGradient></defs>' +
+      '<path d="M12 2 C6 60 18 112 10 170 C4 228 16 280 8 338 C5 374 13 398 12 418 ' +
+      'L328 418 C334 358 322 306 330 248 C336 190 324 138 332 80 C335 44 327 22 328 2 Z" ' +
+      'fill="url(#pap)" stroke="#c9a86e" stroke-width="2"/></svg>';
+  }
+
+  /** Petit sceau de cire au bas du parchemin. */
+  function sealSvg() {
+    return '<svg class="seal" width="54" height="54" viewBox="0 0 54 54">' +
+      '<circle cx="27" cy="27" r="21" fill="#ff5566" stroke="#2a2140" stroke-width="3"/>' +
+      '<circle cx="27" cy="27" r="14" fill="none" stroke="#fff" stroke-width="2"/>' +
+      '<text x="27" y="33" text-anchor="middle" font-size="16" font-weight="900" fill="#fff" ' +
+      'font-family="Georgia,serif">Q</text></svg>';
+  }
+
+  /** Annonce des jokers, une fois, à l'entrée en 6ème. */
+  function renderJokersIntro() {
+    var cost = game.config.jokerCost;
+    var rows = [
+      { k: 'fifty', label: '40/60', use: 'Trois mauvaises réponses barrées' },
+      { k: 'swap', label: 'Changer', use: 'Une autre question à la place' },
+      { k: 'pass', label: 'Passer', use: 'On saute la question' }
+    ];
+    app.innerHTML =
+      '<div class="card center">' + infoBtn() +
+        '<h1>Bravo ! 🎉</h1>' +
+        '<p class="muted" style="margin-top:0">Tu disposes maintenant de <b>3 jokers</b>,' +
+          ' utilisables une seule fois chacun jusqu\'au BAC.</p>' +
+        rows.map(function (r) {
+          return '<div class="jk-row"><span class="joker big">' + JOKER_ICONS[r.k] + '</span>' +
+            '<span class="jk-txt"><b>' + r.label + '</b><small>' + r.use + '</small></span>' +
+            '<span class="jk-cost">−' + cost + ' pts</span></div>';
+        }).join('') +
+        '<button class="btn go" id="next">C\'est parti !</button>' +
+      '</div>';
+    document.getElementById('info').onclick = openRules;
+    document.getElementById('next').onclick = function () { view = 'play'; startTimer(); render(); };
+  }
+
+  /** Trois aides à 6 points, une fois chacune, à partir de la 6ème. */
+  function jokerBar(p) {
+    var list = [
+      { k: 'fifty', label: '40/60', hint: '3 fausses barrées' },
+      { k: 'swap', label: 'Changer', hint: 'autre question' },
+      { k: 'pass', label: 'Passer', hint: 'sans point' }
+    ];
+    return '<div class="jokers">' + list.map(function (j) {
+      var used = !p.jokers[j.k];
+      var can = !used && p.score >= p.jokerCost && !(j.k === 'fifty' && p.hiddenWrong.length);
+      return '<div class="jk' + (used ? ' spent' : '') + '">' +
+        '<button class="joker" data-joker="' + j.k + '"' + (can ? '' : ' disabled') +
+          ' aria-label="' + j.label + ' : ' + j.hint + ', ' + p.jokerCost + ' points">' +
+          JOKER_ICONS[j.k] + '</button>' +
+        '<b>' + j.label + (used ? '</b><small>utilisé</small>' : '</b>') +
+      '</div>';
+    }).join('') + '</div>';
   }
 
   function renderMap() {
@@ -763,7 +1103,7 @@
     var sub = down ? 'Tu redescends en <b>' + esc(ALL_LEVELS[Math.min(target, ALL_LEVELS.length - 1)]) + '</b>, avec 3 cœurs neufs.' : '';
     var bonus = game.__bonusShown;
     app.innerHTML =
-      '<div class="card center">' + muteBtn() +
+      '<div class="card center">' + infoBtn() +
         '<h1>' + title + '</h1>' +
         (sub ? '<p class="muted">' + sub + '</p>' : '') +
         (bonus ? '<p><span class="tag">Classe parfaite : ' +
@@ -775,9 +1115,16 @@
         '</div>' +
         '<button class="btn go" id="next">Continuer</button>' +
       '</div>';
-    document.getElementById('mute').onclick = toggleMute;
+    document.getElementById('info').onclick = openRules;
     var nx = document.getElementById('next');
-    nx.onclick = function () { mapNote = null; game.__bonusShown = null; view = 'play'; startTimer(); render(); };
+    nx.onclick = function () {
+      mapNote = null; game.__bonusShown = null;
+      if (!jokersAnnounced && E.progress(game).jokersOpen) {   // entrée en 6ème : les jokers s'ouvrent
+        jokersAnnounced = true;
+        view = 'jokers'; return render();
+      }
+      view = 'play'; startTimer(); render();
+    };
     if (anim) nx.disabled = true;
   }
   var mapNote = null;
@@ -809,25 +1156,27 @@
   function renderDiploma() {
     var max = E.maxScore(BANK);
     app.innerHTML =
-      '<div class="card center">' + muteBtn() +
+      '<div class="card center">' + infoBtn() +
         '<h1>Bravo, tu as le BAC ! 🎓</h1>' +
         diplomaSvg(S.getPseudo(), game.score, max) +
         '<div style="margin-top:14px;text-align:left">' +
           '<div class="kv"><span class="muted">Score</span><b>' + game.score + ' / ' + max + '</b></div>' +
-          '<div class="kv"><span class="muted">Questions jouées</span><b>' + game.log.length + '</b></div>' +
+          '<div class="kv"><span class="muted">Temps de jeu</span><b>' + clock(E.progress(game).spent) + '</b></div>' +
+          '<div class="kv"><span class="muted">Questions jouées</span><b>' +
+            ((game.answeredBefore || 0) + game.log.length) + '</b></div>' +
           '<div class="kv"><span class="muted">Cœurs restants</span><b>' + game.lives + '</b></div>' +
         '</div>' +
         '<button class="btn go" id="next">Suivant : le classement</button>' +
         '<button class="btn ghost" id="menu">Menu</button>' +
       '</div>';
-    document.getElementById('mute').onclick = toggleMute;
+    document.getElementById('info').onclick = openRules;
     document.getElementById('next').onclick = function () { openRanking('bac'); };
-    document.getElementById('menu').onclick = function () { view = 'modes'; render(); };
+    document.getElementById('menu').onclick = function () { published = null; view = 'modes'; render(); };
   }
 
   function renderEndBac() {
     app.innerHTML =
-      '<div class="card center">' + muteBtn() +
+      '<div class="card center">' + infoBtn() +
         '<h1>Partie terminée</h1>' +
         '<p class="muted">La banque de questions s\'arrête ici pour cette classe. Le chemin continuera dans la prochaine mise à jour.</p>' +
         '<div class="row" style="justify-content:center;gap:10px;margin:12px 0 4px">' + coins(3) +
@@ -835,71 +1184,104 @@
         '<button class="btn go" id="again">Rejouer</button>' +
         '<button class="btn ghost" id="menu">Menu</button>' +
       '</div>';
-    document.getElementById('mute').onclick = toggleMute;
+    document.getElementById('info').onclick = openRules;
     document.getElementById('again').onclick = function () { startMode('bac'); };
-    document.getElementById('menu').onclick = function () { view = 'modes'; render(); };
+    document.getElementById('menu').onclick = function () { published = null; view = 'modes'; render(); };
   }
 
   function renderEndRelax() {
     var max = game.queue.length * E.CONFIG.pointsFree;
     app.innerHTML =
-      '<div class="card center">' + muteBtn() +
+      '<div class="card center">' + infoBtn() +
         '<h1>Quizz terminé 🌿</h1>' +
         '<div class="row" style="justify-content:center;gap:10px;margin:14px 0 4px">' + coins(3) +
           '<span class="big">' + game.score + '</span></div>' +
         '<small class="muted">points sur ' + max + '</small>' +
         '<div style="margin-top:16px;text-align:left">' +
           '<div class="kv"><span class="muted">Bonnes réponses</span><b>' + game.correctCount + ' / ' + game.queue.length + '</b></div>' +
+          '<div class="kv"><span class="muted">Temps de jeu</span><b>' + clock(E.progress(game).spent) + '</b></div>' +
           '<div class="kv"><span class="muted">Ton record</span><b>' + S.best('detente') + '</b></div>' +
         '</div>' +
         '<button class="btn go" id="again">Rejouer</button>' +
         '<button class="btn ghost" id="rank">Classement</button>' +
         '<button class="btn ghost" id="menu">Menu</button>' +
       '</div>';
-    document.getElementById('mute').onclick = toggleMute;
+    document.getElementById('info').onclick = openRules;
     document.getElementById('again').onclick = function () { startMode('detente'); };
     document.getElementById('rank').onclick = function () { openRanking('detente'); };
-    document.getElementById('menu').onclick = function () { view = 'modes'; render(); };
+    document.getElementById('menu').onclick = function () { published = null; view = 'modes'; render(); };
   }
 
-  function openRanking(mode) {
-    rank = { mode: mode, loading: true, rows: [], source: null };
+  function openRanking(mode, onlyMine) {
+    rank = { mode: mode, loading: true, rows: [], source: null, onlyMine: !!onlyMine };
     view = 'ranking'; render();
-    S.top(mode, 50).then(function (res) {
-      rank = { mode: mode, loading: false, rows: res.rows, source: res.source };
+    S.top(mode, 200).then(function (res) {
+      rank = { mode: mode, loading: false, rows: res.rows, source: res.source, onlyMine: !!onlyMine };
       if (view === 'ranking') render();
     });
   }
 
+  /** Une ligne du classement. */
+  function rankRow(r, i, me, myTag) {
+    var mine = r.pseudo === me && (!r.tag || r.tag === myTag);
+    var medal = i === 0 ? '🥇 ' : (i === 1 ? '🥈 ' : (i === 2 ? '🥉 ' : ''));
+    return '<tr' + (mine ? ' class="me"' : '') + '><td class="n">' + medal + (i + 1) + '</td>' +
+      '<td>' + esc(r.pseudo) + ' <span class="muted" style="font-weight:700">#' + esc(r.tag || '?????') + '</span>' +
+      (r.seconds ? '<br><span class="muted" style="font-size:12px">⏱ ' + clock(r.seconds) + '</span>' : '') + '</td>' +
+      '<td class="s">' + r.score + '</td></tr>';
+  }
+
   function renderRanking() {
-    var me = S.getPseudo(), myTag = S.getTag();
+    var me = S.getPseudo(), myTag = S.getTag(), myLevel = S.lastLevel();
     var rows = (rank && rank.rows) || [];
-    var body = rows.map(function (r, i) {
-      var mine = r.pseudo === me && (!r.tag || r.tag === myTag);
-      var medal = i === 0 ? '🥇 ' : (i === 1 ? '🥈 ' : (i === 2 ? '🥉 ' : ''));
-      return '<tr' + (mine ? ' class="me"' : '') + '><td class="n">' + medal + (i + 1) + '</td>' +
-        '<td>' + esc(r.pseudo) + ' <span class="muted" style="font-weight:700">#' + esc(r.tag || '?????') + '</span></td>' +
-        '<td class="s">' + r.score + '</td></tr>';
-    }).join('');
+    var body = '';
+
+    if (rank.mode === 'bac') {
+      // regroupement par classe, de la Terminale vers le CP : on compare ce qui est comparable
+      rows = rows.slice().sort(S.byScoreThenTime);
+      var groups = {};
+      rows.forEach(function (r) {
+        var lv = r.level && ALL_LEVELS.indexOf(r.level) !== -1 ? r.level : 'Classe non précisée';
+        (groups[lv] = groups[lv] || []).push(r);
+      });
+      var order = ALL_LEVELS.slice().reverse().concat(['Classe non précisée'])
+        .filter(function (lv) { return groups[lv]; });
+      if (rank.onlyMine && myLevel) order = order.filter(function (lv) { return lv === myLevel; });
+      order.forEach(function (lv) {
+        var list = groups[lv].sort(S.byScoreThenTime).slice(0, 20);
+        body += '<div class="rank-head">' + esc(lv) + '</div><table class="rank">' +
+          list.map(function (r, i) { return rankRow(r, i, me, myTag); }).join('') + '</table>';
+      });
+    } else {
+      body = '<table class="rank">' + rows.slice().sort(S.byScoreThenTime)
+        .slice(0, 50).map(function (r, i) { return rankRow(r, i, me, myTag); }).join('') + '</table>';
+    }
+
     app.innerHTML =
-      '<div class="card">' + muteBtn() +
+      '<div class="card">' + infoBtn() +
         '<h1 class="center">Classement</h1>' +
-        '<div class="row" style="justify-content:center;gap:8px;margin:10px 0 4px">' +
+        (published ? '<p class="center"><span class="tag">Score publié : ' + published.score + ' pts' +
+          (published.level ? ' en ' + esc(published.level) : '') + '</span></p>' : '') +
+        '<div class="row" style="justify-content:center;gap:8px;margin:10px 0 4px;flex-wrap:wrap">' +
           '<button class="chip' + (rank.mode === 'bac' ? ' on' : '') + '" id="t-bac">Quizz BAC</button>' +
           '<button class="chip' + (rank.mode === 'detente' ? ' on' : '') + '" id="t-det">Détente</button>' +
+          (rank.mode === 'bac' && myLevel
+            ? '<button class="chip' + (rank.onlyMine ? ' on' : '') + '" id="t-mine">Ma classe : ' + esc(myLevel) + '</button>'
+            : '') +
         '</div>' +
-        (rank.loading ? '<p class="center muted">Chargement…</p>' :
-          (rows.length ? '<table class="rank">' + body + '</table>'
-                       : '<p class="center muted">Aucun score pour l\'instant. Joue une partie !</p>')) +
+        (rank.loading ? '<p class="center muted">Chargement…</p>'
+                      : (rows.length ? body : '<p class="center muted">Aucun score pour l\'instant. Joue une partie !</p>')) +
         '<div class="hint center">' + (rank.source === 'online' ? 'Classement en ligne.' :
           (S.configured() ? 'Hors ligne : scores de cet appareil.' : 'Classement local à cet appareil.')) +
           (S.queued().length ? ' ' + S.queued().length + ' score(s) en attente d\'envoi.' : '') + '</div>' +
         '<button class="btn ghost" id="menu">Menu</button>' +
       '</div>';
-    document.getElementById('mute').onclick = toggleMute;
-    document.getElementById('t-bac').onclick = function () { openRanking('bac'); };
+    document.getElementById('info').onclick = openRules;
+    document.getElementById('t-bac').onclick = function () { openRanking('bac', rank.onlyMine); };
     document.getElementById('t-det').onclick = function () { openRanking('detente'); };
-    document.getElementById('menu').onclick = function () { view = 'modes'; render(); };
+    var tm = document.getElementById('t-mine');
+    if (tm) tm.onclick = function () { rank.onlyMine = !rank.onlyMine; render(); };
+    document.getElementById('menu').onclick = function () { published = null; view = 'modes'; render(); };
   }
 
   // ------------------------------------------------------------------ animation carte
@@ -955,27 +1337,34 @@
 
   // ------------------------------------------------------------------ actions
   function wirePlay() {
-    var m = document.getElementById('mute'); if (m) m.onclick = toggleMute;
+    var inf = document.getElementById('info'); if (inf) inf.onclick = openRules;
     var quit = document.getElementById('quit');
-    if (quit) quit.onclick = function () {
-      stopTimer();
-      if (confirm('Quitter la partie en cours ?')) { view = 'modes'; render(); } else { startTimer(); }
-    };
+    if (quit) quit.onclick = function () { stopTimer(); view = 'pause'; render(); };
     var buy = document.getElementById('buy');
     if (buy) buy.onclick = function () { if (E.buyTime(game).ok) sfx.buy(); render(); };
     var input = document.getElementById('free');
+    var form = document.getElementById('answer-form');
+    if (form) form.onsubmit = function (e) { e.preventDefault(); submitFree(); };
     if (input) {
       input.value = draft;
       if (!('ontouchstart' in window)) input.focus();
       input.oninput = function () { draft = input.value; };
-      input.onkeydown = function (e) { if (e.key === 'Enter') submitFree(); };
+      input.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); submitFree(); } };
+      // le clavier mobile masque le bas de l'écran : on ramène la zone de réponse dans la vue
+      input.onfocus = function () {
+        setTimeout(function () {
+          try { input.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) { /* vieux navigateur */ }
+        }, 250);
+      };
     }
-    var send = document.getElementById('send'); if (send) send.onclick = submitFree;
     var openmc = document.getElementById('openmc'); if (openmc) openmc.onclick = function () { mcOpen = true; render(); };
     var closemc = document.getElementById('closemc'); if (closemc) closemc.onclick = function () { mcOpen = false; render(); };
     var mic = document.getElementById('mic'); if (mic) mic.onclick = dictate;
     Array.prototype.forEach.call(document.querySelectorAll('[data-opt]'), function (b) {
       b.onclick = function () { submitMC(game.options[+b.getAttribute('data-opt')]); };
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-joker]'), function (b) {
+      b.onclick = function () { playJoker(b.getAttribute('data-joker')); };
     });
   }
 
@@ -1012,6 +1401,39 @@
     after(r, q, text);
   }
 
+  /** Utilisation d'un joker, avec le retour visuel qui va avec. */
+  function playJoker(kind) {
+    var q = game.current;
+    var r = E.useJoker(game, kind);
+    if (!r.ok) return render();
+    sfx.buy();
+    autoSave();
+    if (kind === 'fifty') { mcOpen = true; return render(); }         // le QCM s'ouvre, 3 fausses barrées
+    if (kind === 'swap') {
+      feedback = { good: false, text: 'Question changée — ' + r.cost + ' points.', delta: -r.cost };
+      stopTimer();
+      render();
+      setTimeout(function () { feedback = null; startTimer(); render(); }, 900);
+      return;
+    }
+    // « passer » : on avance sans point
+    stopTimer();
+    feedback = { good: false, text: 'Question passée — ' + r.cost + ' points. La réponse était <b>' +
+      esc(q.answer) + '</b>.', delta: -r.cost };
+    render();
+    setTimeout(function () {
+      feedback = null;
+      if (game.finished) return finishGame();
+      if (r.event === 'levelUp') {
+        game.__bonusShown = r.bonus || null;
+        view = 'map'; sfx.levelup();
+        runReveal(Math.max(0, game.levelIndex - 1), game.levelIndex);
+        return;
+      }
+      startTimer(); render();
+    }, 1600);
+  }
+
   function onTimeout() {
     var q = game.current;
     if (!q || game.finished) return finishGame();    // le chrono a sonné après la fin : on sort proprement
@@ -1035,6 +1457,8 @@
     else if (r.event === 'resetToFirst') sfx.heart();
     else sfx.bad();
     if (r.bonus) setTimeout(sfx.bonus, 420);
+    saveSeen(game.seen);          // mémoire des questions vues, d'une partie à l'autre
+    autoSave();                   // et sauvegarde de la partie en cours
     render();
     setTimeout(function () {
       feedback = null; revealed = null;
@@ -1059,12 +1483,14 @@
       return render();
     }
     game.__submitted = true;
+    S.clearSlot();                // la partie est terminée : plus rien à reprendre
     // enregistrement et son isolés : s'ils échouent, l'écran de fin s'affiche quand même
     try {
-      if (game.mode === 'bac') saveSeen(game.seen);
+      saveSeen(game.seen);
       S.submit({
         pseudo: S.getPseudo(), score: game.score, mode: game.mode === 'bac' ? 'bac' : 'detente',
-        level: game.mode === 'bac' ? ALL_LEVELS[Math.min(game.levelIndex, ALL_LEVELS.length - 1)] : null
+        level: game.mode === 'bac' ? ALL_LEVELS[Math.min(game.levelIndex, ALL_LEVELS.length - 1)] : null,
+        seconds: E.progress(game).spent
       });
     } catch (e) { /* score non enregistré, la partie reste jouable */ }
     try { sfx.win(); } catch (e) { /* son indisponible */ }

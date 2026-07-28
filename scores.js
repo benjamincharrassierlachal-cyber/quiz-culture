@@ -15,6 +15,8 @@
   var K_LOCAL = 'quizculture.scores';
   var K_QUEUE = 'quizculture.queue';
   var K_BEST = 'quizculture.best';       // meilleur score par mode
+  var K_SLOT = 'quizculture.save';       // partie en cours, pour reprendre plus tard
+  var K_LEVEL = 'quizculture.lastLevel'; // dernière classe atteinte, pour filtrer le classement
 
   function conf() {
     var c = (typeof window !== 'undefined' && window.LEADERBOARD) || {};
@@ -77,15 +79,30 @@
     return false;
   }
 
+  // ------------------------------------------------------------------ partie sauvegardée
+  function saveSlot(data) { write(K_SLOT, data); }
+  function loadSlot() { return read(K_SLOT, null); }
+  function clearSlot() { try { localStorage.removeItem(K_SLOT); } catch (e) { /* ignore */ } }
+  function hasSlot() { var d = loadSlot(); return !!(d && d.mode); }
+
+  function lastLevel() { try { return localStorage.getItem(K_LEVEL) || ''; } catch (e) { return ''; } }
+  function setLastLevel(lv) { try { if (lv) localStorage.setItem(K_LEVEL, lv); } catch (e) { /* ignore */ } }
+
   // ------------------------------------------------------------------ scores locaux
+  /** À score égal, le plus rapide passe devant. */
+  function byScoreThenTime(a, b) {
+    if (b.score !== a.score) return b.score - a.score;
+    var ta = a.seconds || Infinity, tb = b.seconds || Infinity;
+    return ta - tb;
+  }
   function localScores(mode) {
     return read(K_LOCAL, []).filter(function (s) { return !mode || s.mode === mode; })
-      .sort(function (a, b) { return b.score - a.score; });
+      .sort(byScoreThenTime);
   }
   function pushLocal(entry) {
     var all = read(K_LOCAL, []);
     all.push(entry);
-    all.sort(function (a, b) { return b.score - a.score; });
+    all.sort(byScoreThenTime);
     write(K_LOCAL, all.slice(0, 200));
   }
 
@@ -103,7 +120,7 @@
       },
       body: JSON.stringify({
         pseudo: entry.pseudo, tag: entry.tag, score: entry.score,
-        mode: entry.mode, level: entry.level || null
+        mode: entry.mode, level: entry.level || null, seconds: entry.seconds || null
       })
     }).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -136,9 +153,11 @@
       score: Math.max(0, Math.round(entry.score || 0)),
       mode: entry.mode || 'bac',
       level: entry.level || null,
+      seconds: Math.max(0, Math.round(entry.seconds || 0)) || null,
       date: new Date().toISOString()
     };
     pushLocal(entry);
+    setLastLevel(entry.level);
     var record = saveBest(entry.mode, entry.score);
     if (!conf()) return Promise.resolve({ stored: 'local', record: record });
     return post(entry).then(function () {
@@ -156,8 +175,9 @@
     if (!c || !online()) {
       return Promise.resolve({ source: 'local', rows: localScores(mode).slice(0, limit) });
     }
-    var url = c.url.replace(/\/$/, '') + '/rest/v1/scores?select=pseudo,tag,score,mode,created_at' +
-      '&mode=eq.' + encodeURIComponent(mode || 'bac') + '&order=score.desc&limit=' + limit;
+    var url = c.url.replace(/\/$/, '') + '/rest/v1/scores?select=pseudo,tag,score,mode,level,seconds,created_at' +
+      '&mode=eq.' + encodeURIComponent(mode || 'bac') +
+      '&order=score.desc,seconds.asc.nullslast&limit=' + limit;
     return fetch(url, { headers: { 'apikey': c.anonKey, 'Authorization': 'Bearer ' + c.anonKey } })
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function (rows) { return { source: 'online', rows: rows }; })
@@ -172,6 +192,12 @@
     setPseudo: setPseudo,
     getTag: getTag,
     displayName: displayName,
+    saveSlot: saveSlot,
+    loadSlot: loadSlot,
+    clearSlot: clearSlot,
+    hasSlot: hasSlot,
+    lastLevel: lastLevel,
+    byScoreThenTime: byScoreThenTime,
     best: best,
     localScores: localScores,
     submit: submit,

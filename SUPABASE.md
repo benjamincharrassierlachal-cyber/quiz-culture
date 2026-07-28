@@ -28,6 +28,7 @@ create table public.scores (
   score      int         not null check (score >= 0 and score <= 1000),
   mode       text        not null check (mode in ('bac', 'detente')),
   level      text,
+  seconds    int         check (seconds >= 0),          -- temps de jeu : départage les ex æquo
   created_at timestamptz not null default now()
 );
 
@@ -40,10 +41,19 @@ create policy "lecture du classement" on public.scores
 create policy "depot d un score" on public.scores
   for insert to anon with check (true);
 
-create index scores_classement on public.scores (mode, score desc);
+create index scores_classement on public.scores (mode, score desc, seconds asc);
 ```
 
 Tu dois voir « Success. No rows returned ».
+
+### Si la table existe déjà
+
+Si tu avais créé la table avant l'ajout du temps de jeu, une seule ligne suffit dans le
+**SQL Editor** — les scores déjà enregistrés restent en place, sans temps :
+
+```sql
+alter table public.scores add column if not exists seconds int check (seconds >= 0);
+```
 
 ## 3. Récupérer les deux informations
 

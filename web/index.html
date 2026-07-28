@@ -88,8 +88,11 @@
 
   /* bandeau du haut */
   .hud{position:relative; text-align:center; margin:2px 0 14px}
-  .hud .mute{position:absolute; right:2px; top:2px; font-size:20px}
-  .hud .quit{position:absolute; left:2px; top:2px; font-size:13px; color:var(--muted)}
+  .hud .info{right:0; top:0}
+  .hud .quit{position:absolute; left:0; top:0; font-size:13px; font-weight:800; padding:6px 12px;
+             border:2px solid var(--ink); border-radius:99px; background:#fff;
+             box-shadow:2px 2px 0 var(--ink); transition:transform .06s, box-shadow .06s}
+  .hud .quit:active{transform:translate(2px,2px); box-shadow:0 0 0 var(--ink)}
   .lvl{display:inline-block; font-size:26px; font-weight:900; letter-spacing:-.5px;
        padding:6px 20px; border-radius:14px; border:3px solid var(--ink);
        background:var(--violet); color:#fff; box-shadow:4px 4px 0 var(--ink)}
@@ -187,6 +190,65 @@
   .map svg{display:block; width:100%; height:auto; image-rendering:pixelated}
   .map text{font:700 10px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
 
+  /* bouton « i » et page des règles */
+  .info{position:absolute; right:12px; top:12px; width:34px; height:34px; padding:0;
+        display:flex; align-items:center; justify-content:center; color:var(--ink); opacity:.75}
+  .info svg{width:26px; height:26px}
+  .info:active{transform:translateY(1px)}
+  .scroll{margin-top:12px; filter:drop-shadow(3px 4px 0 rgba(42,33,64,.16))}
+  .roll{display:block; width:100%; height:auto}
+  .roll.top{margin-bottom:-10px}
+  .roll.bot{margin-top:-10px}
+  .sheet{position:relative; padding:26px 28px 30px; text-align:left;
+         font-family:Georgia,"Times New Roman",serif; color:#3a3350}
+  .sheet .paper{position:absolute; left:0; top:0; width:100%; height:100%}
+  .sheet-in{position:relative}
+  .sheet h2{font-family:inherit; font-size:14px; letter-spacing:2.4px; text-transform:uppercase;
+            color:#a9812a; margin:18px 0 5px}
+  .sheet h2:first-child{margin-top:0}
+  .sheet p{margin:0 0 6px; font-size:15px; line-height:1.5}
+  .sheet ul{margin:4px 0 8px; padding-left:20px}
+  .sheet li{font-size:15px; line-height:1.5; margin-bottom:3px}
+  .sheet b{color:#2a2140}
+  .sheet .seal{display:block; margin:16px auto 0}
+
+  /* jokers : trois pastilles rondes */
+  .jokers{display:flex; gap:16px; justify-content:center; margin:12px 0 2px}
+  .jk{width:76px; text-align:center}
+  .joker{width:58px; height:58px; margin:0 auto; display:flex; align-items:center; justify-content:center;
+         border:3px solid var(--ink); border-radius:50%; box-shadow:3px 3px 0 var(--ink);
+         background:radial-gradient(circle at 34% 30%, #ffe9a8 0%, #ffc531 46%, #e09b12 100%);
+         transition:transform .06s, box-shadow .06s}
+  .joker svg{width:30px; height:30px; display:block}
+  .joker:active{transform:translate(3px,3px); box-shadow:0 0 0 var(--ink)}
+  .joker:disabled{opacity:.45; box-shadow:3px 3px 0 var(--ink)}
+  .jk b{display:block; margin-top:4px; font-size:12px; line-height:1.1}
+  .jk small{display:block; font-size:10px; color:var(--muted); font-weight:700}
+  .jk.spent .joker{background:var(--pale); filter:grayscale(.7)}
+  .jk-row{display:flex; align-items:center; gap:12px; text-align:left; margin-top:12px;
+          padding:10px 12px; border:3px solid var(--ink); border-radius:16px; background:#fff;
+          box-shadow:4px 4px 0 var(--ink)}
+  .jk-row .joker.big{flex:none}
+  .jk-txt{flex:1}
+  .jk-txt b{display:block; font-size:18px}
+  .jk-txt small{display:block; color:var(--muted); font-size:13px}
+  .jk-cost{font-weight:800; font-size:15px; white-space:nowrap}
+  .jk.spent b{text-decoration:line-through}
+  .opt.out{background:#ffe0e3; color:#a3313c; text-decoration:line-through; opacity:.75}
+
+  /* écran de pause */
+  .choice{display:block; width:100%; text-align:left; margin-top:12px; padding:14px 16px;
+          border:3px solid var(--ink); border-radius:16px; background:#fff;
+          box-shadow:4px 4px 0 var(--ink); transition:transform .06s, box-shadow .06s}
+  .choice:active{transform:translate(3px,3px); box-shadow:1px 1px 0 var(--ink)}
+  .choice b{display:block; font-size:22px; letter-spacing:-.3px; line-height:1.15}
+  .choice small{display:block; margin-top:4px; color:var(--muted); font-size:13px}
+  .choice.go{background:linear-gradient(120deg,#eef3ff,#fff)}
+  .choice.save{background:linear-gradient(120deg,#fff6da,#fff)}
+  .choice.pub{background:linear-gradient(120deg,#eafff5,#fff)}
+  .choice.quit{background:linear-gradient(120deg,#ffeef0,#fff)}
+  .resume{background:linear-gradient(120deg,#fff2c9,#fff8e4)}
+
   /* diplôme et classement */
   .diploma{border:3px solid var(--ink); border-radius:14px; overflow:hidden; box-shadow:5px 5px 0 var(--ink); margin-top:10px}
   .diploma svg{display:block; width:100%; height:auto}
@@ -195,6 +257,9 @@
   table.rank td.n{width:34px; color:var(--muted); font-weight:800}
   table.rank td.s{text-align:right; font-weight:900}
   table.rank tr.me td{background:#fff7d9}
+  .rank-head{margin:16px 0 2px; font-size:13px; font-weight:800; letter-spacing:1px;
+             text-transform:uppercase; color:var(--violet)}
+  .rank-head:first-child{margin-top:6px}
 </style>
 </head>
 <body>
@@ -231,7 +296,11 @@
     perfectBonusLife: 1,      // classe sans faute au secondaire
     bonusLifeFromLevel: 5,    // index de la 6ème : à partir de là, le bonus est une vie
     relaxQuestions: 30,       // mode détente
-    relaxTiers: 3             // 3 paliers de difficulté (10 questions chacun)
+    relaxTiers: 3,            // 3 paliers de difficulté (10 questions chacun)
+    jokerCost: 6,             // chaque joker coûte 6 points
+    jokersFromLevel: 5,       // disponibles à partir de la 6ème
+    jokerHideCount: 3,        // « 40/60 » : trois mauvaises réponses barrées
+    resumeMinSeconds: 5       // à la reprise, on garde le temps restant, jamais moins de 5 s
   };
 
   // ---------------------------------------------------------------- normalisation
@@ -394,6 +463,10 @@
       seen: (options.seen || []).slice(),
       freeWrongStreak: 0,
       timeLeft: cfg.timerSeconds,
+      budget: cfg.timerSeconds,     // secondes accordées pour la question en cours
+      spent: 0,                     // temps de jeu cumulé, hors pauses
+      jokers: { fifty: true, swap: true, pass: true },
+      hiddenWrong: [],              // mauvaises réponses barrées par le joker 40/60
       current: null,
       options: [],
       finished: false,
@@ -431,6 +504,8 @@
     state.current = q;
     state.options = makeOptions(state, q);
     state.timeLeft = state.config.timerSeconds;
+    state.budget = state.config.timerSeconds;
+    state.hiddenWrong = [];
     return q;
   }
 
@@ -441,6 +516,12 @@
   function mustUseMC(state) {
     var n = state.config.forceMCAfterFreeWrong;
     return state.mode === 'bac' && n > 0 && state.freeWrongStreak >= n;
+  }
+
+  /** Ajoute au compteur de temps ce que la question vient de coûter. */
+  function tickSpent(state) {
+    var used = (state.budget || state.config.timerSeconds) - state.timeLeft;
+    state.spent = Math.round((state.spent || 0) + Math.max(0, used));
   }
 
   function award(state, points) {
@@ -532,12 +613,17 @@
 
   // ---------------------------------------------------------------- mode détente
 
-  /** 30 questions, thèmes mélangés, difficulté croissante par paliers de 10. */
+  /** 30 questions, thèmes mélangés, difficulté croissante par paliers de 10.
+   *  Les questions déjà vues lors des parties précédentes passent en dernier recours :
+   *  sans cela, on retombe vite sur les mêmes d'une partie à l'autre. */
   function createRelax(bank, options) {
     options = options || {};
     var cfg = Object.assign({}, CONFIG, options.config || {});
     var rng = rngFor(options);
     var total = cfg.relaxQuestions, tiers = cfg.relaxTiers, perTier = Math.round(total / tiers);
+    var seen = (options.seen || []).slice();
+    var isSeen = {};
+    seen.forEach(function (id) { isSeen[id] = 1; });
 
     var byTier = {};
     bank.questions.forEach(function (q) {
@@ -548,8 +634,10 @@
     var queue = [], used = {};
     for (var t = 1; t <= tiers; t++) {
       var wanted = (t === tiers) ? total - queue.length : perTier;
-      var pool = shuffle((byTier[t] || []).filter(function (q) { return !used[q.id]; }), rng);
-      // pas assez de questions dans ce palier : on complète avec les paliers voisins
+      var all = (byTier[t] || []).filter(function (q) { return !used[q.id]; });
+      // d'abord les questions jamais vues, puis les autres si le palier est trop petit
+      var pool = shuffle(all.filter(function (q) { return !isSeen[q.id]; }), rng)
+        .concat(shuffle(all.filter(function (q) { return isSeen[q.id]; }), rng));
       if (pool.length < wanted) {
         var extra = shuffle(bank.questions.filter(function (q) {
           return !used[q.id] && pool.indexOf(q) === -1;
@@ -570,9 +658,13 @@
       pointsSinceCheckpoint: 0,
       correctCount: 0,
       lives: 0,
-      seen: [],
+      seen: seen,
       freeWrongStreak: 0,
       timeLeft: cfg.timerSeconds,
+      budget: cfg.timerSeconds,
+      spent: 0,
+      jokers: { fifty: false, swap: false, pass: false },   // réservés au mode BAC
+      hiddenWrong: [],
       current: queue[0] || null,
       options: [],
       finished: !queue.length,
@@ -585,6 +677,7 @@
 
   /** Détente : on passe simplement à la question suivante, juste ou faux. */
   function relaxNext(state) {
+    markSeen(state, state.current);        // mémorisé pour les parties suivantes
     state.index++;
     state.freeWrongStreak = 0;
     if (state.index >= state.queue.length) {
@@ -594,6 +687,8 @@
     state.current = state.queue[state.index];
     state.options = makeOptions(state, state.current);
     state.timeLeft = state.config.timerSeconds;
+    state.budget = state.config.timerSeconds;
+    state.hiddenWrong = [];
     return 'nextQuestion';
   }
 
@@ -603,6 +698,7 @@
     if (state.finished) return { ok: false, reason: 'finished' };
     if (mustUseMC(state)) return { ok: false, reason: 'mcForced' };
     var q = state.current;
+    tickSpent(state);
     var correct = checkFree(q, input);
     var res = { mode: 'free', correct: correct, question: q, given: input, points: 0, lost: 0 };
 
@@ -633,6 +729,7 @@
   function answerMC(state, choice) {
     if (state.finished) return { ok: false, reason: 'finished' };
     var q = state.current;
+    tickSpent(state);
     var correct = normalize(choice) === normalize(q.answer);
     var res = { mode: 'mc', correct: correct, question: q, given: choice, points: 0, lost: 0 };
 
@@ -659,12 +756,64 @@
     return res;
   }
 
+  // ---------------------------------------------------------------- jokers
+
+  /** Les jokers s'ouvrent à partir de la 6ème, en mode BAC uniquement. */
+  function jokersAvailable(state) {
+    return state.mode === 'bac' && state.levelIndex >= state.config.jokersFromLevel;
+  }
+
+  /** Un joker est-il utilisable ici et maintenant ? */
+  function canUseJoker(state, kind) {
+    if (state.finished || !state.current) return false;
+    if (!jokersAvailable(state)) return false;
+    if (!state.jokers || !state.jokers[kind]) return false;          // déjà utilisé
+    if (kind === 'fifty' && state.hiddenWrong.length) return false;  // rien à révéler deux fois
+    return state.score >= state.config.jokerCost;
+  }
+
+  /**
+   * Trois aides, 6 points chacune, une seule fois par partie :
+   *   - « fifty » (40/60) : barre trois mauvaises réponses du choix multiple ;
+   *   - « swap »          : remplace la question par une autre de la même matière ;
+   *   - « pass »          : passe la question, sans point et sans pénalité.
+   */
+  function useJoker(state, kind) {
+    if (!canUseJoker(state, kind)) {
+      return { ok: false, reason: !jokersAvailable(state) ? 'tooEarly'
+        : (state.jokers && !state.jokers[kind] ? 'used' : 'noPoints') };
+    }
+    penalize(state, state.config.jokerCost);
+    state.jokers[kind] = false;
+    state.classErrors++;              // toute aide utilisée annule le bonus de classe sans faute
+    var res = { ok: true, kind: kind, cost: state.config.jokerCost, score: state.score };
+
+    if (kind === 'fifty') {
+      var wrong = state.options.filter(function (o) {
+        return normalize(o) !== normalize(state.current.answer);
+      });
+      state.hiddenWrong = shuffle(wrong, state.rng).slice(0, state.config.jokerHideCount);
+      res.hidden = state.hiddenWrong.slice();
+      res.event = 'reveal';
+    } else if (kind === 'swap') {
+      markSeen(state, state.current);
+      nextQuestion(state);
+      res.event = 'replaced';
+    } else {
+      res.event = advance(state);
+      res.bonus = state.bonus;
+    }
+    state.log.push({ mode: 'joker', kind: kind, correct: false, points: 0, lost: res.cost });
+    return res;
+  }
+
   /** Sacrifier 1 point pour +15 s (les deux modes). */
   function buyTime(state) {
     if (state.finished) return { ok: false, reason: 'finished' };
     if (state.score < state.config.timeBuyCost) return { ok: false, reason: 'noPoints' };
     penalize(state, state.config.timeBuyCost);
     state.timeLeft += state.config.timeBuySeconds;
+    state.budget += state.config.timeBuySeconds;
     return { ok: true, timeLeft: state.timeLeft, score: state.score };
   }
 
@@ -672,6 +821,7 @@
   function timeout(state) {
     if (state.finished) return { ok: false, reason: 'finished' };
     var q = state.current;
+    tickSpent(state);
     var res = { mode: 'timeout', correct: false, question: q, points: 0, lost: 0 };
     if (state.mode === 'detente') {
       res.event = relaxNext(state);
@@ -695,6 +845,7 @@
         of: state.queue.length,
         theme: state.current ? state.current.theme : null,
         score: state.score,
+        spent: state.spent || 0,
         correct: state.correctCount,
         mcForced: false
       };
@@ -713,8 +864,92 @@
       atRisk: state.pointsSinceCheckpoint,
       lives: state.lives,
       perfectSoFar: state.classErrors === 0,
+      spent: state.spent || 0,
+      jokers: state.jokers,
+      jokersOpen: jokersAvailable(state),
+      jokerCost: state.config.jokerCost,
+      hiddenWrong: state.hiddenWrong || [],
       mcForced: mustUseMC(state)
     };
+  }
+
+  /** Photographie d'une partie, sérialisable en JSON : de quoi reprendre plus tard. */
+  function serialize(state) {
+    return {
+      v: 1,
+      mode: state.mode,
+      levelIndex: state.levelIndex || 0,
+      subjectIndex: state.subjectIndex || 0,
+      qIndex: state.qIndex || 0,
+      score: state.score,
+      pointsSinceCheckpoint: state.pointsSinceCheckpoint || 0,
+      lives: state.lives,
+      classErrors: state.classErrors || 0,
+      levelPoints: (state.levelPoints || []).slice(),
+      seen: (state.seen || []).slice(),
+      freeWrongStreak: state.freeWrongStreak || 0,
+      spent: state.spent || 0,
+      jokers: state.jokers ? Object.assign({}, state.jokers) : null,
+      timeLeft: Math.round(state.timeLeft),
+      currentId: state.current ? state.current.id : null,
+      queueIds: state.queue ? state.queue.map(function (q) { return q.id; }) : null,
+      index: state.index || 0,
+      correctCount: state.correctCount || 0,
+      answered: (state.answeredBefore || 0) + state.log.length,
+      level: state.levels ? state.levels[state.levelIndex] : null,
+      date: Date.now()
+    };
+  }
+
+  /** Reconstruit une partie à partir d'une photographie. */
+  function restore(data, banks, options) {
+    if (!data || !data.mode) return null;
+    var bank = data.mode === 'detente' ? banks.detente : banks.bac;
+    if (!bank) return null;
+    var byId = {};
+    bank.questions.forEach(function (q) { byId[q.id] = q; });
+
+    var state = data.mode === 'detente'
+      ? createRelax(bank, options)
+      : createGame(bank, options);
+
+    if (data.mode === 'detente') {
+      var queue = (data.queueIds || []).map(function (id) { return byId[id]; }).filter(Boolean);
+      if (queue.length) state.queue = queue;
+      state.index = Math.min(data.index || 0, state.queue.length - 1);
+      state.correctCount = data.correctCount || 0;
+      state.current = state.queue[state.index];
+    } else {
+      state.levelIndex = data.levelIndex || 0;
+      state.subjectIndex = data.subjectIndex || 0;
+      state.qIndex = data.qIndex || 0;
+      state.lives = data.lives || state.config.lives;
+      state.classErrors = data.classErrors || 0;
+      state.levelPoints = (data.levelPoints || []).slice();
+      state.pointsSinceCheckpoint = data.pointsSinceCheckpoint || 0;
+      state.current = byId[data.currentId] || null;
+      if (!state.current) nextQuestion(state);          // question disparue : on en tire une autre
+    }
+
+    state.score = data.score || 0;
+    state.spent = data.spent || 0;
+    if (data.jokers) state.jokers = Object.assign({}, data.jokers);
+    state.seen = (data.seen || []).slice();
+    state.freeWrongStreak = data.freeWrongStreak || 0;
+    state.answeredBefore = data.answered || 0;
+    // le chrono reprend là où il s'était arrêté : mettre la partie de côté ne rend pas du temps.
+    // Un plancher de quelques secondes laisse le temps de relire la question, et ce supplément
+    // est ajouté au budget pour qu'il ne soit pas compté comme du temps de réflexion.
+    var saved = typeof data.timeLeft === 'number' ? data.timeLeft : state.config.timerSeconds;
+    saved = Math.max(0, Math.min(saved, state.config.timerSeconds));
+    var granted = Math.max(saved, Math.min(state.config.resumeMinSeconds, state.config.timerSeconds));
+    state.timeLeft = granted;
+    state.budget = granted;
+    state.hiddenWrong = [];
+    if (state.current) state.options = makeOptions(state, state.current);
+    state.finished = false;
+    state.won = false;
+    return state;
   }
 
   /** Score maximum théorique d'une partie parfaite (bonus compris). */
@@ -742,9 +977,13 @@
     answerFree: answerFree,
     answerMC: answerMC,
     buyTime: buyTime,
+    useJoker: useJoker,
+    canUseJoker: canUseJoker,
     timeout: timeout,
     mustUseMC: mustUseMC,
     progress: progress,
+    serialize: serialize,
+    restore: restore,
     maxScore: maxScore,
     mulberry32: mulberry32
   };
@@ -767,6 +1006,8 @@
   var K_LOCAL = 'quizculture.scores';
   var K_QUEUE = 'quizculture.queue';
   var K_BEST = 'quizculture.best';       // meilleur score par mode
+  var K_SLOT = 'quizculture.save';       // partie en cours, pour reprendre plus tard
+  var K_LEVEL = 'quizculture.lastLevel'; // dernière classe atteinte, pour filtrer le classement
 
   function conf() {
     var c = (typeof window !== 'undefined' && window.LEADERBOARD) || {};
@@ -829,15 +1070,30 @@
     return false;
   }
 
+  // ------------------------------------------------------------------ partie sauvegardée
+  function saveSlot(data) { write(K_SLOT, data); }
+  function loadSlot() { return read(K_SLOT, null); }
+  function clearSlot() { try { localStorage.removeItem(K_SLOT); } catch (e) { /* ignore */ } }
+  function hasSlot() { var d = loadSlot(); return !!(d && d.mode); }
+
+  function lastLevel() { try { return localStorage.getItem(K_LEVEL) || ''; } catch (e) { return ''; } }
+  function setLastLevel(lv) { try { if (lv) localStorage.setItem(K_LEVEL, lv); } catch (e) { /* ignore */ } }
+
   // ------------------------------------------------------------------ scores locaux
+  /** À score égal, le plus rapide passe devant. */
+  function byScoreThenTime(a, b) {
+    if (b.score !== a.score) return b.score - a.score;
+    var ta = a.seconds || Infinity, tb = b.seconds || Infinity;
+    return ta - tb;
+  }
   function localScores(mode) {
     return read(K_LOCAL, []).filter(function (s) { return !mode || s.mode === mode; })
-      .sort(function (a, b) { return b.score - a.score; });
+      .sort(byScoreThenTime);
   }
   function pushLocal(entry) {
     var all = read(K_LOCAL, []);
     all.push(entry);
-    all.sort(function (a, b) { return b.score - a.score; });
+    all.sort(byScoreThenTime);
     write(K_LOCAL, all.slice(0, 200));
   }
 
@@ -855,7 +1111,7 @@
       },
       body: JSON.stringify({
         pseudo: entry.pseudo, tag: entry.tag, score: entry.score,
-        mode: entry.mode, level: entry.level || null
+        mode: entry.mode, level: entry.level || null, seconds: entry.seconds || null
       })
     }).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -888,9 +1144,11 @@
       score: Math.max(0, Math.round(entry.score || 0)),
       mode: entry.mode || 'bac',
       level: entry.level || null,
+      seconds: Math.max(0, Math.round(entry.seconds || 0)) || null,
       date: new Date().toISOString()
     };
     pushLocal(entry);
+    setLastLevel(entry.level);
     var record = saveBest(entry.mode, entry.score);
     if (!conf()) return Promise.resolve({ stored: 'local', record: record });
     return post(entry).then(function () {
@@ -908,8 +1166,9 @@
     if (!c || !online()) {
       return Promise.resolve({ source: 'local', rows: localScores(mode).slice(0, limit) });
     }
-    var url = c.url.replace(/\/$/, '') + '/rest/v1/scores?select=pseudo,tag,score,mode,created_at' +
-      '&mode=eq.' + encodeURIComponent(mode || 'bac') + '&order=score.desc&limit=' + limit;
+    var url = c.url.replace(/\/$/, '') + '/rest/v1/scores?select=pseudo,tag,score,mode,level,seconds,created_at' +
+      '&mode=eq.' + encodeURIComponent(mode || 'bac') +
+      '&order=score.desc,seconds.asc.nullslast&limit=' + limit;
     return fetch(url, { headers: { 'apikey': c.anonKey, 'Authorization': 'Bearer ' + c.anonKey } })
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function (rows) { return { source: 'online', rows: rows }; })
@@ -924,6 +1183,12 @@
     setPseudo: setPseudo,
     getTag: getTag,
     displayName: displayName,
+    saveSlot: saveSlot,
+    loadSlot: loadSlot,
+    clearSlot: clearSlot,
+    hasSlot: hasSlot,
+    lastLevel: lastLevel,
+    byScoreThenTime: byScoreThenTime,
     best: best,
     localScores: localScores,
     submit: submit,
@@ -1980,7 +2245,95 @@
     {"id": "det-mus-021", "theme": "Musique", "difficulty": 3, "prompt": "Quelle chanteuse américaine est surnommée « Queen of Soul » ?", "answer": "Aretha Franklin", "accepted": ["aretha franklin", "aretha"], "distractors": ["Tina Turner", "Whitney Houston", "Diana Ross", "Nina Simone"]},
     {"id": "det-mus-022", "theme": "Musique", "difficulty": 3, "prompt": "Quel album de Michael Jackson est le plus vendu de l'histoire ?", "answer": "Thriller", "accepted": ["thriller"], "distractors": ["Bad", "Dangerous", "Off the Wall", "Invincible"]},
     {"id": "det-mus-023", "theme": "Musique", "difficulty": 3, "prompt": "Qui a fondé le label Motown ?", "answer": "Berry Gordy", "accepted": ["berry gordy", "gordy"], "distractors": ["Quincy Jones", "Phil Spector", "Ahmet Ertegun", "Sam Phillips"]},
-    {"id": "det-mus-024", "theme": "Musique", "difficulty": 3, "prompt": "Quel instrument à vent en cuivre possède une coulisse ?", "answer": "le trombone", "accepted": ["trombone", "le trombone"], "distractors": ["la trompette", "le tuba", "le cor", "le saxophone"]}
+    {"id": "det-mus-024", "theme": "Musique", "difficulty": 3, "prompt": "Quel instrument à vent en cuivre possède une coulisse ?", "answer": "le trombone", "accepted": ["trombone", "le trombone"], "distractors": ["la trompette", "le tuba", "le cor", "le saxophone"]},
+
+    {"id": "det-cg-025", "theme": "Culture générale", "difficulty": 1, "prompt": "Combien de jours compte février hors année bissextile ?", "answer": "28", "accepted": ["28", "vingt-huit"], "distractors": ["29", "30", "31", "27"], "numeric": true},
+    {"id": "det-cg-026", "theme": "Culture générale", "difficulty": 1, "prompt": "Quel animal est surnommé « le meilleur ami de l'homme » ?", "answer": "le chien", "accepted": ["chien", "le chien"], "distractors": ["le chat", "le cheval", "le perroquet", "le lapin"]},
+    {"id": "det-cg-027", "theme": "Culture générale", "difficulty": 1, "prompt": "Combien de doigts compte une main ?", "answer": "5", "accepted": ["5", "cinq"], "distractors": ["4", "6", "10", "3"], "numeric": true},
+    {"id": "det-cg-028", "theme": "Culture générale", "difficulty": 1, "prompt": "De quelle couleur est le sang humain oxygéné ?", "answer": "rouge", "accepted": ["rouge"], "distractors": ["bleu", "violet", "orange", "noir"]},
+    {"id": "det-cg-029", "theme": "Culture générale", "difficulty": 1, "prompt": "Quel animal pond des œufs et possède des plumes ?", "answer": "l'oiseau", "accepted": ["oiseau", "l oiseau", "les oiseaux"], "distractors": ["le serpent", "la chauve-souris", "le poisson", "l'insecte"]},
+    {"id": "det-cg-030", "theme": "Culture générale", "difficulty": 1, "prompt": "Quelle est la capitale de l'Espagne ?", "answer": "Madrid", "accepted": ["madrid"], "distractors": ["Barcelone", "Lisbonne", "Séville", "Valence"]},
+    {"id": "det-cg-031", "theme": "Culture générale", "difficulty": 1, "prompt": "Combien de couleurs compte le drapeau français ?", "answer": "3", "accepted": ["3", "trois"], "distractors": ["2", "4", "5", "6"], "numeric": true},
+    {"id": "det-cg-032", "theme": "Culture générale", "difficulty": 2, "prompt": "Dans quelle ville se trouve la statue de la Liberté ?", "answer": "New York", "accepted": ["new york"], "distractors": ["Washington", "Boston", "Philadelphie", "Chicago"]},
+    {"id": "det-cg-033", "theme": "Culture générale", "difficulty": 2, "prompt": "Combien de côtés a un hexagone ?", "answer": "6", "accepted": ["6", "six"], "distractors": ["5", "7", "8", "4"], "numeric": true},
+    {"id": "det-cg-034", "theme": "Culture générale", "difficulty": 2, "prompt": "Quelle est la langue officielle du Brésil ?", "answer": "le portugais", "accepted": ["portugais", "le portugais"], "distractors": ["l'espagnol", "le brésilien", "le français", "l'italien"]},
+    {"id": "det-cg-035", "theme": "Culture générale", "difficulty": 2, "prompt": "Quel est le plus petit océan du monde ?", "answer": "l'océan Arctique", "accepted": ["arctique", "l ocean arctique", "ocean arctique"], "distractors": ["l'océan Indien", "l'océan Austral", "l'Atlantique", "le Pacifique"]},
+    {"id": "det-cg-036", "theme": "Culture générale", "difficulty": 2, "prompt": "Comment appelle-t-on la peur des araignées ?", "answer": "l'arachnophobie", "accepted": ["arachnophobie", "l arachnophobie"], "distractors": ["l'agoraphobie", "la claustrophobie", "l'acrophobie", "l'entomophobie"]},
+    {"id": "det-cg-037", "theme": "Culture générale", "difficulty": 2, "prompt": "Quel est le symbole chimique de l'or ?", "answer": "Au", "accepted": ["au"], "distractors": ["Or", "Ag", "Ao", "Go"], "strict": true},
+    {"id": "det-cg-038", "theme": "Culture générale", "difficulty": 2, "prompt": "Quel organe humain se régénère naturellement après une ablation partielle ?", "answer": "le foie", "accepted": ["foie", "le foie"], "distractors": ["le cœur", "le poumon", "le rein", "le cerveau"]},
+    {"id": "det-cg-039", "theme": "Culture générale", "difficulty": 3, "prompt": "Quelle est la capitale de la Nouvelle-Zélande ?", "answer": "Wellington", "accepted": ["wellington"], "distractors": ["Auckland", "Christchurch", "Sydney", "Dunedin"]},
+    {"id": "det-cg-040", "theme": "Culture générale", "difficulty": 3, "prompt": "Qui a peint « Les Demoiselles d'Avignon » ?", "answer": "Pablo Picasso", "accepted": ["picasso", "pablo picasso"], "distractors": ["Henri Matisse", "Georges Braque", "Paul Cézanne", "Juan Gris"]},
+    {"id": "det-cg-041", "theme": "Culture générale", "difficulty": 3, "prompt": "En combien de jours la Lune fait-elle le tour de la Terre ?", "answer": "27 jours", "accepted": ["27", "27 jours", "27,3"], "distractors": ["30 jours", "24 jours", "365 jours", "7 jours"], "numeric": true},
+    {"id": "det-cg-042", "theme": "Culture générale", "difficulty": 3, "prompt": "Quel matériau naturel est le plus dur ?", "answer": "le diamant", "accepted": ["diamant", "le diamant"], "distractors": ["le quartz", "l'acier", "le granit", "le titane"]},
+    {"id": "det-cg-043", "theme": "Culture générale", "difficulty": 3, "prompt": "Combien d'os compte un pied humain ?", "answer": "26", "accepted": ["26"], "distractors": ["20", "32", "14", "38"], "numeric": true},
+    {"id": "det-cg-044", "theme": "Culture générale", "difficulty": 3, "prompt": "Quel philosophe grec fut le précepteur d'Alexandre le Grand ?", "answer": "Aristote", "accepted": ["aristote"], "distractors": ["Platon", "Socrate", "Épicure", "Diogène"]},
+    {"id": "det-cg-045", "theme": "Culture générale", "difficulty": 3, "prompt": "Quel est le plus long mur du monde ?", "answer": "la Grande Muraille de Chine", "accepted": ["grande muraille", "la grande muraille de chine", "muraille de chine"], "distractors": ["le mur d'Hadrien", "le mur de Berlin", "le limes romain", "le mur des Lamentations"]},
+
+    {"id": "det-cin-025", "theme": "Cinéma", "difficulty": 1, "prompt": "Quel personnage bleu de Disney sort d'une lampe et exauce des vœux ?", "answer": "le Génie", "accepted": ["genie", "le genie"], "distractors": ["Jafar", "Aladdin", "Iago", "Abu"]},
+    {"id": "det-cin-026", "theme": "Cinéma", "difficulty": 1, "prompt": "Comment s'appelle le mammouth de « L'Âge de glace » ?", "answer": "Manny", "accepted": ["manny", "mani"], "distractors": ["Sid", "Diego", "Scrat", "Ellie"]},
+    {"id": "det-cin-027", "theme": "Cinéma", "difficulty": 1, "prompt": "Quel super-héros porte une cape rouge et un S sur la poitrine ?", "answer": "Superman", "accepted": ["superman"], "distractors": ["Batman", "Spider-Man", "Flash", "Captain America"]},
+    {"id": "det-cin-028", "theme": "Cinéma", "difficulty": 1, "prompt": "Dans quel film des dinosaures sont-ils clonés dans un parc à thème ?", "answer": "Jurassic Park", "accepted": ["jurassic park"], "distractors": ["King Kong", "Godzilla", "Le Monde perdu de 1925", "Avatar"]},
+    {"id": "det-cin-029", "theme": "Cinéma", "difficulty": 1, "prompt": "Quel ourson de Disney raffole du miel ?", "answer": "Winnie l'ourson", "accepted": ["winnie", "winnie l ourson"], "distractors": ["Baloo", "Petit Ours brun", "Paddington", "Bourriquet"]},
+    {"id": "det-cin-030", "theme": "Cinéma", "difficulty": 1, "prompt": "Quel jouet cowboy est le héros de « Toy Story » ?", "answer": "Woody", "accepted": ["woody"], "distractors": ["Buzz l'Éclair", "Jessie", "Rex", "Zigzag"]},
+    {"id": "det-cin-031", "theme": "Cinéma", "difficulty": 1, "prompt": "Quelle princesse Disney perd une chaussure de verre au bal ?", "answer": "Cendrillon", "accepted": ["cendrillon"], "distractors": ["Blanche-Neige", "Aurore", "Belle", "Raiponce"]},
+    {"id": "det-cin-032", "theme": "Cinéma", "difficulty": 2, "prompt": "Qui a réalisé « E.T. l'extra-terrestre » ?", "answer": "Steven Spielberg", "accepted": ["spielberg", "steven spielberg"], "distractors": ["George Lucas", "Robert Zemeckis", "Ridley Scott", "James Cameron"]},
+    {"id": "det-cin-033", "theme": "Cinéma", "difficulty": 2, "prompt": "Quel acteur incarne Forrest Gump ?", "answer": "Tom Hanks", "accepted": ["tom hanks", "hanks"], "distractors": ["Kevin Costner", "Robin Williams", "Bill Murray", "Bruce Willis"]},
+    {"id": "det-cin-034", "theme": "Cinéma", "difficulty": 2, "prompt": "Dans « Le Seigneur des anneaux », qui porte l'anneau jusqu'en Mordor ?", "answer": "Frodon", "accepted": ["frodon", "frodo"], "distractors": ["Sam", "Gandalf", "Aragorn", "Bilbon"]},
+    {"id": "det-cin-035", "theme": "Cinéma", "difficulty": 2, "prompt": "Quel acteur incarne James Bond dans « Casino Royale » (2006) ?", "answer": "Daniel Craig", "accepted": ["daniel craig", "craig"], "distractors": ["Pierce Brosnan", "Sean Connery", "Roger Moore", "Timothy Dalton"]},
+    {"id": "det-cin-036", "theme": "Cinéma", "difficulty": 2, "prompt": "Quel studio japonais a produit « Mon voisin Totoro » ?", "answer": "le studio Ghibli", "accepted": ["ghibli", "studio ghibli", "le studio ghibli"], "distractors": ["Toei Animation", "Madhouse", "Sunrise", "Kyoto Animation"]},
+    {"id": "det-cin-037", "theme": "Cinéma", "difficulty": 2, "prompt": "Quel acteur joue le Joker dans « The Dark Knight » ?", "answer": "Heath Ledger", "accepted": ["heath ledger", "ledger"], "distractors": ["Joaquin Phoenix", "Jack Nicholson", "Jared Leto", "Christian Bale"]},
+    {"id": "det-cin-038", "theme": "Cinéma", "difficulty": 2, "prompt": "Quel film de 1994 raconte l'amitié de deux détenus à Shawshank ?", "answer": "Les Évadés", "accepted": ["les evades", "the shawshank redemption"], "distractors": ["La Ligne verte", "Le Prisonnier d'Alcatraz", "Papillon", "Midnight Express"]},
+    {"id": "det-cin-039", "theme": "Cinéma", "difficulty": 3, "prompt": "Qui a réalisé « Metropolis », sorti en 1927 ?", "answer": "Fritz Lang", "accepted": ["fritz lang", "lang"], "distractors": ["F. W. Murnau", "Sergueï Eisenstein", "Georges Méliès", "Robert Wiene"]},
+    {"id": "det-cin-040", "theme": "Cinéma", "difficulty": 3, "prompt": "Qui a réalisé « Le Cuirassé Potemkine » ?", "answer": "Sergueï Eisenstein", "accepted": ["eisenstein", "serguei eisenstein"], "distractors": ["Dziga Vertov", "Andreï Tarkovski", "Fritz Lang", "Vsevolod Poudovkine"]},
+    {"id": "det-cin-041", "theme": "Cinéma", "difficulty": 3, "prompt": "Combien de films composent la trilogie du « Parrain » ?", "answer": "3", "accepted": ["3", "trois"], "distractors": ["2", "4", "5", "6"], "numeric": true},
+    {"id": "det-cin-042", "theme": "Cinéma", "difficulty": 3, "prompt": "Quel réalisateur italien a signé « La Dolce Vita » ?", "answer": "Federico Fellini", "accepted": ["fellini", "federico fellini"], "distractors": ["Luchino Visconti", "Michelangelo Antonioni", "Vittorio De Sica", "Pier Paolo Pasolini"]},
+    {"id": "det-cin-043", "theme": "Cinéma", "difficulty": 3, "prompt": "Quelle actrice joue Mia Wallace dans « Pulp Fiction » ?", "answer": "Uma Thurman", "accepted": ["uma thurman", "thurman"], "distractors": ["Rosanna Arquette", "Maria de Medeiros", "Bridget Fonda", "Julia Sweeney"]},
+    {"id": "det-cin-044", "theme": "Cinéma", "difficulty": 3, "prompt": "Combien de minutes dure environ le film « Titanic » ?", "answer": "195", "accepted": ["195", "194", "3 h 15"], "distractors": ["150", "210", "180", "240"], "numeric": true},
+    {"id": "det-cin-045", "theme": "Cinéma", "difficulty": 3, "prompt": "Quel film muet français de 1902 montre un voyage vers la Lune ?", "answer": "Le Voyage dans la Lune", "accepted": ["le voyage dans la lune", "voyage dans la lune"], "distractors": ["L'Arroseur arrosé", "Le Ballon rouge", "L'Arrivée d'un train", "La Sortie de l'usine"]},
+
+    {"id": "det-spo-025", "theme": "Sport", "difficulty": 1, "prompt": "Combien de joueurs par équipe sur un terrain de basket ?", "answer": "5", "accepted": ["5", "cinq"], "distractors": ["6", "4", "7", "11"], "numeric": true},
+    {"id": "det-spo-026", "theme": "Sport", "difficulty": 1, "prompt": "Quel sport se joue avec une raquette et un volant ?", "answer": "le badminton", "accepted": ["badminton", "le badminton"], "distractors": ["le tennis", "le squash", "le ping-pong", "le padel"]},
+    {"id": "det-spo-027", "theme": "Sport", "difficulty": 1, "prompt": "Combien de minutes dure un round de boxe professionnelle ?", "answer": "3", "accepted": ["3", "trois"], "distractors": ["2", "5", "4", "1"], "numeric": true},
+    {"id": "det-spo-028", "theme": "Sport", "difficulty": 1, "prompt": "Quel animal monte-t-on en équitation ?", "answer": "le cheval", "accepted": ["cheval", "le cheval"], "distractors": ["le poney seulement", "l'âne", "le chameau", "le taureau"]},
+    {"id": "det-spo-029", "theme": "Sport", "difficulty": 1, "prompt": "Quel sport de combat se pratique sur un tatami, en kimono blanc ?", "answer": "le judo", "accepted": ["judo", "le judo"], "distractors": ["la boxe", "l'escrime", "la lutte", "le taekwondo"]},
+    {"id": "det-spo-030", "theme": "Sport", "difficulty": 1, "prompt": "Combien de couloirs compte un bassin olympique de natation ?", "answer": "8", "accepted": ["8", "huit"], "distractors": ["6", "10", "4", "12"], "numeric": true},
+    {"id": "det-spo-031", "theme": "Sport", "difficulty": 1, "prompt": "Quel sport se joue avec un ballon rond, aux pieds, en deux équipes ?", "answer": "le football", "accepted": ["football", "le football", "foot"], "distractors": ["le rugby", "le handball", "le basket", "le volley"]},
+    {"id": "det-spo-032", "theme": "Sport", "difficulty": 2, "prompt": "Quelle couleur de médaille récompense la deuxième place ?", "answer": "l'argent", "accepted": ["argent", "l argent", "argente"], "distractors": ["l'or", "le bronze", "le platine", "le cuivre"]},
+    {"id": "det-spo-033", "theme": "Sport", "difficulty": 2, "prompt": "Quel pays a accueilli les Jeux olympiques d'été de 2024 ?", "answer": "la France", "accepted": ["france", "la france"], "distractors": ["le Japon", "le Brésil", "les États-Unis", "l'Australie"]},
+    {"id": "det-spo-034", "theme": "Sport", "difficulty": 2, "prompt": "Combien de points vaut un essai au rugby à XV ?", "answer": "5", "accepted": ["5", "cinq"], "distractors": ["3", "7", "4", "2"], "numeric": true},
+    {"id": "det-spo-035", "theme": "Sport", "difficulty": 2, "prompt": "Quel tournoi du Grand Chelem se joue sur gazon en Angleterre ?", "answer": "Wimbledon", "accepted": ["wimbledon"], "distractors": ["l'US Open", "Roland-Garros", "l'Open d'Australie", "le Masters de Londres"]},
+    {"id": "det-spo-036", "theme": "Sport", "difficulty": 2, "prompt": "Combien de joueurs par équipe sur un terrain de volley-ball ?", "answer": "6", "accepted": ["6", "six"], "distractors": ["5", "7", "4", "11"], "numeric": true},
+    {"id": "det-spo-037", "theme": "Sport", "difficulty": 2, "prompt": "Dans quel sport Tony Parker s'est-il illustré ?", "answer": "le basket", "accepted": ["basket", "le basket", "basketball"], "distractors": ["le handball", "le football", "le rugby", "le tennis"]},
+    {"id": "det-spo-038", "theme": "Sport", "difficulty": 2, "prompt": "Quelle épreuve de ski alpin consiste à descendre le plus vite possible sans porte serrée ?", "answer": "la descente", "accepted": ["descente", "la descente"], "distractors": ["le slalom", "le géant", "le super-combiné", "le saut à ski"]},
+    {"id": "det-spo-039", "theme": "Sport", "difficulty": 3, "prompt": "Combien de Coupes du monde de football le Brésil a-t-il remportées ?", "answer": "5", "accepted": ["5", "cinq"], "distractors": ["4", "6", "3", "7"], "numeric": true},
+    {"id": "det-spo-040", "theme": "Sport", "difficulty": 3, "prompt": "Quel cycliste belge était surnommé « le Cannibale » ?", "answer": "Eddy Merckx", "accepted": ["eddy merckx", "merckx"], "distractors": ["Bernard Hinault", "Jacques Anquetil", "Miguel Indurain", "Fausto Coppi"]},
+    {"id": "det-spo-041", "theme": "Sport", "difficulty": 3, "prompt": "Combien de joueurs par équipe évoluent sur la glace au hockey ?", "answer": "6", "accepted": ["6", "six"], "distractors": ["5", "7", "11", "4"], "numeric": true},
+    {"id": "det-spo-042", "theme": "Sport", "difficulty": 3, "prompt": "Quelle distance nage-t-on dans un Ironman, en kilomètres ?", "answer": "3,8 km", "accepted": ["3,8", "3.8", "3,8 km"], "distractors": ["1,5 km", "10 km", "5 km", "2 km"], "numeric": true},
+    {"id": "det-spo-043", "theme": "Sport", "difficulty": 3, "prompt": "Quel athlète a couru le 100 mètres en 9,58 secondes ?", "answer": "Usain Bolt", "accepted": ["usain bolt", "bolt"], "distractors": ["Tyson Gay", "Carl Lewis", "Asafa Powell", "Justin Gatlin"]},
+    {"id": "det-spo-044", "theme": "Sport", "difficulty": 3, "prompt": "Quel club a remporté le plus de Ligues des champions de football ?", "answer": "le Real Madrid", "accepted": ["real madrid", "le real madrid", "real"], "distractors": ["le Milan AC", "le FC Barcelone", "le Bayern Munich", "Liverpool"]},
+    {"id": "det-spo-045", "theme": "Sport", "difficulty": 3, "prompt": "Dans quel pays le baseball moderne a-t-il été codifié ?", "answer": "les États-Unis", "accepted": ["etats unis", "les etats unis", "usa"], "distractors": ["le Japon", "Cuba", "le Royaume-Uni", "le Canada"]},
+
+    {"id": "det-mus-025", "theme": "Musique", "difficulty": 1, "prompt": "Comment appelle-t-on la personne qui dirige un orchestre ?", "answer": "le chef d'orchestre", "accepted": ["chef d orchestre", "le chef d orchestre", "chef"], "distractors": ["le soliste", "le premier violon", "le compositeur", "le régisseur"]},
+    {"id": "det-mus-026", "theme": "Musique", "difficulty": 1, "prompt": "Comment appelle-t-on le texte chanté d'une chanson ?", "answer": "les paroles", "accepted": ["paroles", "les paroles"], "distractors": ["la partition", "le refrain seul", "la mélodie", "le tempo"]},
+    {"id": "det-mus-027", "theme": "Musique", "difficulty": 1, "prompt": "Quel groupe suédois a chanté « Dancing Queen » ?", "answer": "ABBA", "accepted": ["abba"], "distractors": ["Ace of Base", "Roxette", "A-ha", "The Cardigans"]},
+    {"id": "det-mus-028", "theme": "Musique", "difficulty": 1, "prompt": "Comment appelle-t-on un grand concert en plein air réunissant plusieurs groupes ?", "answer": "un festival", "accepted": ["festival", "un festival"], "distractors": ["un récital", "une tournée", "un bal", "une répétition"]},
+    {"id": "det-mus-029", "theme": "Musique", "difficulty": 1, "prompt": "Comment appelle-t-on une chanson lente et sentimentale ?", "answer": "une ballade", "accepted": ["ballade", "une ballade", "slow"], "distractors": ["une valse", "un tube dansant", "une marche", "une berceuse militaire"]},
+    {"id": "det-mus-030", "theme": "Musique", "difficulty": 1, "prompt": "Quel instrument à vent est l'emblème de l'Écosse ?", "answer": "la cornemuse", "accepted": ["cornemuse", "la cornemuse"], "distractors": ["la flûte irlandaise", "le hautbois", "l'accordéon", "la clarinette"]},
+    {"id": "det-mus-031", "theme": "Musique", "difficulty": 1, "prompt": "Combien de temps compte une mesure à quatre temps ?", "answer": "4", "accepted": ["4", "quatre"], "distractors": ["2", "3", "6", "8"], "numeric": true},
+    {"id": "det-mus-032", "theme": "Musique", "difficulty": 2, "prompt": "Quel chanteur français a interprété « La Bohème » ?", "answer": "Charles Aznavour", "accepted": ["aznavour", "charles aznavour"], "distractors": ["Jacques Brel", "Yves Montand", "Serge Reggiani", "Gilbert Bécaud"]},
+    {"id": "det-mus-033", "theme": "Musique", "difficulty": 2, "prompt": "Quel groupe a enregistré l'album « The Dark Side of the Moon » ?", "answer": "Pink Floyd", "accepted": ["pink floyd"], "distractors": ["Led Zeppelin", "The Doors", "Genesis", "Yes"]},
+    {"id": "det-mus-034", "theme": "Musique", "difficulty": 2, "prompt": "Combien de musiciens compte un trio ?", "answer": "3", "accepted": ["3", "trois"], "distractors": ["2", "4", "5", "6"], "numeric": true},
+    {"id": "det-mus-035", "theme": "Musique", "difficulty": 2, "prompt": "Quelle chanteuse américaine a chanté « Like a Prayer » ?", "answer": "Madonna", "accepted": ["madonna"], "distractors": ["Cyndi Lauper", "Whitney Houston", "Janet Jackson", "Cher"]},
+    {"id": "det-mus-036", "theme": "Musique", "difficulty": 2, "prompt": "Dans quelle ville américaine le jazz est-il né ?", "answer": "La Nouvelle-Orléans", "accepted": ["nouvelle orleans", "la nouvelle orleans", "new orleans"], "distractors": ["Chicago", "New York", "Memphis", "Detroit"]},
+    {"id": "det-mus-037", "theme": "Musique", "difficulty": 2, "prompt": "Qui a composé « Les Quatre Saisons » ?", "answer": "Antonio Vivaldi", "accepted": ["vivaldi", "antonio vivaldi"], "distractors": ["Bach", "Haendel", "Corelli", "Telemann"]},
+    {"id": "det-mus-038", "theme": "Musique", "difficulty": 2, "prompt": "Quel instrument électronique permet d'imiter et de créer des sons ?", "answer": "le synthétiseur", "accepted": ["synthetiseur", "le synthetiseur", "synthe"], "distractors": ["l'orgue Hammond", "le vocodeur", "la boîte à rythmes", "le sampler"]},
+    {"id": "det-mus-039", "theme": "Musique", "difficulty": 3, "prompt": "Quel compositeur polonais a écrit la célèbre « Marche funèbre » de sa deuxième sonate ?", "answer": "Frédéric Chopin", "accepted": ["chopin", "frederic chopin"], "distractors": ["Franz Liszt", "Robert Schumann", "Johannes Brahms", "Edvard Grieg"]},
+    {"id": "det-mus-040", "theme": "Musique", "difficulty": 3, "prompt": "Combien de touches noires compte un piano de concert ?", "answer": "36", "accepted": ["36"], "distractors": ["52", "44", "30", "40"], "numeric": true},
+    {"id": "det-mus-041", "theme": "Musique", "difficulty": 3, "prompt": "Quel opéra de Mozart met en scène le personnage de Don Juan ?", "answer": "Don Giovanni", "accepted": ["don giovanni"], "distractors": ["La Flûte enchantée", "Les Noces de Figaro", "Cosi fan tutte", "L'Enlèvement au sérail"]},
+    {"id": "det-mus-042", "theme": "Musique", "difficulty": 3, "prompt": "Quel trompettiste a inventé le be-bop avec Charlie Parker ?", "answer": "Dizzy Gillespie", "accepted": ["dizzy gillespie", "gillespie"], "distractors": ["Louis Armstrong", "Miles Davis", "Chet Baker", "Duke Ellington"]},
+    {"id": "det-mus-043", "theme": "Musique", "difficulty": 3, "prompt": "Quelle chanson des Beatles est la plus reprise de l'histoire ?", "answer": "Yesterday", "accepted": ["yesterday"], "distractors": ["Hey Jude", "Let It Be", "Help!", "Something"]},
+    {"id": "det-mus-044", "theme": "Musique", "difficulty": 3, "prompt": "Quel compositeur français a écrit le « Boléro » ?", "answer": "Maurice Ravel", "accepted": ["ravel", "maurice ravel"], "distractors": ["Claude Debussy", "Erik Satie", "Camille Saint-Saëns", "Gabriel Fauré"]},
+    {"id": "det-mus-045", "theme": "Musique", "difficulty": 3, "prompt": "Quel grand instrument à claviers et à tuyaux équipe les églises ?", "answer": "l'orgue", "accepted": ["orgue", "l orgue"], "distractors": ["le clavecin", "le piano droit", "l'harmonium portatif", "le carillon"]}
   ]
 }
 ;</script>
@@ -1990,7 +2343,7 @@
   "anonKey": ""
 }
 ;</script>
-<script>var BUILD = {"version":"4646485","date":"2026-07-27 14:18"};</script>
+<script>var BUILD = {"version":"86bba9c","date":"2026-07-28 15:47"};</script>
 <script>
 (function () {
   'use strict';
@@ -2004,12 +2357,13 @@
     'Histoire': '#ff5566', 'Sciences': '#0aa2c0', 'Anglais': '#c98a00'
   };
 
-  var view = 'title';        // title | modes | play | map | diploma | endBac | endRelax | ranking
+  var view = 'title';        // title | modes | play | pause | map | diploma | endBac | endRelax | ranking
   var game = null, tick = null, feedback = null, mcOpen = false, revealed = null;
+  var jokersAnnounced = false;   // l'écran « tu as 3 jokers » ne s'affiche qu'une fois par partie
   var recognizing = false, draft = '', anim = null, pseudoAsked = false, rank = null, lastQ = null;
 
   function muted() { return localStorage.getItem(MUTE_KEY) === '1'; }
-  function toggleMute() { localStorage.setItem(MUTE_KEY, muted() ? '0' : '1'); render(); }
+  // plus de bouton son : le joueur coupe le son de son téléphone. La clé reste lue par les tests.
   function esc(s) { return String(s).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); }
 
   // ------------------------------------------------------------------ sons
@@ -2079,6 +2433,13 @@
       }
     }
     return out;
+  }
+
+  /** 754 secondes → « 12:34 ». */
+  function clock(sec) {
+    if (!sec) return '';
+    var m = Math.floor(sec / 60), r = sec % 60;
+    return m + ':' + (r < 10 ? '0' : '') + r;
   }
 
   function coins(n) {
@@ -2259,7 +2620,10 @@
   function draw() {
     if (view === 'title') return renderTitle();
     if (view === 'modes') return renderModes();
+    if (view === 'pause') return renderPause();
     if (view === 'map') return renderMap();
+    if (view === 'jokers') return renderJokersIntro();
+    if (view === 'rules') return renderRules();
     if (view === 'diploma') return renderDiploma();
     if (view === 'endBac') return renderEndBac();
     if (view === 'endRelax') return renderEndRelax();
@@ -2267,9 +2631,12 @@
     renderPlay();
   }
 
-  function muteBtn(pos) {
-    return '<button class="mute" id="mute" style="position:absolute;right:14px;top:12px;font-size:20px">' +
-      (muted() ? '🔇' : '🔊') + '</button>';
+  /** Bouton « i » : ouvre la page des règles depuis n'importe quel écran. */
+  function infoBtn() {
+    return '<button class="info" id="info" aria-label="Les règles" title="Les règles">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">' +
+      '<circle cx="12" cy="12" r="10.2"/><circle cx="12" cy="6.9" r="1.9" fill="currentColor" stroke="none"/>' +
+      '<path d="M12 11v7"/></svg></button>';
   }
 
   /** La salle de classe : mur, sol, pupitre, tableau noir, et le héros devant. */
@@ -2309,21 +2676,33 @@
 
   function renderTitle() {
     app.innerHTML =
-      '<div class="card center">' + muteBtn() +
+      '<div class="card center">' + infoBtn() +
         '<div class="title-wrap">' +
           '<div class="game-title">Le Quizz</div>' +
           '<h1 class="game-title-main">DU <span>BAC</span></h1>' +
           '<div class="scene">' + classroom() + '</div>' +
           '<p class="muted" style="margin:14px 0 0">Du CP à la Terminale.<br>Réponds vite, réponds juste.</p>' +
           '<button class="btn go" id="start">Commencer</button>' +
+          (slotLabel() ? '<button class="btn resume" id="resume">Reprendre<br><small style="font-weight:600">' +
+            slotLabel() + '</small></button>' : '') +
           '<div class="hint" style="margin-top:10px">version ' + esc(BUILD.version) + ' · ' + esc(BUILD.date) + '</div>' +
         '</div>' +
       '</div>';
-    document.getElementById('mute').onclick = toggleMute;
+    document.getElementById('info').onclick = openRules;
     document.getElementById('start').onclick = function () {
       audio();                       // premier geste : le son est débloqué
       vortex(function () { view = 'modes'; render(); });
     };
+    var rz = document.getElementById('resume');
+    if (rz) rz.onclick = function () { audio(); resumeGame(); };
+  }
+
+  /** Décrit la partie mise de côté : « Quizz BAC — CM2, 34 points ». */
+  function slotLabel() {
+    var d = S.loadSlot();
+    if (!d || !d.mode) return '';
+    if (d.mode === 'detente') return 'Quizz détente — question ' + ((d.index || 0) + 1) + '/30, ' + d.score + ' pts';
+    return 'Quizz BAC — ' + (d.level || '?') + ', ' + d.score + ' pts';
   }
 
   /** Le tableau s'ouvre en vortex et aspire le héros vers la forêt. */
@@ -2400,7 +2779,7 @@
     var p = S.getPseudo(), tag = S.getTag();
     var bestBac = S.best('bac'), bestRelax = S.best('detente');
     app.innerHTML =
-      '<div class="card">' + muteBtn() +
+      '<div class="card">' + infoBtn() +
         '<h1 class="center" style="margin-bottom:14px">Choisis ton mode</h1>' +
         '<button class="player" id="edit-pseudo">' +
           '<span class="avatar"><svg width="26" height="30" viewBox="0 0 12 16">' + sprite(1, 0) + '</svg></span>' +
@@ -2434,7 +2813,7 @@
         '<button class="btn ghost" id="see-rank">Voir le classement</button>' +
         '<div class="hint center">version ' + esc(BUILD.version) + '</div>' +
       '</div>';
-    document.getElementById('mute').onclick = toggleMute;
+    document.getElementById('info').onclick = openRules;
     document.getElementById('m-bac').onclick = function () { startMode('bac'); };
     document.getElementById('m-relax').onclick = function () { startMode('detente'); };
     document.getElementById('edit-pseudo').onclick = function () { askPseudo(render); };
@@ -2450,6 +2829,28 @@
     if (mode === 'bac') game = E.createGame(BANK, { seen: seenIds() });
     else game = E.createRelax(RELAX, {});
     feedback = null; revealed = null; mcOpen = false; draft = ''; anim = null; lastQ = null;
+    jokersAnnounced = false;
+    view = 'play'; startTimer(); render();
+  }
+
+  /** Sauvegarde silencieuse après chaque question : fermer l'app ne perd plus rien. */
+  function autoSave() {
+    if (!game || game.finished) return;
+    try { S.saveSlot(E.serialize(game)); } catch (e) { /* stockage indisponible */ }
+  }
+
+  /** Reprise de la partie mise de côté. */
+  function resumeGame() {
+    var data = S.loadSlot();
+    if (!data) { view = 'modes'; return render(); }
+    var g = E.restore(data, { bac: BANK, detente: RELAX }, {});
+    if (!g || !g.current) { S.clearSlot(); view = 'modes'; return render(); }
+    game = g;
+    feedback = null; revealed = null; mcOpen = false; draft = ''; anim = null; lastQ = null;
+    // partie reprise en secondaire sans avoir encore vu l'écran des jokers : on l'annonce
+    var pr = E.progress(game);
+    jokersAnnounced = !(pr.jokersOpen && pr.jokers && pr.jokers.fifty && pr.jokers.swap && pr.jokers.pass);
+    if (!jokersAnnounced) { jokersAnnounced = true; view = 'jokers'; return render(); }
     view = 'play'; startTimer(); render();
   }
 
@@ -2458,13 +2859,15 @@
     try { return JSON.parse(localStorage.getItem('quizculture.seen')) || []; } catch (e) { return []; }
   }
   function saveSeen(ids) {
-    try { localStorage.setItem('quizculture.seen', JSON.stringify(ids.slice(-600))); } catch (e) { /* ignore */ }
+    try { localStorage.setItem('quizculture.seen', JSON.stringify(ids.slice(-1200))); } catch (e) { /* ignore */ }
   }
 
   function renderPlay() {
     // sur la toute dernière question, le moteur a déjà terminé la partie : on garde l'énoncé
     // sous la main pour afficher le retour, l'écran de fin arrive juste après
-    var q = game.current || lastQ;
+    // pendant le retour, on garde l'énoncé de la question à laquelle le joueur vient de répondre :
+    // le moteur a déjà tiré la suivante, et on l'apercevait le temps d'un éclair
+    var q = (feedback && lastQ) || game.current || lastQ;
     if (!q) return finishGame();
     var p = E.progress(game);
     var pct = Math.max(0, Math.min(100, game.timeLeft / game.config.timerSeconds * 100));
@@ -2500,8 +2903,8 @@
 
     var body =
       '<div class="hud">' +
-        '<button class="quit" id="quit">← Menu</button>' +
-        '<button class="mute" id="mute" style="position:absolute;right:2px;top:2px;font-size:20px">' + (muted() ? '🔇' : '🔊') + '</button>' +
+        '<button class="quit" id="quit">‖ Pause</button>' +
+        infoBtn() +
         head +
       '</div>' +
       '<div class="card' + fb + '">' +
@@ -2509,8 +2912,9 @@
         '<div class="timer ' + cls + '"><i style="width:' + pct + '%"></i></div>' +
         '<div class="between"><small class="muted">' + Math.ceil(game.timeLeft) + ' s</small>' +
           '<button class="chip" id="buy" ' + (game.score < 1 ? 'disabled' : '') + '>−1 point → +15 s</button></div>' +
-        '<div class="subject" style="color:' + (SUBJECT_COLORS[p.subject] || '#0aa2c0') + '">' +
-          esc(p.mode === 'bac' ? p.subject : (p.theme || '')) + '</div>' +
+        (p.jokersOpen ? jokerBar(p) : '') +
+        '<div class="subject" style="color:' + (SUBJECT_COLORS[q.subject || p.subject] || '#0aa2c0') + '">' +
+          esc(p.mode === 'bac' ? (q.subject || p.subject) : (q.theme || p.theme || '')) + '</div>' +
         '<div class="q">' + esc(q.prompt) + '</div>';
 
     if (feedback) {
@@ -2524,7 +2928,9 @@
     } else if (mcOpen || p.mcForced) {
       if (p.mcForced) body += '<div class="hint">Réponse libre manquée : cette question se joue en choix multiple.</div>';
       body += game.options.map(function (o, k) {
-        return '<button class="opt" data-opt="' + k + '">' + esc(o) + '</button>';
+        var out = (p.hiddenWrong || []).indexOf(o) !== -1;      // barrée par le joker 40/60
+        return '<button class="opt' + (out ? ' out' : '') + '" ' + (out ? 'disabled' : 'data-opt="' + k + '"') +
+          '>' + esc(o) + '</button>';
       }).join('');
       body += '<div class="hint">' + (p.mode === 'bac'
         ? 'Bonne réponse : +1 point. Erreur : retour au début de la classe, un cœur perdu.'
@@ -2532,16 +2938,238 @@
       if (!p.mcForced) body += '<button class="btn ghost" id="closemc">Revenir à la réponse libre (2 pts)</button>';
     } else {
       body +=
-        '<div class="row">' +
-          '<input type="text" id="free" placeholder="Ta réponse…" autocomplete="off" autocapitalize="off" spellcheck="false">' +
-          '<button class="mic' + (recognizing ? ' rec' : '') + '" id="mic" title="Dicter la réponse">🎤</button>' +
-        '</div>' +
-        '<button class="btn go" id="send">Valider (2 pts)</button>' +
+        // formulaire : la touche « OK » du clavier mobile valide directement, sans le masquer
+        '<form id="answer-form" autocomplete="off">' +
+          '<div class="row">' +
+            '<input type="text" id="free" placeholder="Ta réponse…" autocomplete="off" ' +
+              'autocapitalize="off" spellcheck="false" enterkeyhint="send" inputmode="text">' +
+            '<button type="button" class="mic' + (recognizing ? ' rec' : '') + '" id="mic" title="Dicter la réponse">🎤</button>' +
+          '</div>' +
+          '<button type="submit" class="btn go" id="send">Valider (2 pts)</button>' +
+        '</form>' +
         '<button class="btn ghost" id="openmc">Voir 5 propositions (1 pt)</button>';
     }
     body += '</div>';
     app.innerHTML = body;
     wirePlay();
+  }
+
+  /** Pause : quatre issues claires, sans message du navigateur. */
+  function renderPause() {
+    var p = E.progress(game);
+    var where = game.mode === 'detente'
+      ? 'Question ' + p.question + ' / ' + p.of
+      : p.level + ' · ' + p.subject;
+    app.innerHTML =
+      '<div class="card">' + infoBtn() +
+        '<h1 class="center">Pause</h1>' +
+        '<p class="center muted" style="margin-top:0">' + esc(where) + ' — <b>' + game.score + ' points</b></p>' +
+        '<button class="choice go" id="p-resume"><b>▶ Continuer à jouer</b>' +
+          '<small>Le chrono reprend où tu l\'as laissé : ' + Math.ceil(game.timeLeft) + ' s.</small></button>' +
+        '<button class="choice save" id="p-save"><b>💾 M\'arrêter ici</b>' +
+          '<small>Ta partie est mise de côté, chrono compris : tu la reprendras depuis l\'accueil.</small></button>' +
+        '<button class="choice pub" id="p-publish"><b>🏆 Publier mon score</b>' +
+          '<small>Ton score de ' + game.score + ' points rejoint le classement' +
+          (game.mode === 'detente' ? '' : ' de la classe ' + esc(p.level)) + ', et la partie s\'arrête.</small></button>' +
+        '<button class="choice quit" id="p-quit"><b>✕ Abandonner</b>' +
+          '<small>Retour à l\'accueil sans enregistrer ni sauvegarder.</small></button>' +
+      '</div>';
+    document.getElementById('info').onclick = openRules;
+    document.getElementById('p-resume').onclick = function () { view = 'play'; startTimer(); render(); };
+    document.getElementById('p-save').onclick = function () {
+      autoSave();
+      view = 'title'; render();
+    };
+    document.getElementById('p-publish').onclick = function () { publishScore(); };
+    document.getElementById('p-quit').onclick = function () {
+      S.clearSlot();
+      view = 'title'; render();
+    };
+  }
+
+  /** Publier en cours de partie : le score compte pour la classe atteinte. */
+  function publishScore() {
+    stopTimer();
+    var level = game.mode === 'bac' ? E.progress(game).level : null;
+    try {
+      if (game.mode === 'bac') saveSeen(game.seen);
+      S.submit({ pseudo: S.getPseudo(), score: game.score, mode: game.mode, level: level,
+        seconds: E.progress(game).spent });
+    } catch (e) { /* score non enregistré */ }
+    S.clearSlot();
+    game.__submitted = true;
+    published = { score: game.score, level: level, mode: game.mode };
+    openRanking(game.mode === 'detente' ? 'detente' : 'bac');
+  }
+  var published = null;
+
+  /** Pictogrammes des jokers, dessinés au trait pour rester lisibles en petit. */
+  var JOKER_ICONS = {
+    // 40/60 : trois propositions barrées en rouge, une épargnée en vert
+    fifty: '<svg viewBox="0 0 24 24">' +
+      '<g fill="#fffdf5"><rect x="3" y="2.4" width="18" height="3.4" rx="1.7"/>' +
+      '<rect x="3" y="8.4" width="18" height="3.4" rx="1.7"/>' +
+      '<rect x="3" y="14.4" width="18" height="3.4" rx="1.7"/></g>' +
+      '<rect x="3" y="20.4" width="18" height="3.4" rx="1.7" fill="#17a06a"/>' +
+      '<g stroke="#d63c4c" stroke-width="2" stroke-linecap="round" fill="none">' +
+      '<path d="M4 6.6 20 1.6"/><path d="M4 12.6 20 7.6"/><path d="M4 18.6 20 13.6"/></g></svg>',
+    // changer : les deux flèches en cercle
+    swap: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">' +
+      '<path d="M4 12A8 8 0 0 1 19 8.2"/>' +
+      '<path d="M16.4 10.6 22.8 9.2 21.4 15.6Z" fill="currentColor" stroke-width="1" stroke-linejoin="round"/>' +
+      '<path d="M20 12A8 8 0 0 1 5 15.8"/>' +
+      '<path d="M7.6 13.4 1.2 14.8 2.6 8.4Z" fill="currentColor" stroke-width="1" stroke-linejoin="round"/></svg>',
+    // passer : la flèche qui saute par-dessus
+    pass: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">' +
+      '<path d="M2.4 19.6C2.4 9 9.6 9 9.6 19.6C9.6 9.6 16.4 7.4 18.8 12.8"/>' +
+      '<path d="M20.2 15.6 16.7 13.8 21.4 11.4Z" fill="currentColor" stroke-width="1" stroke-linejoin="round"/></svg>'
+  };
+
+  var rulesFrom = 'title';
+  /** Le « i » ouvre les règles ; le chrono s'arrête si une question était en cours. */
+  function openRules() {
+    if (view === 'rules') return;
+    rulesFrom = view;
+    if (view === 'play') stopTimer();
+    view = 'rules'; render();
+  }
+  function closeRules() {
+    view = rulesFrom;
+    if (view === 'play') startTimer();
+    render();
+  }
+
+  /** Page des règles, façon parchemin. */
+  function renderRules() {
+    app.innerHTML =
+      '<div class="card">' +
+        '<h1 class="center">Les règles</h1>' +
+        '<div class="scroll">' + rollSvg('top') +
+        '<div class="sheet">' + paperSvg() + '<div class="sheet-in">' +
+          '<h2>Le but</h2>' +
+          '<p>Partir du CP et décrocher le BAC.</p>' +
+
+          '<h2>Répondre</h2>' +
+          '<p>Deux façons, au choix, à chaque question :</p>' +
+          '<ul><li><b>Réponse libre</b> (clavier ou micro) : <b>2 points</b></li>' +
+          '<li><b>5 propositions</b> : <b>1 point</b></li></ul>' +
+
+          '<h2>Le temps</h2>' +
+          '<p>30 secondes par question. Tu peux acheter <b>+15 secondes contre 1 point</b>, autant de ' +
+          'fois que tu as des points. Temps écoulé : <b>−2 points</b>, tu gardes ta place et une ' +
+          'nouvelle question arrive.</p>' +
+
+          '<h2>Se tromper</h2>' +
+          '<ul><li><b>Réponse libre fausse</b> : aucune perte, mais la question suivante se joue ' +
+          'obligatoirement en 5 propositions.</li>' +
+          '<li><b>Proposition fausse</b> : retour à la première matière de la classe, les points ' +
+          'gagnés dans cette classe sont effacés, et tu perds une vie.</li></ul>' +
+
+          '<h2>Les vies</h2>' +
+          '<p>Tu en as 3. À la dernière vie perdue, tu <b>redoubles</b> avec 3 nouvelles vies — et les ' +
+          'points que cette classe t\'avait rapportés sont repris.</p>' +
+
+          '<h2>La classe parfaite</h2>' +
+          '<p>Une classe terminée sans aucune faute rapporte <b>+2 points</b> du CP au CM2, et ' +
+          '<b>+1 vie</b> de la 6ème à la Terminale.</p>' +
+
+          '<h2>Les jokers — à partir de la 6ème</h2>' +
+          '<p>Trois aides. Elles coûtent <b>6 points</b> chacune, une seule utilisation par partie, ' +
+          'et font perdre le bonus de classe sans faute :</p>' +
+          '<ul><li><b>40/60</b> — trois mauvaises réponses barrées</li>' +
+          '<li><b>Changer</b> — une autre question à la place</li>' +
+          '<li><b>Passer</b> — on saute la question</li></ul>' +
+          sealSvg() +
+        '</div></div>' + rollSvg('bot') + '</div>' +
+        '<button class="btn go" id="back">Retour</button>' +
+      '</div>';
+    document.getElementById('back').onclick = closeRules;
+  }
+
+  /** Rouleau de bois et papier enroulé, en haut et en bas du parchemin. */
+  function rollSvg(where) {
+    var top = where === 'top';
+    return '<svg class="roll ' + (top ? 'top' : 'bot') + '" viewBox="0 0 372 58" xmlns="http://www.w3.org/2000/svg">' +
+      '<defs><linearGradient id="rl' + where + '" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#e7cfa4"/><stop offset=".35" stop-color="#fbf0d8"/>' +
+        '<stop offset=".75" stop-color="#eddcb6"/><stop offset="1" stop-color="#d9bd8c"/></linearGradient>' +
+      '<linearGradient id="wd' + where + '" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#8b5e34"/><stop offset=".5" stop-color="#6b4423"/>' +
+        '<stop offset="1" stop-color="#4d3018"/></linearGradient></defs>' +
+      '<rect x="30" y="9" width="312" height="40" rx="20" fill="url(#rl' + where + ')" stroke="#b8965c" stroke-width="2"/>' +
+      '<path d="M44 ' + (top ? '21 C124 13 250 13 330 21' : '37 C124 45 250 45 330 37') +
+        '" fill="none" stroke="#e3caa0" stroke-width="3" opacity=".8"/>' +
+      '<ellipse cx="38" cy="29" rx="9" ry="20" fill="#e9d3a8" stroke="#b8965c" stroke-width="2"/>' +
+      '<ellipse cx="334" cy="29" rx="9" ry="20" fill="#e9d3a8" stroke="#b8965c" stroke-width="2"/>' +
+      '<path d="M38 17 C32 22 32 36 38 41" fill="none" stroke="#c8ab7a" stroke-width="2"/>' +
+      '<rect x="8" y="24" width="34" height="10" rx="5" fill="url(#wd' + where + ')"/>' +
+      '<rect x="330" y="24" width="34" height="10" rx="5" fill="url(#wd' + where + ')"/>' +
+      '<circle cx="11" cy="29" r="8" fill="url(#wd' + where + ')" stroke="#3a2412" stroke-width="1.5"/>' +
+      '<circle cx="361" cy="29" r="8" fill="url(#wd' + where + ')" stroke="#3a2412" stroke-width="1.5"/>' +
+      '</svg>';
+  }
+
+  /** La feuille elle-même : bords irréguliers, teinte vieillie. Elle s'étire avec le texte. */
+  function paperSvg() {
+    return '<svg class="paper" viewBox="0 0 340 420" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<defs><linearGradient id="pap" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#fdf3dd"/><stop offset=".5" stop-color="#f7e7c4"/>' +
+        '<stop offset="1" stop-color="#f0dbb2"/></linearGradient></defs>' +
+      '<path d="M12 2 C6 60 18 112 10 170 C4 228 16 280 8 338 C5 374 13 398 12 418 ' +
+      'L328 418 C334 358 322 306 330 248 C336 190 324 138 332 80 C335 44 327 22 328 2 Z" ' +
+      'fill="url(#pap)" stroke="#c9a86e" stroke-width="2"/></svg>';
+  }
+
+  /** Petit sceau de cire au bas du parchemin. */
+  function sealSvg() {
+    return '<svg class="seal" width="54" height="54" viewBox="0 0 54 54">' +
+      '<circle cx="27" cy="27" r="21" fill="#ff5566" stroke="#2a2140" stroke-width="3"/>' +
+      '<circle cx="27" cy="27" r="14" fill="none" stroke="#fff" stroke-width="2"/>' +
+      '<text x="27" y="33" text-anchor="middle" font-size="16" font-weight="900" fill="#fff" ' +
+      'font-family="Georgia,serif">Q</text></svg>';
+  }
+
+  /** Annonce des jokers, une fois, à l'entrée en 6ème. */
+  function renderJokersIntro() {
+    var cost = game.config.jokerCost;
+    var rows = [
+      { k: 'fifty', label: '40/60', use: 'Trois mauvaises réponses barrées' },
+      { k: 'swap', label: 'Changer', use: 'Une autre question à la place' },
+      { k: 'pass', label: 'Passer', use: 'On saute la question' }
+    ];
+    app.innerHTML =
+      '<div class="card center">' + infoBtn() +
+        '<h1>Bravo ! 🎉</h1>' +
+        '<p class="muted" style="margin-top:0">Tu disposes maintenant de <b>3 jokers</b>,' +
+          ' utilisables une seule fois chacun jusqu\'au BAC.</p>' +
+        rows.map(function (r) {
+          return '<div class="jk-row"><span class="joker big">' + JOKER_ICONS[r.k] + '</span>' +
+            '<span class="jk-txt"><b>' + r.label + '</b><small>' + r.use + '</small></span>' +
+            '<span class="jk-cost">−' + cost + ' pts</span></div>';
+        }).join('') +
+        '<button class="btn go" id="next">C\'est parti !</button>' +
+      '</div>';
+    document.getElementById('info').onclick = openRules;
+    document.getElementById('next').onclick = function () { view = 'play'; startTimer(); render(); };
+  }
+
+  /** Trois aides à 6 points, une fois chacune, à partir de la 6ème. */
+  function jokerBar(p) {
+    var list = [
+      { k: 'fifty', label: '40/60', hint: '3 fausses barrées' },
+      { k: 'swap', label: 'Changer', hint: 'autre question' },
+      { k: 'pass', label: 'Passer', hint: 'sans point' }
+    ];
+    return '<div class="jokers">' + list.map(function (j) {
+      var used = !p.jokers[j.k];
+      var can = !used && p.score >= p.jokerCost && !(j.k === 'fifty' && p.hiddenWrong.length);
+      return '<div class="jk' + (used ? ' spent' : '') + '">' +
+        '<button class="joker" data-joker="' + j.k + '"' + (can ? '' : ' disabled') +
+          ' aria-label="' + j.label + ' : ' + j.hint + ', ' + p.jokerCost + ' points">' +
+          JOKER_ICONS[j.k] + '</button>' +
+        '<b>' + j.label + (used ? '</b><small>utilisé</small>' : '</b>') +
+      '</div>';
+    }).join('') + '</div>';
   }
 
   function renderMap() {
@@ -2553,7 +3181,7 @@
     var sub = down ? 'Tu redescends en <b>' + esc(ALL_LEVELS[Math.min(target, ALL_LEVELS.length - 1)]) + '</b>, avec 3 cœurs neufs.' : '';
     var bonus = game.__bonusShown;
     app.innerHTML =
-      '<div class="card center">' + muteBtn() +
+      '<div class="card center">' + infoBtn() +
         '<h1>' + title + '</h1>' +
         (sub ? '<p class="muted">' + sub + '</p>' : '') +
         (bonus ? '<p><span class="tag">Classe parfaite : ' +
@@ -2565,9 +3193,16 @@
         '</div>' +
         '<button class="btn go" id="next">Continuer</button>' +
       '</div>';
-    document.getElementById('mute').onclick = toggleMute;
+    document.getElementById('info').onclick = openRules;
     var nx = document.getElementById('next');
-    nx.onclick = function () { mapNote = null; game.__bonusShown = null; view = 'play'; startTimer(); render(); };
+    nx.onclick = function () {
+      mapNote = null; game.__bonusShown = null;
+      if (!jokersAnnounced && E.progress(game).jokersOpen) {   // entrée en 6ème : les jokers s'ouvrent
+        jokersAnnounced = true;
+        view = 'jokers'; return render();
+      }
+      view = 'play'; startTimer(); render();
+    };
     if (anim) nx.disabled = true;
   }
   var mapNote = null;
@@ -2599,25 +3234,27 @@
   function renderDiploma() {
     var max = E.maxScore(BANK);
     app.innerHTML =
-      '<div class="card center">' + muteBtn() +
+      '<div class="card center">' + infoBtn() +
         '<h1>Bravo, tu as le BAC ! 🎓</h1>' +
         diplomaSvg(S.getPseudo(), game.score, max) +
         '<div style="margin-top:14px;text-align:left">' +
           '<div class="kv"><span class="muted">Score</span><b>' + game.score + ' / ' + max + '</b></div>' +
-          '<div class="kv"><span class="muted">Questions jouées</span><b>' + game.log.length + '</b></div>' +
+          '<div class="kv"><span class="muted">Temps de jeu</span><b>' + clock(E.progress(game).spent) + '</b></div>' +
+          '<div class="kv"><span class="muted">Questions jouées</span><b>' +
+            ((game.answeredBefore || 0) + game.log.length) + '</b></div>' +
           '<div class="kv"><span class="muted">Cœurs restants</span><b>' + game.lives + '</b></div>' +
         '</div>' +
         '<button class="btn go" id="next">Suivant : le classement</button>' +
         '<button class="btn ghost" id="menu">Menu</button>' +
       '</div>';
-    document.getElementById('mute').onclick = toggleMute;
+    document.getElementById('info').onclick = openRules;
     document.getElementById('next').onclick = function () { openRanking('bac'); };
-    document.getElementById('menu').onclick = function () { view = 'modes'; render(); };
+    document.getElementById('menu').onclick = function () { published = null; view = 'modes'; render(); };
   }
 
   function renderEndBac() {
     app.innerHTML =
-      '<div class="card center">' + muteBtn() +
+      '<div class="card center">' + infoBtn() +
         '<h1>Partie terminée</h1>' +
         '<p class="muted">La banque de questions s\'arrête ici pour cette classe. Le chemin continuera dans la prochaine mise à jour.</p>' +
         '<div class="row" style="justify-content:center;gap:10px;margin:12px 0 4px">' + coins(3) +
@@ -2625,71 +3262,104 @@
         '<button class="btn go" id="again">Rejouer</button>' +
         '<button class="btn ghost" id="menu">Menu</button>' +
       '</div>';
-    document.getElementById('mute').onclick = toggleMute;
+    document.getElementById('info').onclick = openRules;
     document.getElementById('again').onclick = function () { startMode('bac'); };
-    document.getElementById('menu').onclick = function () { view = 'modes'; render(); };
+    document.getElementById('menu').onclick = function () { published = null; view = 'modes'; render(); };
   }
 
   function renderEndRelax() {
     var max = game.queue.length * E.CONFIG.pointsFree;
     app.innerHTML =
-      '<div class="card center">' + muteBtn() +
+      '<div class="card center">' + infoBtn() +
         '<h1>Quizz terminé 🌿</h1>' +
         '<div class="row" style="justify-content:center;gap:10px;margin:14px 0 4px">' + coins(3) +
           '<span class="big">' + game.score + '</span></div>' +
         '<small class="muted">points sur ' + max + '</small>' +
         '<div style="margin-top:16px;text-align:left">' +
           '<div class="kv"><span class="muted">Bonnes réponses</span><b>' + game.correctCount + ' / ' + game.queue.length + '</b></div>' +
+          '<div class="kv"><span class="muted">Temps de jeu</span><b>' + clock(E.progress(game).spent) + '</b></div>' +
           '<div class="kv"><span class="muted">Ton record</span><b>' + S.best('detente') + '</b></div>' +
         '</div>' +
         '<button class="btn go" id="again">Rejouer</button>' +
         '<button class="btn ghost" id="rank">Classement</button>' +
         '<button class="btn ghost" id="menu">Menu</button>' +
       '</div>';
-    document.getElementById('mute').onclick = toggleMute;
+    document.getElementById('info').onclick = openRules;
     document.getElementById('again').onclick = function () { startMode('detente'); };
     document.getElementById('rank').onclick = function () { openRanking('detente'); };
-    document.getElementById('menu').onclick = function () { view = 'modes'; render(); };
+    document.getElementById('menu').onclick = function () { published = null; view = 'modes'; render(); };
   }
 
-  function openRanking(mode) {
-    rank = { mode: mode, loading: true, rows: [], source: null };
+  function openRanking(mode, onlyMine) {
+    rank = { mode: mode, loading: true, rows: [], source: null, onlyMine: !!onlyMine };
     view = 'ranking'; render();
-    S.top(mode, 50).then(function (res) {
-      rank = { mode: mode, loading: false, rows: res.rows, source: res.source };
+    S.top(mode, 200).then(function (res) {
+      rank = { mode: mode, loading: false, rows: res.rows, source: res.source, onlyMine: !!onlyMine };
       if (view === 'ranking') render();
     });
   }
 
+  /** Une ligne du classement. */
+  function rankRow(r, i, me, myTag) {
+    var mine = r.pseudo === me && (!r.tag || r.tag === myTag);
+    var medal = i === 0 ? '🥇 ' : (i === 1 ? '🥈 ' : (i === 2 ? '🥉 ' : ''));
+    return '<tr' + (mine ? ' class="me"' : '') + '><td class="n">' + medal + (i + 1) + '</td>' +
+      '<td>' + esc(r.pseudo) + ' <span class="muted" style="font-weight:700">#' + esc(r.tag || '?????') + '</span>' +
+      (r.seconds ? '<br><span class="muted" style="font-size:12px">⏱ ' + clock(r.seconds) + '</span>' : '') + '</td>' +
+      '<td class="s">' + r.score + '</td></tr>';
+  }
+
   function renderRanking() {
-    var me = S.getPseudo(), myTag = S.getTag();
+    var me = S.getPseudo(), myTag = S.getTag(), myLevel = S.lastLevel();
     var rows = (rank && rank.rows) || [];
-    var body = rows.map(function (r, i) {
-      var mine = r.pseudo === me && (!r.tag || r.tag === myTag);
-      var medal = i === 0 ? '🥇 ' : (i === 1 ? '🥈 ' : (i === 2 ? '🥉 ' : ''));
-      return '<tr' + (mine ? ' class="me"' : '') + '><td class="n">' + medal + (i + 1) + '</td>' +
-        '<td>' + esc(r.pseudo) + ' <span class="muted" style="font-weight:700">#' + esc(r.tag || '?????') + '</span></td>' +
-        '<td class="s">' + r.score + '</td></tr>';
-    }).join('');
+    var body = '';
+
+    if (rank.mode === 'bac') {
+      // regroupement par classe, de la Terminale vers le CP : on compare ce qui est comparable
+      rows = rows.slice().sort(S.byScoreThenTime);
+      var groups = {};
+      rows.forEach(function (r) {
+        var lv = r.level && ALL_LEVELS.indexOf(r.level) !== -1 ? r.level : 'Classe non précisée';
+        (groups[lv] = groups[lv] || []).push(r);
+      });
+      var order = ALL_LEVELS.slice().reverse().concat(['Classe non précisée'])
+        .filter(function (lv) { return groups[lv]; });
+      if (rank.onlyMine && myLevel) order = order.filter(function (lv) { return lv === myLevel; });
+      order.forEach(function (lv) {
+        var list = groups[lv].sort(S.byScoreThenTime).slice(0, 20);
+        body += '<div class="rank-head">' + esc(lv) + '</div><table class="rank">' +
+          list.map(function (r, i) { return rankRow(r, i, me, myTag); }).join('') + '</table>';
+      });
+    } else {
+      body = '<table class="rank">' + rows.slice().sort(S.byScoreThenTime)
+        .slice(0, 50).map(function (r, i) { return rankRow(r, i, me, myTag); }).join('') + '</table>';
+    }
+
     app.innerHTML =
-      '<div class="card">' + muteBtn() +
+      '<div class="card">' + infoBtn() +
         '<h1 class="center">Classement</h1>' +
-        '<div class="row" style="justify-content:center;gap:8px;margin:10px 0 4px">' +
+        (published ? '<p class="center"><span class="tag">Score publié : ' + published.score + ' pts' +
+          (published.level ? ' en ' + esc(published.level) : '') + '</span></p>' : '') +
+        '<div class="row" style="justify-content:center;gap:8px;margin:10px 0 4px;flex-wrap:wrap">' +
           '<button class="chip' + (rank.mode === 'bac' ? ' on' : '') + '" id="t-bac">Quizz BAC</button>' +
           '<button class="chip' + (rank.mode === 'detente' ? ' on' : '') + '" id="t-det">Détente</button>' +
+          (rank.mode === 'bac' && myLevel
+            ? '<button class="chip' + (rank.onlyMine ? ' on' : '') + '" id="t-mine">Ma classe : ' + esc(myLevel) + '</button>'
+            : '') +
         '</div>' +
-        (rank.loading ? '<p class="center muted">Chargement…</p>' :
-          (rows.length ? '<table class="rank">' + body + '</table>'
-                       : '<p class="center muted">Aucun score pour l\'instant. Joue une partie !</p>')) +
+        (rank.loading ? '<p class="center muted">Chargement…</p>'
+                      : (rows.length ? body : '<p class="center muted">Aucun score pour l\'instant. Joue une partie !</p>')) +
         '<div class="hint center">' + (rank.source === 'online' ? 'Classement en ligne.' :
           (S.configured() ? 'Hors ligne : scores de cet appareil.' : 'Classement local à cet appareil.')) +
           (S.queued().length ? ' ' + S.queued().length + ' score(s) en attente d\'envoi.' : '') + '</div>' +
         '<button class="btn ghost" id="menu">Menu</button>' +
       '</div>';
-    document.getElementById('mute').onclick = toggleMute;
-    document.getElementById('t-bac').onclick = function () { openRanking('bac'); };
+    document.getElementById('info').onclick = openRules;
+    document.getElementById('t-bac').onclick = function () { openRanking('bac', rank.onlyMine); };
     document.getElementById('t-det').onclick = function () { openRanking('detente'); };
-    document.getElementById('menu').onclick = function () { view = 'modes'; render(); };
+    var tm = document.getElementById('t-mine');
+    if (tm) tm.onclick = function () { rank.onlyMine = !rank.onlyMine; render(); };
+    document.getElementById('menu').onclick = function () { published = null; view = 'modes'; render(); };
   }
 
   // ------------------------------------------------------------------ animation carte
@@ -2745,27 +3415,34 @@
 
   // ------------------------------------------------------------------ actions
   function wirePlay() {
-    var m = document.getElementById('mute'); if (m) m.onclick = toggleMute;
+    var inf = document.getElementById('info'); if (inf) inf.onclick = openRules;
     var quit = document.getElementById('quit');
-    if (quit) quit.onclick = function () {
-      stopTimer();
-      if (confirm('Quitter la partie en cours ?')) { view = 'modes'; render(); } else { startTimer(); }
-    };
+    if (quit) quit.onclick = function () { stopTimer(); view = 'pause'; render(); };
     var buy = document.getElementById('buy');
     if (buy) buy.onclick = function () { if (E.buyTime(game).ok) sfx.buy(); render(); };
     var input = document.getElementById('free');
+    var form = document.getElementById('answer-form');
+    if (form) form.onsubmit = function (e) { e.preventDefault(); submitFree(); };
     if (input) {
       input.value = draft;
       if (!('ontouchstart' in window)) input.focus();
       input.oninput = function () { draft = input.value; };
-      input.onkeydown = function (e) { if (e.key === 'Enter') submitFree(); };
+      input.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); submitFree(); } };
+      // le clavier mobile masque le bas de l'écran : on ramène la zone de réponse dans la vue
+      input.onfocus = function () {
+        setTimeout(function () {
+          try { input.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) { /* vieux navigateur */ }
+        }, 250);
+      };
     }
-    var send = document.getElementById('send'); if (send) send.onclick = submitFree;
     var openmc = document.getElementById('openmc'); if (openmc) openmc.onclick = function () { mcOpen = true; render(); };
     var closemc = document.getElementById('closemc'); if (closemc) closemc.onclick = function () { mcOpen = false; render(); };
     var mic = document.getElementById('mic'); if (mic) mic.onclick = dictate;
     Array.prototype.forEach.call(document.querySelectorAll('[data-opt]'), function (b) {
       b.onclick = function () { submitMC(game.options[+b.getAttribute('data-opt')]); };
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-joker]'), function (b) {
+      b.onclick = function () { playJoker(b.getAttribute('data-joker')); };
     });
   }
 
@@ -2802,6 +3479,39 @@
     after(r, q, text);
   }
 
+  /** Utilisation d'un joker, avec le retour visuel qui va avec. */
+  function playJoker(kind) {
+    var q = game.current;
+    var r = E.useJoker(game, kind);
+    if (!r.ok) return render();
+    sfx.buy();
+    autoSave();
+    if (kind === 'fifty') { mcOpen = true; return render(); }         // le QCM s'ouvre, 3 fausses barrées
+    if (kind === 'swap') {
+      feedback = { good: false, text: 'Question changée — ' + r.cost + ' points.', delta: -r.cost };
+      stopTimer();
+      render();
+      setTimeout(function () { feedback = null; startTimer(); render(); }, 900);
+      return;
+    }
+    // « passer » : on avance sans point
+    stopTimer();
+    feedback = { good: false, text: 'Question passée — ' + r.cost + ' points. La réponse était <b>' +
+      esc(q.answer) + '</b>.', delta: -r.cost };
+    render();
+    setTimeout(function () {
+      feedback = null;
+      if (game.finished) return finishGame();
+      if (r.event === 'levelUp') {
+        game.__bonusShown = r.bonus || null;
+        view = 'map'; sfx.levelup();
+        runReveal(Math.max(0, game.levelIndex - 1), game.levelIndex);
+        return;
+      }
+      startTimer(); render();
+    }, 1600);
+  }
+
   function onTimeout() {
     var q = game.current;
     if (!q || game.finished) return finishGame();    // le chrono a sonné après la fin : on sort proprement
@@ -2825,6 +3535,8 @@
     else if (r.event === 'resetToFirst') sfx.heart();
     else sfx.bad();
     if (r.bonus) setTimeout(sfx.bonus, 420);
+    saveSeen(game.seen);          // mémoire des questions vues, d'une partie à l'autre
+    autoSave();                   // et sauvegarde de la partie en cours
     render();
     setTimeout(function () {
       feedback = null; revealed = null;
@@ -2849,12 +3561,14 @@
       return render();
     }
     game.__submitted = true;
+    S.clearSlot();                // la partie est terminée : plus rien à reprendre
     // enregistrement et son isolés : s'ils échouent, l'écran de fin s'affiche quand même
     try {
-      if (game.mode === 'bac') saveSeen(game.seen);
+      saveSeen(game.seen);
       S.submit({
         pseudo: S.getPseudo(), score: game.score, mode: game.mode === 'bac' ? 'bac' : 'detente',
-        level: game.mode === 'bac' ? ALL_LEVELS[Math.min(game.levelIndex, ALL_LEVELS.length - 1)] : null
+        level: game.mode === 'bac' ? ALL_LEVELS[Math.min(game.levelIndex, ALL_LEVELS.length - 1)] : null,
+        seconds: E.progress(game).spent
       });
     } catch (e) { /* score non enregistré, la partie reste jouable */ }
     try { sfx.win(); } catch (e) { /* son indisponible */ }

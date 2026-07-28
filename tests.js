@@ -199,6 +199,143 @@ eq(d.finished, true, 'la partie se termine après 30 questions');
 eq(d.score, 60, 'score maximum : 30 × 2 points');
 eq(d.correctCount, 30, '30 bonnes réponses comptées');
 
+// ---------------------------------------------------------------- sauvegarde et reprise
+section('Sauvegarde d\'une partie et reprise');
+s = game();
+goodRun(s, 7);
+var snap = E.serialize(s);
+eq(snap.mode, 'bac', 'la photographie retient le mode');
+eq(snap.level, E.progress(s).level, 'et la classe en cours');
+var back = E.restore(snap, { bac: bank, detente: relax }, {});
+eq(back.score, s.score, 'score identique après reprise');
+eq(E.progress(back).level, E.progress(s).level, 'même classe');
+eq(E.progress(back).subject, E.progress(s).subject, 'même matière');
+eq(back.current.id, s.current.id, 'même question posée');
+eq(back.lives, s.lives, 'mêmes cœurs');
+eq(back.seen.length, s.seen.length, 'mémoire des questions vues conservée');
+eq(back.timeLeft, Math.round(s.timeLeft), 'le chrono reprend là où il s\'était arrêté');
+s.timeLeft = 8.4;
+var mid = E.restore(E.serialize(s), { bac: bank, detente: relax }, {});
+eq(mid.timeLeft, 8, 'mettre la partie de côté ne rend pas de temps');
+eq(mid.budget, 8, 'le budget suit, le temps de jeu reste juste');
+s.timeLeft = 1;
+var tight = E.restore(E.serialize(s), { bac: bank, detente: relax }, {});
+eq(tight.timeLeft, 5, 'plancher de 5 secondes pour relire la question');
+goodRun(back, 3);
+ok(back.score > s.score, 'la partie reprise continue de marquer des points');
+
+d = relaxGame();
+for (i = 0; i < 12; i++) good(d, 'free');
+var dsnap = E.serialize(d);
+var dback = E.restore(dsnap, { bac: bank, detente: relax }, {});
+eq(E.progress(dback).question, E.progress(d).question, 'détente : reprise à la bonne question');
+eq(dback.score, d.score, 'détente : score conservé');
+eq(dback.queue.length, 30, 'détente : la série de 30 est restaurée');
+eq(dback.current.id, d.current.id, 'détente : même question posée');
+
+eq(E.restore(null, { bac: bank, detente: relax }, {}), null, 'une sauvegarde vide ne casse rien');
+
+section('Anti-répétition entre deux parties');
+var first = relaxGame({ seed: 21 });
+var firstIds = first.queue.map(function (x) { return x.id; });
+var second = E.createRelax(relax, { seed: 22, seen: firstIds });
+var repeats = second.queue.filter(function (x) { return firstIds.indexOf(x.id) !== -1; }).length;
+eq(repeats, 0, 'aucune question de la partie précédente ne revient en détente');
+var g1 = game({ seed: 31 });
+goodRun(g1, 5);
+ok(g1.seen.length >= 5, 'les questions jouées sont mémorisées');
+var g2 = E.createGame(bank, { seed: 32, seen: g1.seen });
+ok(g1.seen.indexOf(g2.current.id) === -1, 'la partie suivante commence sur une question inédite');
+
+// ---------------------------------------------------------------- jokers
+section('Jokers : 40/60, changer, passer (dès la 6ème)');
+s = game();
+eq(E.canUseJoker(s, 'fifty'), false, 'aucun joker au CP');
+eq(E.useJoker(s, 'fifty').reason, 'tooEarly', 'le moteur explique que c\'est trop tôt');
+/** Avance jusqu'à la classe demandée en répondant juste. */
+function upTo(s, index) {
+  for (var i = 0; i < 300 && s.levelIndex < index && !s.finished; i++) goodRun(s, 1);
+  return s;
+}
+upTo(s, 5);
+eq(E.progress(s).level, '6ème', 'la 6ème est atteinte');
+ok(E.progress(s).jokersOpen, 'les jokers s\'ouvrent en 6ème');
+eq(E.progress(s).jokerCost, 6, 'un joker coûte 6 points');
+
+var before = s.score;
+var r = E.useJoker(s, 'fifty');
+eq(r.ok, true, '40/60 accepté');
+eq(s.score, before - 6, '40/60 débité de 6 points');
+eq(r.hidden.length, 3, '40/60 barre trois propositions');
+ok(r.hidden.indexOf(s.current.answer) === -1, '40/60 ne barre jamais la bonne réponse');
+ok(r.hidden.every(function (h) { return s.current.distractors.indexOf(h) !== -1; }),
+  '40/60 ne barre que des mauvaises réponses');
+eq(E.canUseJoker(s, 'fifty'), false, '40/60 ne se rejoue pas');
+eq(E.progress(s).perfectSoFar, false, 'un joker fait perdre le bonus de classe sans faute');
+eq(E.useJoker(s, 'fifty').reason, 'used', 'le moteur signale un joker déjà utilisé');
+eq(E.progress(s).hiddenWrong.length, 3, 'les propositions barrées restent visibles pour l\'interface');
+goodRun(s, 1);
+eq(s.hiddenWrong.length, 0, 'les propositions barrées disparaissent à la question suivante');
+
+var prevId = s.current.id;
+before = s.score;
+r = E.useJoker(s, 'swap');
+eq(r.ok, true, 'changer de question accepté');
+eq(s.score, before - 6, 'changer coûte 6 points');
+ok(s.current.id !== prevId, 'la question a bien changé');
+eq(s.current.subject, E.progress(s).subject, 'la matière reste la même');
+ok(s.seen.indexOf(prevId) !== -1, 'la question abandonnée est marquée comme vue');
+
+var subj = E.progress(s).subject, corr = E.progress(s).correct;
+before = s.score;
+r = E.useJoker(s, 'pass');
+eq(r.ok, true, 'passer accepté');
+eq(s.score, before - 6, 'passer coûte 6 points');
+ok(E.progress(s).subject !== subj || s.levelIndex > 5, 'passer fait passer à la matière suivante');
+eq(E.progress(s).correct, corr, 'la question passée ne compte pas comme une bonne réponse');
+eq(s.classErrors > 0, true, 'la classe n\'est plus « sans faute » après un joker passe');
+eq(E.canUseJoker(s, 'pass'), false, 'chaque joker ne sert qu\'une fois');
+
+var poor = game();
+upTo(poor, 5);
+poor.score = 3;
+eq(E.canUseJoker(poor, 'swap'), false, 'pas de joker sous 6 points');
+eq(E.useJoker(poor, 'swap').reason, 'noPoints', 'le moteur signale le manque de points');
+
+var relaxJ = relaxGame();
+eq(E.canUseJoker(relaxJ, 'fifty'), false, 'aucun joker en mode détente');
+
+// ---------------------------------------------------------------- temps de jeu
+section('Temps de jeu (départage du classement)');
+s = game();
+eq(E.progress(s).spent, 0, 'aucun temps compté au départ');
+s.timeLeft = 20;                       // 10 secondes se sont écoulées
+good(s);
+eq(E.progress(s).spent, 10, 'le temps de réflexion est compté');
+s.timeLeft = 25;
+good(s);
+eq(E.progress(s).spent, 15, 'le compteur s\'additionne question après question');
+s.timeLeft = 10;
+E.buyTime(s);                          // +15 s achetés : le budget suit
+eq(s.timeLeft, 25, 'le rachat ajoute 15 secondes');
+good(s);
+eq(E.progress(s).spent, 35, 'le temps racheté compte aussi');
+s.timeLeft = 0;
+E.timeout(s);
+eq(E.progress(s).spent, 65, 'un temps écoulé compte le temps entier');
+
+var tsnap = E.serialize(s);
+var tback = E.restore(tsnap, { bac: bank, detente: relax }, {});
+eq(E.progress(tback).spent, E.progress(s).spent, 'le temps de jeu survit à une reprise');
+eq(JSON.stringify(tback.jokers), JSON.stringify(s.jokers), 'les jokers restants survivent à une reprise');
+
+var sc = require('./scores.js');
+var rows = [{ score: 20, seconds: 300 }, { score: 20, seconds: 120 }, { score: 25, seconds: 900 }, { score: 20 }];
+rows.sort(sc.byScoreThenTime);
+eq(rows[0].score, 25, 'le meilleur score reste premier');
+eq(rows[1].seconds, 120, 'à score égal, le plus rapide passe devant');
+eq(rows[3].seconds, undefined, 'un temps inconnu part en dernier');
+
 // ---------------------------------------------------------------- banques
 section('Banques de questions');
 [{ b: bank, n: 'BAC' }, { b: relax, n: 'détente' }].forEach(function (set) {
@@ -222,10 +359,10 @@ ok(pools.every(function (k) { return counts[k] >= 6; }), 'au moins 6 questions p
   pools.filter(function (k) { return counts[k] < 6; }).join(', '));
 var small = pools.filter(function (k) { return counts[k] < 12; });
 ok(small.length === 0, 'au moins 12 questions dans chacun des 67 pools', small.join(', '));
-ok(relax.questions.length >= 90, 'au moins 90 questions en détente (' + relax.questions.length + ')');
+ok(relax.questions.length >= 150, 'au moins 150 questions en détente (' + relax.questions.length + ')');
 [1, 2, 3].forEach(function (t) {
   var n = relax.questions.filter(function (x) { return x.difficulty === t; }).length;
-  ok(n >= 30, 'au moins 30 questions de difficulté ' + t + ' en détente (' + n + ')');
+  ok(n >= 50, 'au moins 50 questions de difficulté ' + t + ' en détente (' + n + ')');
 });
 
 console.log('\n' + pass + ' tests OK, ' + fail + ' échec(s)');

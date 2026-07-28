@@ -13,17 +13,17 @@ quiz-culture/
 ├── SUPABASE.md                    ← activer le classement en ligne, pas à pas
 ├── template.html                  ← interface (à éditer, puis `node build.js`)
 ├── build.js                       ← assemble prototype.html + web/
-├── tests.js                       ← 96 tests du moteur et des deux banques
+├── tests.js                       ← 157 tests du moteur et des deux banques
 ├── tools/
 │   ├── audit.js                   ← audit du contenu + 400 parties BAC et 200 détente simulées
-│   ├── uitest.js                  ← déroule les deux modes dans un faux DOM (8 scénarios)
+│   ├── uitest.js                  ← déroule les deux modes dans un faux DOM (11 scénarios)
 │   ├── make-icons.js              ← génère les icônes de l'app depuis le sprite du héros
 │   └── serve.js                   ← serveur local pour tester depuis le téléphone (même Wi-Fi)
 ├── carte-apercu.png · carte-fin.png · diplome-apercu.png · ecrans-apercu.png
 └── data/
     ├── schema.json                ← format d'une question
     ├── questions.json             ← mode BAC : 804 questions, 12 par pool sur les 67 pools
-    ├── detente.json               ← mode détente : 96 questions, 32 par palier de difficulté
+    ├── detente.json               ← mode détente : 180 questions, 60 par palier de difficulté
     └── leaderboard.json           ← URL + clé Supabase (vide = classement local)
 ```
 
@@ -40,19 +40,31 @@ parfaite, diplôme à l'arrivée. Partie parfaite : **144 points en 67 questions
 **Quizz détente** : 30 questions à thèmes, difficulté croissante, aucune sanction. Maximum
 60 points.
 
+**Pause** : à tout moment, le bouton Pause permet de continuer, de **mettre la partie de côté**
+(bouton Reprendre sur l'écran-titre, **temps restant compris**), de **publier son score** dans le classement de la classe
+atteinte, ou d'abandonner. La partie est de toute façon sauvegardée après chaque question.
+
 ## Règles appliquées
 
 1 question par matière et par classe (5 au primaire, 6 dès la 6ème avec les Sciences) · réponse
-libre 2 pts, QCM 1 pt · une réponse libre fausse impose le QCM sur la question suivante · une
+libre 2 pts (la touche d'envoi du clavier valide, sans avoir à le refermer), QCM 1 pt · une réponse libre fausse impose le QCM sur la question suivante · une
 erreur de QCM renvoie au début de la classe, efface ses points et coûte un cœur · 3 cœurs perdus
 font redescendre d'une classe avec 3 cœurs neufs · classe sans faute : +2 points (primaire) ou
 +1 cœur (secondaire) · timer 30 s, 1 point pour +15 s, temps écoulé = −2 points sans reculer.
 En mode détente : mêmes points, aucune pénalité, on enchaîne les 30 questions.
 
+**Jokers** (mode BAC, dès la 6ème, 6 points chacun, une seule utilisation) : **40/60** barre trois
+mauvaises réponses, **Changer** remplace la question, **Passer** la saute. Utiliser une aide annule
+le bonus de classe sans faute.
+
+**Classement** : trié par score, puis **à score égal par temps de jeu**, pour réduire les ex æquo.
+Le temps compté est celui passé sur les questions, pas le temps écoulé : les pauses ne pénalisent
+personne.
+
 ## Modifier
 
 ```bash
-node tests.js            # règles + banques (96 tests)
+node tests.js            # règles + banques (157 tests)
 node tools/audit.js      # audit du contenu + 400 parties simulées
 node tools/uitest.js     # parcours complet de l'interface, sans navigateur
 node build.js            # régénère prototype.html et web/
