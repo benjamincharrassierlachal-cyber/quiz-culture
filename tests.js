@@ -447,10 +447,15 @@ ok(pools.every(function (k) { return counts[k] >= 6; }), 'au moins 6 questions p
   pools.filter(function (k) { return counts[k] < 6; }).join(', '));
 var small = pools.filter(function (k) { return counts[k] < 12; });
 ok(small.length === 0, 'au moins 12 questions dans chacun des 67 pools', small.join(', '));
-ok(relax.questions.length >= 150, 'au moins 150 questions en détente (' + relax.questions.length + ')');
+ok(relax.questions.length >= 1000, 'au moins 1 000 questions en détente (' + relax.questions.length + ')');
+eq(relax.themes.length, 8, 'huit thèmes en détente');
 [1, 2, 3].forEach(function (t) {
   var n = relax.questions.filter(function (x) { return x.difficulty === t; }).length;
-  ok(n >= 50, 'au moins 50 questions de difficulté ' + t + ' en détente (' + n + ')');
+  ok(n >= 300, 'au moins 300 questions de difficulté ' + t + ' en détente (' + n + ')');
+});
+relax.themes.forEach(function (th) {
+  var n = relax.questions.filter(function (x) { return x.theme === th; }).length;
+  ok(n >= 125, 'thème « ' + th + ' » complet (' + n + ' questions)');
 });
 
 if (!differed) {

@@ -1,0 +1,20 @@
+{
+  "theme": "Gastronomie",
+  "prefix": "gas",
+  "questions": [
+    {"difficulty": 3, "prompt": "Quel pays est le premier producteur mondial de vin ?", "answer": "l'Italie", "accepted": ["italie", "l'italie"], "distractors": ["la France", "l'Espagne", "les États-Unis", "le Chili"]},
+    {"difficulty": 3, "prompt": "De quelle ville italienne le risotto au safran est-il la spécialité ?", "answer": "Milan", "accepted": ["milan", "milano"], "distractors": ["Venise", "Turin", "Florence", "Vérone"]},
+    {"difficulty": 3, "prompt": "Quel cépage rouge est le plus planté dans le vignoble bordelais ?", "answer": "le merlot", "accepted": ["merlot", "le merlot"], "distractors": ["le cabernet sauvignon", "la syrah", "le gamay", "le pinot noir"]},
+    {"difficulty": 3, "prompt": "Quel fromage grec se conserve traditionnellement dans la saumure ?", "answer": "la feta", "accepted": ["feta", "la feta"], "distractors": ["le halloumi", "la mozzarella", "le kefalotyri", "le manouri"]},
+    {"difficulty": 3, "prompt": "Quel poisson salé et séché est le pilier de la cuisine portugaise ?", "answer": "la morue", "accepted": ["morue", "la morue", "bacalhau", "cabillaud sale"], "distractors": ["la sardine", "le thon", "le maquereau", "le congre"]},
+    {"difficulty": 3, "prompt": "De quelle plante les câpres sont-elles le bouton floral ?", "answer": "le câprier", "accepted": ["caprier", "le caprier"], "distractors": ["l'olivier", "le figuier", "le laurier", "le genévrier"]},
+    {"difficulty": 3, "prompt": "Quel gâteau alsacien en forme de couronne se cuit dans un moule cannelé ?", "answer": "le kouglof", "accepted": ["kouglof", "le kouglof", "kougelhopf"], "distractors": ["le bretzel", "le stollen", "le panettone", "le baba"]},
+    {"difficulty": 3, "prompt": "Quel sigle garantit qu'un fromage vient d'une zone précise et suit un savoir-faire défini ?", "answer": "l'AOP", "accepted": ["aop", "l'aop", "appellation d'origine protegee"], "distractors": ["le Label rouge", "l'IGP", "le bio", "la STG"]},
+    {"difficulty": 3, "prompt": "Quelle variété de pomme de terre est traditionnelle pour les frites belges ?", "answer": "la bintje", "accepted": ["bintje", "la bintje"], "distractors": ["la charlotte", "la ratte", "l'agata", "la monalisa"]},
+    {"difficulty": 3, "prompt": "Quel vin italien parfume le tiramisu dans sa recette traditionnelle ?", "answer": "le marsala", "accepted": ["marsala", "le marsala"], "distractors": ["le porto", "le limoncello", "l'amaretto", "le vin santo"]},
+    {"difficulty": 3, "prompt": "De quelle plante la tequila est-elle distillée ?", "answer": "l'agave", "accepted": ["agave", "l'agave", "agave bleue"], "distractors": ["la canne à sucre", "le maïs", "le cactus", "le maguey rouge"]},
+    {"difficulty": 3, "prompt": "Quelle ville française est célèbre pour ses restaurants appelés « bouchons » ?", "answer": "Lyon", "accepted": ["lyon"], "distractors": ["Bordeaux", "Dijon", "Strasbourg", "Nantes"]},
+    {"difficulty": 3, "prompt": "Quel légume est confit dans le vinaigre pour donner le cornichon ?", "answer": "le concombre", "accepted": ["concombre", "le concombre"], "distractors": ["la courgette", "le poivron", "le navet", "la courge"]},
+    {"difficulty": 3, "prompt": "Quel dessert autrichien enroule des pommes dans une pâte très fine ?", "answer": "le strudel", "accepted": ["strudel", "le strudel", "apfelstrudel"], "distractors": ["la sachertorte", "le linzer", "le kaiserschmarrn", "la brioche viennoise"]}
+  ]
+}

@@ -4,8 +4,10 @@ App mobile payante (Android + iOS), jouable 100 % hors ligne. Deux modes :
 
 - **Quizz BAC** — le parcours scolaire, du CP à la Terminale, matière par matière, avec cœurs,
   bonus de classe et carte qui se dévoile.
-- **Quizz détente** — 30 questions à thèmes (culture générale, cinéma, sport, musique), difficulté
-  croissante par paliers de 10, aucune sanction : seul le score final compte.
+- **Quizz détente** — 30 questions à thèmes, difficulté croissante par paliers de 10, aucune
+  sanction : seul le score final compte. **Huit thèmes de 125 questions** (culture générale, cinéma,
+  sport, musique, gastronomie, art et littérature, histoire de France, séries télé), soit
+  **1 000 questions**, réparties en 42 faciles, 42 moyennes et 41 « amateur » par thème.
 
 Parcours des écrans : **écran-titre** — le héros dans une salle de classe devant le tableau, titre
 « Le Quizz du BAC », bouton Commencer — puis le **tableau s'ouvre en vortex** (aperçu de la forêt,

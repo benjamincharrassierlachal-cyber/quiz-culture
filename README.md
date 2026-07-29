@@ -13,9 +13,12 @@ quiz-culture/
 ├── SUPABASE.md                    ← activer le classement en ligne, pas à pas
 ├── template.html                  ← interface (à éditer, puis `node build.js`)
 ├── build.js                       ← assemble prototype.html + web/
-├── tests.js                       ← 176 tests du moteur et des deux banques
+├── tests.js                       ← 185 tests du moteur et des deux banques
 ├── tools/
 │   ├── audit.js                   ← audit du contenu + 400 parties BAC et 200 détente simulées
+│   ├── add-detente.js             ← intègre un lot de questions détente (refuse tout doublon)
+│   ├── retirer.js                 ← retire des questions par identifiant
+│   ├── relire.js                  ← sort un thème en fiche lisible pour relecture
 │   ├── uitest.js                  ← déroule les deux modes dans un faux DOM (11 scénarios)
 │   ├── make-icons.js              ← génère les icônes de l'app depuis le sprite du héros
 │   └── serve.js                   ← serveur local pour tester depuis le téléphone (même Wi-Fi)
@@ -23,7 +26,7 @@ quiz-culture/
 └── data/
     ├── schema.json                ← format d'une question
     ├── questions.json             ← mode BAC : 804 questions, 12 par pool sur les 67 pools
-    ├── detente.json               ← mode détente : 180 questions, 60 par palier de difficulté
+    ├── detente.json               ← mode détente : 1 000 questions, 8 thèmes × 125
     └── leaderboard.json           ← URL + clé Supabase (vide = classement local)
 ```
 
@@ -38,7 +41,8 @@ quiz-culture/
 parfaite, diplôme à l'arrivée. Partie parfaite : **144 points en 67 questions**, ~15 minutes.
 
 **Quizz détente** : 30 questions à thèmes, difficulté croissante, aucune sanction. Maximum
-60 points.
+60 points. Huit thèmes de 125 questions : culture générale, cinéma, sport, musique, gastronomie,
+art et littérature, histoire de France, séries télé.
 
 **Pause** : à tout moment, le bouton Pause permet de continuer, de **mettre la partie de côté**
 (bouton Reprendre sur l'écran-titre, **temps restant compris**), de **publier son score** dans le classement de la classe
@@ -64,7 +68,7 @@ personne.
 ## Modifier
 
 ```bash
-node tests.js            # règles + banques (176 tests)
+node tests.js            # règles + banques (185 tests)
 node tools/audit.js      # audit du contenu + 400 parties simulées
 node tools/uitest.js     # parcours complet de l'interface, sans navigateur
 node build.js            # régénère prototype.html et web/
