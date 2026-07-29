@@ -86,9 +86,15 @@ var sw =
   '  }).then(function () { return self.clients.claim(); }));\n' +
   '});\n' +
   '\n' +
-  '/* Cache d\'abord : instantané et fonctionne sans réseau. */\n' +
+  '/* Cache d\'abord, mais UNIQUEMENT les fichiers de l\'app.\n' +
+  '   Tout ce qui part vers un autre domaine (le classement en ligne) doit passer par le réseau :\n' +
+  '   mis en cache, il renverrait éternellement la première réponse — et intercepté, un envoi\n' +
+  '   pouvait être avalé sans que le jeu s\'en aperçoive. */\n' +
   'self.addEventListener("fetch", function (e) {\n' +
   '  if (e.request.method !== "GET") return;\n' +
+  '  var url;\n' +
+  '  try { url = new URL(e.request.url); } catch (err) { return; }\n' +
+  '  if (url.origin !== self.location.origin) return;      // API distante : jamais de cache\n' +
   '  e.respondWith(caches.match(e.request, { ignoreSearch: true }).then(function (hit) {\n' +
   '    return hit || fetch(e.request).then(function (res) {\n' +
   '      var copy = res.clone();\n' +

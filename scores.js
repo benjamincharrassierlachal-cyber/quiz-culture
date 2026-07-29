@@ -132,6 +132,7 @@
     if (!c) return Promise.reject(new Error('non configuré'));
     return fetch(c.url.replace(/\/$/, '') + '/rest/v1/scores', {
       method: 'POST',
+      cache: 'no-store',
       headers: heads(c, { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
       body: JSON.stringify({
         pseudo: entry.pseudo, tag: entry.tag, score: entry.score,
@@ -205,7 +206,7 @@
     var url = c.url.replace(/\/$/, '') + '/rest/v1/scores?select=pseudo,tag,score,mode,level,seconds,created_at' +
       '&mode=eq.' + encodeURIComponent(mode || 'bac') +
       '&order=score.desc,seconds.asc.nullslast&limit=' + limit;
-    return fetch(url, { headers: heads(c) })
+    return fetch(url, { headers: heads(c), cache: 'no-store' })
       .then(function (r) {
         if (!r.ok) {
           return r.text().then(function (t) {
@@ -228,6 +229,7 @@
     var body = { pseudo: 'Test', tag: getTag(), score: 1, mode: 'detente', level: null, seconds: 1 };
     return fetch(url, {
       method: 'POST',
+      cache: 'no-store',
       headers: heads(c, { 'Content-Type': 'application/json', 'Prefer': 'return=representation' }),
       body: JSON.stringify(body)
     }).then(function (r) {

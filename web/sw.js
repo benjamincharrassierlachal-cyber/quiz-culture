@@ -1,5 +1,5 @@
 /* Service worker : met l'app en cache pour qu'elle fonctionne hors ligne. */
-var CACHE = "quiz-culture-78f5934cb5";
+var CACHE = "quiz-culture-cb61a7f67a";
 var FILES = ["./", "./index.html", "./manifest.webmanifest",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png", "./icons/favicon-64.png"];
 
@@ -13,9 +13,15 @@ self.addEventListener("activate", function (e) {
   }).then(function () { return self.clients.claim(); }));
 });
 
-/* Cache d'abord : instantané et fonctionne sans réseau. */
+/* Cache d'abord, mais UNIQUEMENT les fichiers de l'app.
+   Tout ce qui part vers un autre domaine (le classement en ligne) doit passer par le réseau :
+   mis en cache, il renverrait éternellement la première réponse — et intercepté, un envoi
+   pouvait être avalé sans que le jeu s'en aperçoive. */
 self.addEventListener("fetch", function (e) {
   if (e.request.method !== "GET") return;
+  var url;
+  try { url = new URL(e.request.url); } catch (err) { return; }
+  if (url.origin !== self.location.origin) return;      // API distante : jamais de cache
   e.respondWith(caches.match(e.request, { ignoreSearch: true }).then(function (hit) {
     return hit || fetch(e.request).then(function (res) {
       var copy = res.clone();

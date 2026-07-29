@@ -88,6 +88,20 @@ git add -A && git commit -m "Classement en ligne" && git push
 Au prochain lancement, l'écran Classement affichera « Classement en ligne ». Les parties jouées
 sans réseau sont mises de côté et envoyées automatiquement au retour de la connexion.
 
+## Si le classement reste vide alors que tout semble branché
+
+La page **Les règles** (bouton « i ») affiche en bas une ligne d'état : version, projet Supabase,
+type de clé, stockage local, nombre de scores, envois en attente, et le dernier message d'erreur
+du serveur s'il y en a un. Un bouton **Tester l'envoi** dépose une ligne « Test » et affiche la
+réponse brute de Supabase — c'est le moyen le plus rapide de distinguer un problème de clé, de
+règle d'écriture ou d'API.
+
+Piège rencontré une fois : le service worker mettait en cache les appels au classement et
+interceptait les envois. Il ne touche désormais **qu'aux fichiers de l'app** ; tout ce qui part
+vers un autre domaine passe directement par le réseau. Si un téléphone se comporte encore
+bizarrement, c'est un ancien service worker en mémoire : fermer complètement l'app et la rouvrir
+suffit à le remplacer.
+
 ## Vérifier que ça marche
 
 - Joue une partie courte en mode détente, puis ouvre le classement : ton pseudo doit apparaître.
