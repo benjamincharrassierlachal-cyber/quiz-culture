@@ -219,6 +219,27 @@
       .catch(function () { return { source: 'local', rows: localScores(mode).slice(0, limit) }; });
   }
 
+  /** Envoi de test : dépose une ligne « Test » et renvoie la réponse brute du serveur.
+   *  Ne lève jamais : c'est un outil de diagnostic, pas un chemin de jeu. */
+  function testInsert() {
+    var c = conf();
+    if (!c) return Promise.resolve('aucune configuration : classement local');
+    var url = c.url.replace(/\/$/, '') + '/rest/v1/scores';
+    var body = { pseudo: 'Test', tag: getTag(), score: 1, mode: 'detente', level: null, seconds: 1 };
+    return fetch(url, {
+      method: 'POST',
+      headers: heads(c, { 'Content-Type': 'application/json', 'Prefer': 'return=representation' }),
+      body: JSON.stringify(body)
+    }).then(function (r) {
+      return r.text().then(function (t) {
+        return 'POST ' + r.status + ' ' + (r.statusText || '') + ' · ' +
+          (t ? t.replace(/\s+/g, ' ').slice(0, 300) : '(réponse vide)');
+      }, function () { return 'POST ' + r.status + ' (corps illisible)'; });
+    }, function (e) {
+      return 'POST impossible · ' + (e && e.message ? e.message : 'erreur réseau');
+    });
+  }
+
   /** Le stockage local est-il réellement utilisable ? (navigation privée, quota, réglages) */
   function storageOk() {
     try {
@@ -248,6 +269,7 @@
     configured: function () { return !!conf(); },
     storageOk: storageOk,
     health: health,
+    testInsert: testInsert,
     cleanPseudo: cleanPseudo,
     pseudoValid: pseudoValid,
     getPseudo: getPseudo,
