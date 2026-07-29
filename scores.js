@@ -11,7 +11,8 @@
   'use strict';
 
   var K_PSEUDO = 'quizculture.pseudo';
-  var K_TAG = 'quizculture.tag';         // numéro de joueur, pour distinguer les homonymes
+  var K_TAG = 'quizculture.tag';         // numéro de l'appareil (joueur sans pseudo)
+  var K_TAGS = 'quizculture.tags';       // pseudo → numéro : chacun garde le sien sur l'appareil
   var K_LOCAL = 'quizculture.scores';
   var K_QUEUE = 'quizculture.queue';
   var K_BEST = 'quizculture.best';       // meilleur score par mode
@@ -44,22 +45,56 @@
   function pseudoValid(p) { return cleanPseudo(p).length >= 3; }
   function getPseudo() { try { return localStorage.getItem(K_PSEUDO) || ''; } catch (e) { return ''; } }
 
-  /** Numéro de joueur à 5 chiffres, tiré une seule fois puis conservé : « Benji #04217 ».
-   *  Deux joueurs peuvent choisir le même pseudo, le numéro les distingue au classement. */
-  function getTag() {
-    var t;
-    try { t = localStorage.getItem(K_TAG); } catch (e) { t = null; }
-    if (t && /^\d{5}$/.test(t)) return t;
+  /** Numéro à 5 chiffres, tiré au hasard. */
+  function randomTag() {
     var n;
     try {
       var buf = new Uint32Array(1);
       (self.crypto || window.crypto).getRandomValues(buf);
       n = buf[0] % 100000;
     } catch (e) { n = Math.floor(Math.random() * 100000); }
-    t = ('0000' + n).slice(-5);
+    return ('0000' + n).slice(-5);
+  }
+
+  function readDeviceTag() {
+    try { var t = localStorage.getItem(K_TAG); return (t && /^\d{5}$/.test(t)) ? t : null; }
+    catch (e) { return null; }
+  }
+  /** Numéro de l'appareil : sert au joueur qui n'a pas choisi de pseudo. */
+  function deviceTag() {
+    var t = readDeviceTag();
+    if (t) return t;
+    t = randomTag();
     try { localStorage.setItem(K_TAG, t); } catch (e) { /* ignore */ }
     return t;
   }
+
+  function tagKey(p) { return cleanPseudo(p).toLowerCase(); }
+  function tagsMap() { return read(K_TAGS, {}) || {}; }
+  /** Les anciennes versions stockaient « clé → numéro » ; on lit les deux formes. */
+  function entryOf(v) { return (typeof v === 'string') ? { tag: v, name: null, at: 0 } : (v || {}); }
+  function tagOf(v) { return entryOf(v).tag; }
+
+  /** Numéro de joueur : « Benji #04217 ».
+   *  Il est attaché au pseudo, pas à l'appareil : si Benji et Dédé jouent tour à tour sur le
+   *  même téléphone, chacun garde son numéro, et Benji retrouve le sien en revenant. */
+  function getTag(pseudo) {
+    var key = tagKey(pseudo === undefined || pseudo === null ? getPseudo() : pseudo);
+    if (!key) return deviceTag();                  // pas de pseudo : numéro de l'appareil
+    var map = tagsMap();
+    var known = tagOf(map[key]);
+    if (known && /^\d{5}$/.test(known)) return known;
+
+    var used = Object.keys(map).map(function (k) { return tagOf(map[k]); });
+    var t = null;
+    // premier pseudo de cet appareil : il hérite du numéro déjà affiché, pour ne pas changer d'identité
+    if (!used.length) t = readDeviceTag();
+    while (!t || used.indexOf(t) !== -1) t = randomTag();
+    map[key] = { tag: t, name: cleanPseudo(pseudo === undefined || pseudo === null ? getPseudo() : pseudo), at: Date.now() };
+    write(K_TAGS, map);
+    return t;
+  }
+
   /** Nom affiché : pseudo + numéro. */
   function displayName(pseudo, tag) {
     var p = pseudo || getPseudo() || 'Anonyme';
@@ -69,7 +104,22 @@
     var c = cleanPseudo(p);
     if (!pseudoValid(c)) return null;
     try { localStorage.setItem(K_PSEUDO, c); } catch (e) { /* ignore */ }
+    getTag(c);                    // réserve (ou retrouve) son numéro tout de suite
+    var map = tagsMap(), key = tagKey(c), e2 = entryOf(map[key]);
+    map[key] = { tag: e2.tag, name: c, at: Date.now() };   // orthographe et date de dernier usage
+    write(K_TAGS, map);
     return c;
+  }
+
+  /** Les comptes déjà utilisés sur cet appareil, du plus récent au plus ancien.
+   *  Sert de filet : personne ne perd son numéro parce qu'un autre joueur est passé après lui. */
+  function accounts() {
+    var map = tagsMap();
+    return Object.keys(map).map(function (k) {
+      var e = entryOf(map[k]);
+      return { pseudo: e.name || k, tag: e.tag, at: e.at || 0 };
+    }).filter(function (a) { return a.tag; })
+      .sort(function (a, b) { return b.at - a.at; });
   }
 
   // ------------------------------------------------------------------ meilleur score
@@ -175,9 +225,10 @@
 
   /** Enregistre un score : toujours en local, en ligne si possible, sinon mis en file. */
   function submit(entry) {
+    var who = cleanPseudo(entry.pseudo) || 'Anonyme';
     entry = {
-      pseudo: cleanPseudo(entry.pseudo) || 'Anonyme',
-      tag: entry.tag || getTag(),
+      pseudo: who,
+      tag: entry.tag || getTag(who),
       score: Math.max(0, Math.round(entry.score || 0)),
       mode: entry.mode || 'bac',
       level: entry.level || null,
@@ -277,6 +328,7 @@
     getPseudo: getPseudo,
     setPseudo: setPseudo,
     getTag: getTag,
+    accounts: accounts,
     displayName: displayName,
     saveSlot: saveSlot,
     loadSlot: loadSlot,

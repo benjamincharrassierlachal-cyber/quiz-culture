@@ -194,6 +194,13 @@
         background:#fff4f5; color:#a3313c; font-size:12px; line-height:1.35; word-break:break-word}
   .oops .chip{display:block; margin:8px auto 0}
 
+  .accs{margin-top:14px; border-top:2px dashed var(--pale); padding-top:10px}
+  .acc{display:flex; width:100%; align-items:center; justify-content:space-between; margin-top:6px;
+       padding:8px 12px; border:2px solid var(--ink); border-radius:12px; background:#fff;
+       box-shadow:2px 2px 0 var(--ink); font-weight:800; font-size:14px}
+  .acc:active{transform:translate(2px,2px); box-shadow:0 0 0 var(--ink)}
+  .acc .num{color:var(--muted); font-weight:700}
+
   /* bouton « i » et page des règles */
   .info{position:absolute; right:12px; top:12px; width:34px; height:34px; padding:0;
         display:flex; align-items:center; justify-content:center; color:var(--ink); opacity:.75}
@@ -1006,7 +1013,8 @@
   'use strict';
 
   var K_PSEUDO = 'quizculture.pseudo';
-  var K_TAG = 'quizculture.tag';         // numéro de joueur, pour distinguer les homonymes
+  var K_TAG = 'quizculture.tag';         // numéro de l'appareil (joueur sans pseudo)
+  var K_TAGS = 'quizculture.tags';       // pseudo → numéro : chacun garde le sien sur l'appareil
   var K_LOCAL = 'quizculture.scores';
   var K_QUEUE = 'quizculture.queue';
   var K_BEST = 'quizculture.best';       // meilleur score par mode
@@ -1039,22 +1047,56 @@
   function pseudoValid(p) { return cleanPseudo(p).length >= 3; }
   function getPseudo() { try { return localStorage.getItem(K_PSEUDO) || ''; } catch (e) { return ''; } }
 
-  /** Numéro de joueur à 5 chiffres, tiré une seule fois puis conservé : « Benji #04217 ».
-   *  Deux joueurs peuvent choisir le même pseudo, le numéro les distingue au classement. */
-  function getTag() {
-    var t;
-    try { t = localStorage.getItem(K_TAG); } catch (e) { t = null; }
-    if (t && /^\d{5}$/.test(t)) return t;
+  /** Numéro à 5 chiffres, tiré au hasard. */
+  function randomTag() {
     var n;
     try {
       var buf = new Uint32Array(1);
       (self.crypto || window.crypto).getRandomValues(buf);
       n = buf[0] % 100000;
     } catch (e) { n = Math.floor(Math.random() * 100000); }
-    t = ('0000' + n).slice(-5);
+    return ('0000' + n).slice(-5);
+  }
+
+  function readDeviceTag() {
+    try { var t = localStorage.getItem(K_TAG); return (t && /^\d{5}$/.test(t)) ? t : null; }
+    catch (e) { return null; }
+  }
+  /** Numéro de l'appareil : sert au joueur qui n'a pas choisi de pseudo. */
+  function deviceTag() {
+    var t = readDeviceTag();
+    if (t) return t;
+    t = randomTag();
     try { localStorage.setItem(K_TAG, t); } catch (e) { /* ignore */ }
     return t;
   }
+
+  function tagKey(p) { return cleanPseudo(p).toLowerCase(); }
+  function tagsMap() { return read(K_TAGS, {}) || {}; }
+  /** Les anciennes versions stockaient « clé → numéro » ; on lit les deux formes. */
+  function entryOf(v) { return (typeof v === 'string') ? { tag: v, name: null, at: 0 } : (v || {}); }
+  function tagOf(v) { return entryOf(v).tag; }
+
+  /** Numéro de joueur : « Benji #04217 ».
+   *  Il est attaché au pseudo, pas à l'appareil : si Benji et Dédé jouent tour à tour sur le
+   *  même téléphone, chacun garde son numéro, et Benji retrouve le sien en revenant. */
+  function getTag(pseudo) {
+    var key = tagKey(pseudo === undefined || pseudo === null ? getPseudo() : pseudo);
+    if (!key) return deviceTag();                  // pas de pseudo : numéro de l'appareil
+    var map = tagsMap();
+    var known = tagOf(map[key]);
+    if (known && /^\d{5}$/.test(known)) return known;
+
+    var used = Object.keys(map).map(function (k) { return tagOf(map[k]); });
+    var t = null;
+    // premier pseudo de cet appareil : il hérite du numéro déjà affiché, pour ne pas changer d'identité
+    if (!used.length) t = readDeviceTag();
+    while (!t || used.indexOf(t) !== -1) t = randomTag();
+    map[key] = { tag: t, name: cleanPseudo(pseudo === undefined || pseudo === null ? getPseudo() : pseudo), at: Date.now() };
+    write(K_TAGS, map);
+    return t;
+  }
+
   /** Nom affiché : pseudo + numéro. */
   function displayName(pseudo, tag) {
     var p = pseudo || getPseudo() || 'Anonyme';
@@ -1064,7 +1106,22 @@
     var c = cleanPseudo(p);
     if (!pseudoValid(c)) return null;
     try { localStorage.setItem(K_PSEUDO, c); } catch (e) { /* ignore */ }
+    getTag(c);                    // réserve (ou retrouve) son numéro tout de suite
+    var map = tagsMap(), key = tagKey(c), e2 = entryOf(map[key]);
+    map[key] = { tag: e2.tag, name: c, at: Date.now() };   // orthographe et date de dernier usage
+    write(K_TAGS, map);
     return c;
+  }
+
+  /** Les comptes déjà utilisés sur cet appareil, du plus récent au plus ancien.
+   *  Sert de filet : personne ne perd son numéro parce qu'un autre joueur est passé après lui. */
+  function accounts() {
+    var map = tagsMap();
+    return Object.keys(map).map(function (k) {
+      var e = entryOf(map[k]);
+      return { pseudo: e.name || k, tag: e.tag, at: e.at || 0 };
+    }).filter(function (a) { return a.tag; })
+      .sort(function (a, b) { return b.at - a.at; });
   }
 
   // ------------------------------------------------------------------ meilleur score
@@ -1170,9 +1227,10 @@
 
   /** Enregistre un score : toujours en local, en ligne si possible, sinon mis en file. */
   function submit(entry) {
+    var who = cleanPseudo(entry.pseudo) || 'Anonyme';
     entry = {
-      pseudo: cleanPseudo(entry.pseudo) || 'Anonyme',
-      tag: entry.tag || getTag(),
+      pseudo: who,
+      tag: entry.tag || getTag(who),
       score: Math.max(0, Math.round(entry.score || 0)),
       mode: entry.mode || 'bac',
       level: entry.level || null,
@@ -1272,6 +1330,7 @@
     getPseudo: getPseudo,
     setPseudo: setPseudo,
     getTag: getTag,
+    accounts: accounts,
     displayName: displayName,
     saveSlot: saveSlot,
     loadSlot: loadSlot,
@@ -2430,12 +2489,12 @@
 }
 ;</script>
 <script>var LEADERBOARD = {
-  "_lisez_moi": "Colle ici l'URL et la clé publique 'anon' de ton projet Supabase pour activer le classement en ligne. Laisse vide pour rester en local. Voir SUPABASE.md.",
-  "url": "",
-  "anonKey": ""
+  "_lisez_moi": "URL et clé publique 'anon' du projet Supabase. Vide = classement local. Voir SUPABASE.md.",
+  "url": "https://tdnuigbtsyhdzlipngol.supabase.co",
+  "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbnVpZ2J0c3loZHpsaXBuZ29sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMTEyNTMsImV4cCI6MjEwMDg4NzI1M30.eEw1D1Nbdu7LPSGbXScZICuA2Pj4WGiLnOHC_o_pJ3M"
 }
 ;</script>
-<script>var BUILD = {"version":"e421aa8","date":"2026-07-29 12:09"};</script>
+<script>var BUILD = {"version":"34c44c9","date":"2026-07-29 12:47"};</script>
 <script>
 (function () {
   'use strict';
@@ -2777,7 +2836,6 @@
           '<button class="btn go" id="start">Commencer</button>' +
           (slotLabel() ? '<button class="btn resume" id="resume">Reprendre<br><small style="font-weight:600">' +
             slotLabel() + '</small></button>' : '') +
-          '<div class="hint" style="margin-top:10px">version ' + esc(BUILD.version) + ' · ' + esc(BUILD.date) + '</div>' +
         '</div>' +
       '</div>';
     document.getElementById('info').onclick = openRules;
@@ -2837,6 +2895,7 @@
         '<input type="text" id="pseudo" maxlength="14" placeholder="3 à 14 caractères" value="' + esc(S.getPseudo()) + '">' +
         '<div class="hint center" id="perr"></div>' +
         '<button class="btn go" id="pok">Valider</button>' +
+        accountList() +
       '</div></div>';
     var input = document.getElementById('pseudo');
     if (!('ontouchstart' in window)) input.focus();
@@ -2849,8 +2908,23 @@
       close();
     }
     document.getElementById('pok').onclick = submit;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-acc]'), function (b) {
+      b.onclick = function () { S.setPseudo(b.getAttribute('data-acc')); close(); };
+    });
     document.getElementById('px').onclick = close;
     input.onkeydown = function (e) { if (e.key === 'Enter') submit(); };
+  }
+
+  /** Comptes déjà utilisés sur ce téléphone : un appui suffit pour reprendre le sien. */
+  function accountList() {
+    var here = S.getPseudo().toLowerCase();
+    var list = S.accounts().filter(function (a) { return a.pseudo.toLowerCase() !== here; });
+    if (!list.length) return '';
+    return '<div class="accs"><div class="hint center">Déjà joué sur ce téléphone</div>' +
+      list.slice(0, 6).map(function (a) {
+        return '<button class="acc" data-acc="' + esc(a.pseudo) + '">' + esc(a.pseudo) +
+          '<span class="num">#' + esc(a.tag) + '</span></button>';
+      }).join('') + '</div>';
   }
 
   /** Chapeau de diplômé et feuille, dessinés pour rester nets à toute taille. */
@@ -2903,7 +2977,6 @@
         '</button>' +
 
         '<button class="btn ghost" id="see-rank">Voir le classement</button>' +
-        '<div class="hint center">version ' + esc(BUILD.version) + '</div>' +
       '</div>';
     document.getElementById('info').onclick = openRules;
     document.getElementById('m-bac').onclick = function () { startMode('bac'); };
@@ -3177,30 +3250,11 @@
         '<button class="btn go" id="back">Retour</button>' +
       '</div>';
     document.getElementById('back').onclick = closeRules;
-    var ts = document.getElementById('testsend');
-    if (ts) ts.onclick = function () {
-      var out = document.getElementById('testout');
-      ts.disabled = true; out.textContent = 'envoi…';
-      S.testInsert().then(function (msg) { out.textContent = msg; ts.disabled = false; });
-    };
   }
 
-  /** État technique, en tout petit sous les règles : version, classement, stockage, envois. */
+  /** Numéro de version, discret, au bas des règles. */
   function healthLine() {
-    var h;
-    try { h = S.health(); } catch (e) { return '<div class="hint center">état indisponible</div>'; }
-    var bits = [
-      'version ' + BUILD.version,
-      'classement : ' + (h.configured ? 'en ligne (' + h.host + ', clé ' + h.keyKind + ')' : 'local'),
-      'stockage : ' + (h.storage ? 'ok' : 'BLOQUÉ'),
-      'scores locaux : ' + h.local,
-      'records : ' + h.best,
-      'en attente : ' + h.queued
-    ];
-    return '<div class="hint center" style="margin-top:12px">' + esc(bits.join(' · ')) + '</div>' +
-      (h.lastError ? '<div class="oops">' + esc(h.lastError) + '</div>' : '') +
-      (h.configured ? '<button class="chip" id="testsend" style="display:block;margin:8px auto 0">' +
-        'Tester l\'envoi</button><div id="testout" class="hint center"></div>' : '');
+    return '<div class="hint center" style="margin-top:12px">version ' + esc(BUILD.version) + '</div>';
   }
 
   /** Rouleau de bois et papier enroulé, en haut et en bas du parchemin. */
@@ -3634,7 +3688,7 @@
         return;
       }
       startTimer(); render();
-    }, 1600);
+    }, 3000);
   }
 
   function onTimeout() {
@@ -3675,7 +3729,7 @@
         return;
       }
       startTimer(); render();
-    }, r.correct ? 1000 : 2200);
+    }, r.correct ? 1000 : 4200);          // deux secondes de plus pour lire la bonne réponse
   }
 
   /** Fin de partie : on enregistre le score, puis diplôme ou écran de fin. */

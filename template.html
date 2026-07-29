@@ -188,6 +188,13 @@
         background:#fff4f5; color:#a3313c; font-size:12px; line-height:1.35; word-break:break-word}
   .oops .chip{display:block; margin:8px auto 0}
 
+  .accs{margin-top:14px; border-top:2px dashed var(--pale); padding-top:10px}
+  .acc{display:flex; width:100%; align-items:center; justify-content:space-between; margin-top:6px;
+       padding:8px 12px; border:2px solid var(--ink); border-radius:12px; background:#fff;
+       box-shadow:2px 2px 0 var(--ink); font-weight:800; font-size:14px}
+  .acc:active{transform:translate(2px,2px); box-shadow:0 0 0 var(--ink)}
+  .acc .num{color:var(--muted); font-weight:700}
+
   /* bouton « i » et page des règles */
   .info{position:absolute; right:12px; top:12px; width:34px; height:34px; padding:0;
         display:flex; align-items:center; justify-content:center; color:var(--ink); opacity:.75}
@@ -611,7 +618,6 @@
           '<button class="btn go" id="start">Commencer</button>' +
           (slotLabel() ? '<button class="btn resume" id="resume">Reprendre<br><small style="font-weight:600">' +
             slotLabel() + '</small></button>' : '') +
-          '<div class="hint" style="margin-top:10px">version ' + esc(BUILD.version) + ' · ' + esc(BUILD.date) + '</div>' +
         '</div>' +
       '</div>';
     document.getElementById('info').onclick = openRules;
@@ -671,6 +677,7 @@
         '<input type="text" id="pseudo" maxlength="14" placeholder="3 à 14 caractères" value="' + esc(S.getPseudo()) + '">' +
         '<div class="hint center" id="perr"></div>' +
         '<button class="btn go" id="pok">Valider</button>' +
+        accountList() +
       '</div></div>';
     var input = document.getElementById('pseudo');
     if (!('ontouchstart' in window)) input.focus();
@@ -683,8 +690,23 @@
       close();
     }
     document.getElementById('pok').onclick = submit;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-acc]'), function (b) {
+      b.onclick = function () { S.setPseudo(b.getAttribute('data-acc')); close(); };
+    });
     document.getElementById('px').onclick = close;
     input.onkeydown = function (e) { if (e.key === 'Enter') submit(); };
+  }
+
+  /** Comptes déjà utilisés sur ce téléphone : un appui suffit pour reprendre le sien. */
+  function accountList() {
+    var here = S.getPseudo().toLowerCase();
+    var list = S.accounts().filter(function (a) { return a.pseudo.toLowerCase() !== here; });
+    if (!list.length) return '';
+    return '<div class="accs"><div class="hint center">Déjà joué sur ce téléphone</div>' +
+      list.slice(0, 6).map(function (a) {
+        return '<button class="acc" data-acc="' + esc(a.pseudo) + '">' + esc(a.pseudo) +
+          '<span class="num">#' + esc(a.tag) + '</span></button>';
+      }).join('') + '</div>';
   }
 
   /** Chapeau de diplômé et feuille, dessinés pour rester nets à toute taille. */
@@ -737,7 +759,6 @@
         '</button>' +
 
         '<button class="btn ghost" id="see-rank">Voir le classement</button>' +
-        '<div class="hint center">version ' + esc(BUILD.version) + '</div>' +
       '</div>';
     document.getElementById('info').onclick = openRules;
     document.getElementById('m-bac').onclick = function () { startMode('bac'); };
@@ -1011,30 +1032,11 @@
         '<button class="btn go" id="back">Retour</button>' +
       '</div>';
     document.getElementById('back').onclick = closeRules;
-    var ts = document.getElementById('testsend');
-    if (ts) ts.onclick = function () {
-      var out = document.getElementById('testout');
-      ts.disabled = true; out.textContent = 'envoi…';
-      S.testInsert().then(function (msg) { out.textContent = msg; ts.disabled = false; });
-    };
   }
 
-  /** État technique, en tout petit sous les règles : version, classement, stockage, envois. */
+  /** Numéro de version, discret, au bas des règles. */
   function healthLine() {
-    var h;
-    try { h = S.health(); } catch (e) { return '<div class="hint center">état indisponible</div>'; }
-    var bits = [
-      'version ' + BUILD.version,
-      'classement : ' + (h.configured ? 'en ligne (' + h.host + ', clé ' + h.keyKind + ')' : 'local'),
-      'stockage : ' + (h.storage ? 'ok' : 'BLOQUÉ'),
-      'scores locaux : ' + h.local,
-      'records : ' + h.best,
-      'en attente : ' + h.queued
-    ];
-    return '<div class="hint center" style="margin-top:12px">' + esc(bits.join(' · ')) + '</div>' +
-      (h.lastError ? '<div class="oops">' + esc(h.lastError) + '</div>' : '') +
-      (h.configured ? '<button class="chip" id="testsend" style="display:block;margin:8px auto 0">' +
-        'Tester l\'envoi</button><div id="testout" class="hint center"></div>' : '');
+    return '<div class="hint center" style="margin-top:12px">version ' + esc(BUILD.version) + '</div>';
   }
 
   /** Rouleau de bois et papier enroulé, en haut et en bas du parchemin. */
@@ -1468,7 +1470,7 @@
         return;
       }
       startTimer(); render();
-    }, 1600);
+    }, 3000);
   }
 
   function onTimeout() {
@@ -1509,7 +1511,7 @@
         return;
       }
       startTimer(); render();
-    }, r.correct ? 1000 : 2200);
+    }, r.correct ? 1000 : 4200);          // deux secondes de plus pour lire la bonne réponse
   }
 
   /** Fin de partie : on enregistre le score, puis diplôme ou écran de fin. */

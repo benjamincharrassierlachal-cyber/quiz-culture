@@ -13,7 +13,7 @@ quiz-culture/
 ├── SUPABASE.md                    ← activer le classement en ligne, pas à pas
 ├── template.html                  ← interface (à éditer, puis `node build.js`)
 ├── build.js                       ← assemble prototype.html + web/
-├── tests.js                       ← 157 tests du moteur et des deux banques
+├── tests.js                       ← 166 tests du moteur et des deux banques
 ├── tools/
 │   ├── audit.js                   ← audit du contenu + 400 parties BAC et 200 détente simulées
 │   ├── uitest.js                  ← déroule les deux modes dans un faux DOM (11 scénarios)
@@ -64,7 +64,7 @@ personne.
 ## Modifier
 
 ```bash
-node tests.js            # règles + banques (157 tests)
+node tests.js            # règles + banques (166 tests)
 node tools/audit.js      # audit du contenu + 400 parties simulées
 node tools/uitest.js     # parcours complet de l'interface, sans navigateur
 node build.js            # régénère prototype.html et web/

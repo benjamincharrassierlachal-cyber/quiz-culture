@@ -336,6 +336,39 @@ eq(rows[0].score, 25, 'le meilleur score reste premier');
 eq(rows[1].seconds, 120, 'à score égal, le plus rapide passe devant');
 eq(rows[3].seconds, undefined, 'un temps inconnu part en dernier');
 
+// ---------------------------------------------------------------- numéro de joueur
+section('Numéro de joueur : un par pseudo, conservé');
+(function () {
+  var store = {};
+  global.localStorage = {
+    getItem: function (k) { return k in store ? store[k] : null; },
+    setItem: function (k, v) { store[k] = String(v); },
+    removeItem: function (k) { delete store[k]; }
+  };
+  global.window = global.window || { LEADERBOARD: {} };
+  global.self = global.self || {};
+  delete require.cache[require.resolve('./scores.js')];
+  var SC = require('./scores.js');
+
+  SC.setPseudo('Benji');
+  var benji = SC.getTag();
+  ok(/^\d{5}$/.test(benji), 'le numéro fait 5 chiffres (' + benji + ')');
+  SC.setPseudo('Dédé');
+  var dede = SC.getTag();
+  ok(dede !== benji, 'un second joueur sur le même appareil reçoit un autre numéro');
+  SC.setPseudo('Benji');
+  eq(SC.getTag(), benji, 'le premier joueur retrouve son numéro en revenant');
+  eq(SC.getTag('Dédé'), dede, 'et on peut lire le numéro d\'un autre pseudo');
+  eq(SC.getTag('BENJI'), benji, 'la casse du pseudo ne crée pas un second numéro');
+  eq(SC.displayName(), 'Benji #' + benji, 'nom affiché : pseudo + numéro');
+
+  var accs = SC.accounts();
+  eq(accs.length, 2, 'les deux comptes de l\'appareil sont mémorisés');
+  eq(accs[0].pseudo, 'Benji', 'le plus récemment utilisé arrive en tête');
+  eq(accs.filter(function (a) { return a.pseudo === 'Dédé'; })[0].tag, dede,
+    'chaque compte garde son numéro dans la liste');
+})();
+
 // ---------------------------------------------------------------- banques
 section('Banques de questions');
 [{ b: bank, n: 'BAC' }, { b: relax, n: 'détente' }].forEach(function (set) {

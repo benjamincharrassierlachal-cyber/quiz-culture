@@ -250,6 +250,26 @@ au même pseudo. Le pseudo s'affiche en haut du menu, dans une barre cliquable p
   jouées hors ligne sont mises en file et envoyées au retour du réseau.
 - Le classement est filtrable par mode. Le score du joueur est surligné.
 
+### Numéro de joueur
+
+Le numéro à 5 chiffres est attaché **au pseudo**, pas à l'appareil : `quizculture.tags` conserve un
+couple pseudo → numéro. Deux joueurs qui alternent sur le même téléphone gardent chacun le leur, et
+revenir à un pseudo déjà utilisé redonne le même numéro. Le premier pseudo créé hérite du numéro
+déjà affiché, pour ne pas changer d'identité en cours de route ; un joueur sans pseudo utilise le
+numéro de l'appareil.
+
+La fenêtre du pseudo liste aussi les **comptes déjà utilisés sur l'appareil** (pseudo + numéro, du
+plus récent au plus ancien) : un appui suffit pour reprendre le sien. Personne ne perd son numéro
+parce qu'un autre joueur est passé après lui.
+
+Limite connue : tout cela est **local**. Le même pseudo sur un autre téléphone recevra un autre
+numéro, et rien n'empêche deux appareils de tomber sur le même couple. Pour une identité portable,
+le numéro sera attribué par Supabase et **partiellement masqué dans le classement**
+(`Benji #1**5*`) : il identifie en public et sert de preuve en privé, sans code supplémentaire à
+retenir. La récupération sur un autre appareil demandera pseudo + numéro complet, avec un nombre
+d'essais limité côté serveur (10 échecs, puis une heure d'attente) pour empêcher de deviner les
+chiffres masqués. Un ajout, pas une refonte.
+
 ## 6. Monétisation
 
 App payante à l'achat (pas d'abonnement, pas de pub — cohérent avec un public familial et
@@ -359,8 +379,8 @@ le **bouton « i »** qui ouvre la page **Les règles** (parchemin, sceau de cir
 tous les écrans. Ouverte pendant une question, elle met le chrono en attente et le reprend au retour.
 Le contexte audio n'est créé qu'au premier geste du joueur, comme l'exigent les navigateurs et iOS.
 
-Délais d'enchaînement : **1 s** après une bonne réponse, **2,2 s** après une erreur (le temps de
-lire la bonne réponse). Pendant ce retour, l'écran affiche l'énoncé de la **question à laquelle le
+Délais d'enchaînement : **1 s** après une bonne réponse, **4,2 s** après une erreur — deux secondes
+de plus qu'au départ, les testeurs n'avaient pas le temps de lire la bonne réponse. Pendant ce retour, l'écran affiche l'énoncé de la **question à laquelle le
 joueur vient de répondre**, pas celle que le moteur a déjà tirée : sans cette précaution, la
 question suivante apparaissait le temps d'un éclair au moment de valider.
 
