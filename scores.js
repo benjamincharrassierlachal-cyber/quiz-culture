@@ -17,6 +17,7 @@
   var K_BEST = 'quizculture.best';       // meilleur score par mode
   var K_SLOT = 'quizculture.save';       // partie en cours, pour reprendre plus tard
   var K_LEVEL = 'quizculture.lastLevel'; // dernière classe atteinte, pour filtrer le classement
+  var K_ERR = 'quizculture.lastError';   // dernier refus du serveur, affiché dans le classement
 
   function conf() {
     var c = (typeof window !== 'undefined' && window.LEADERBOARD) || {};
@@ -106,25 +107,51 @@
     write(K_LOCAL, all.slice(0, 200));
   }
 
+  // ------------------------------------------------------------------ diagnostic
+  /** Mémorise le dernier refus du serveur : sans cela, un envoi raté est silencieux. */
+  function noteError(msg) {
+    try { localStorage.setItem(K_ERR, JSON.stringify({ msg: String(msg).slice(0, 220), at: Date.now() })); }
+    catch (e) { /* ignore */ }
+  }
+  function clearError() { try { localStorage.removeItem(K_ERR); } catch (e) { /* ignore */ } }
+  function lastError() { return read(K_ERR, null); }
+
   // ------------------------------------------------------------------ envoi en ligne
+  /** En-têtes d'appel. La clé « anon » historique est un JWT (eyJ…) et sert aussi de jeton ;
+   *  les nouvelles clés « publishable » (sb_publishable_…) n'en sont pas et ne doivent pas
+   *  partir en Authorization, sous peine d'être rejetées comme jeton invalide. */
+  function heads(c, extra) {
+    var h = { 'apikey': c.anonKey };
+    if (/^eyJ/.test(c.anonKey)) h['Authorization'] = 'Bearer ' + c.anonKey;
+    for (var k in extra) if (extra.hasOwnProperty(k)) h[k] = extra[k];
+    return h;
+  }
+
   function post(entry) {
     var c = conf();
     if (!c) return Promise.reject(new Error('non configuré'));
     return fetch(c.url.replace(/\/$/, '') + '/rest/v1/scores', {
       method: 'POST',
-      headers: {
-        'apikey': c.anonKey,
-        'Authorization': 'Bearer ' + c.anonKey,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
-      },
+      headers: heads(c, { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
       body: JSON.stringify({
         pseudo: entry.pseudo, tag: entry.tag, score: entry.score,
         mode: entry.mode, level: entry.level || null, seconds: entry.seconds || null
       })
     }).then(function (r) {
-      if (!r.ok) throw new Error('HTTP ' + r.status);
+      if (!r.ok) {
+        return r.text().then(function (t) {
+          noteError('envoi refusé — HTTP ' + r.status + (t ? ' · ' + t.replace(/\s+/g, ' ') : ''));
+          throw new Error('HTTP ' + r.status);
+        }, function () {
+          noteError('envoi refusé — HTTP ' + r.status);
+          throw new Error('HTTP ' + r.status);
+        });
+      }
+      clearError();
       return true;
+    }, function (e) {
+      noteError('envoi impossible — ' + (e && e.message ? e.message : 'réseau'));
+      throw e;
     });
   }
 
@@ -178,8 +205,16 @@
     var url = c.url.replace(/\/$/, '') + '/rest/v1/scores?select=pseudo,tag,score,mode,level,seconds,created_at' +
       '&mode=eq.' + encodeURIComponent(mode || 'bac') +
       '&order=score.desc,seconds.asc.nullslast&limit=' + limit;
-    return fetch(url, { headers: { 'apikey': c.anonKey, 'Authorization': 'Bearer ' + c.anonKey } })
-      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    return fetch(url, { headers: heads(c) })
+      .then(function (r) {
+        if (!r.ok) {
+          return r.text().then(function (t) {
+            noteError('lecture refusée — HTTP ' + r.status + (t ? ' · ' + t.replace(/\s+/g, ' ') : ''));
+            throw new Error('HTTP ' + r.status);
+          });
+        }
+        return r.json();
+      })
       .then(function (rows) { return { source: 'online', rows: rows }; })
       .catch(function () { return { source: 'local', rows: localScores(mode).slice(0, limit) }; });
   }
@@ -198,6 +233,8 @@
     hasSlot: hasSlot,
     lastLevel: lastLevel,
     byScoreThenTime: byScoreThenTime,
+    lastError: lastError,
+    clearError: clearError,
     best: best,
     localScores: localScores,
     submit: submit,
