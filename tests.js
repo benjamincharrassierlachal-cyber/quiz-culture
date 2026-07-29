@@ -13,7 +13,7 @@ var E = require('./engine.js');
 var bank = require('./data/questions.json');
 var relax = require('./data/detente.json');
 
-var pass = 0, fail = 0;
+var pass = 0, fail = 0, differed = false;
 function ok(cond, name, extra) {
   if (cond) { pass++; console.log('  ok   ' + name); }
   else { fail++; console.log('  FAIL ' + name + (extra ? '  → ' + extra : '')); }
@@ -369,6 +369,61 @@ section('Numéro de joueur : un par pseudo, conservé');
     'chaque compte garde son numéro dans la liste');
 })();
 
+// ---------------------------------------------------------------- identité en ligne
+section('Numéro officialisé par le serveur');
+(function () {
+  var store = {}, calls = [];
+  global.localStorage = {
+    getItem: function (k) { return k in store ? store[k] : null; },
+    setItem: function (k, v) { store[k] = String(v); },
+    removeItem: function (k) { delete store[k]; }
+  };
+  global.window = { LEADERBOARD: { url: 'https://p.supabase.co', anonKey: 'eyJfake' } };
+  global.navigator = { onLine: true };
+  var reply = { ok: true, status: 200, body: '"482913"' };
+  global.fetch = function (url, opt) {
+    calls.push({ url: url, body: JSON.parse(opt.body) });
+    return Promise.resolve({
+      ok: reply.ok, status: reply.status,
+      text: function () { return Promise.resolve(reply.body); }
+    });
+  };
+  delete require.cache[require.resolve('./scores.js')];
+  var SC = require('./scores.js');
+
+  eq(SC.maskTag('482913'), '48***3', 'numéro masqué : deux chiffres, puis le dernier');
+  eq(SC.maskTag('10256'), '10**6', 'un ancien numéro à 5 chiffres est masqué aussi');
+
+  SC.setPseudo('Benji');
+  var local = SC.getTag();
+  SC.registerTag('Benji').then(function (tag) {
+    eq(tag, '482913', 'le serveur renvoie le numéro officiel');
+    eq(SC.getTag(), '482913', 'et il remplace le numéro local');
+    eq(calls[0].body.p_wanted, local, 'le numéro déjà utilisé est proposé au serveur');
+    ok(/rpc\/claim_pseudo$/.test(calls[0].url), 'appel de la fonction claim_pseudo');
+
+    // récupération sur un autre appareil
+    reply = { ok: true, status: 200, body: 'true' };
+    return SC.recoverAccount('Dédé', '123456');
+  }).then(function (res) {
+    eq(res.tag, '123456', 'compte retrouvé : le numéro saisi est adopté');
+    eq(SC.getPseudo(), 'Dédé', 'et le pseudo suit');
+    reply = { ok: true, status: 200, body: 'false' };
+    return SC.recoverAccount('Dédé', '999999').then(function () { return 'accepté'; },
+                                                    function (e) { return e.message; });
+  }).then(function (msg) {
+    ok(/ne vont pas ensemble/.test(msg), 'un mauvais couple pseudo/numéro est refusé');
+    reply = { ok: false, status: 400, body: '{"message":"trop d essais"}' };
+    return SC.recoverAccount('Dédé', '123456').then(function () { return 'accepté'; },
+                                                    function (e) { return e.message; });
+  }).then(function (msg) {
+    ok(/trop d/.test(msg), 'le bridage du serveur remonte jusqu\'au joueur');
+    console.log('\n' + pass + ' tests OK, ' + fail + ' échec(s)');
+    process.exit(fail ? 1 : 0);
+  });
+  differed = true;
+})();
+
 // ---------------------------------------------------------------- banques
 section('Banques de questions');
 [{ b: bank, n: 'BAC' }, { b: relax, n: 'détente' }].forEach(function (set) {
@@ -398,5 +453,7 @@ ok(relax.questions.length >= 150, 'au moins 150 questions en détente (' + relax
   ok(n >= 50, 'au moins 50 questions de difficulté ' + t + ' en détente (' + n + ')');
 });
 
-console.log('\n' + pass + ' tests OK, ' + fail + ' échec(s)');
-process.exit(fail ? 1 : 0);
+if (!differed) {
+  console.log('\n' + pass + ' tests OK, ' + fail + ' échec(s)');
+  process.exit(fail ? 1 : 0);
+}

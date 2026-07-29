@@ -55,6 +55,84 @@ Si tu avais créé la table avant l'ajout du temps de jeu, une seule ligne suffi
 alter table public.scores add column if not exists seconds int check (seconds >= 0);
 ```
 
+## 2 bis. Les numéros de joueur (identité)
+
+Second bloc à coller dans le **SQL Editor**, puis **Run**. Il crée la table des joueurs, la
+fonction qui attribue un numéro unique, celle qui permet de récupérer son compte sur un autre
+appareil, et il élargit la colonne `tag` aux numéros à 6 chiffres.
+
+```sql
+-- les numéros passent à 6 chiffres (les anciens à 5 restent valides)
+alter table public.scores drop constraint if exists scores_tag_check;
+alter table public.scores add constraint scores_tag_check check (tag ~ '^[0-9]{5,6}$');
+
+create table if not exists public.players (
+  tag        text primary key check (tag ~ '^[0-9]{5,6}$'),
+  pseudo     text not null check (char_length(pseudo) between 3 and 14),
+  created_at timestamptz not null default now()
+);
+create index if not exists players_pseudo on public.players (lower(pseudo));
+
+create table if not exists public.recover_attempts (
+  id     bigint generated always as identity primary key,
+  pseudo text not null,
+  ok     boolean not null,
+  at     timestamptz not null default now()
+);
+
+-- aucune policy : personne ne lit ces tables directement, seules les deux fonctions y touchent
+alter table public.players enable row level security;
+alter table public.recover_attempts enable row level security;
+
+-- attribue (ou confirme) le numéro d'un joueur
+create or replace function public.claim_pseudo(p_pseudo text, p_wanted text default null)
+returns text language plpgsql security definer set search_path = public as $$
+declare v_tag text; i int := 0;
+begin
+  if char_length(p_pseudo) < 3 or char_length(p_pseudo) > 14 then
+    raise exception 'pseudo invalide';
+  end if;
+  if p_wanted is not null and p_wanted ~ '^[0-9]{5,6}$'
+     and not exists (select 1 from players where tag = p_wanted) then
+    insert into players (tag, pseudo) values (p_wanted, p_pseudo);
+    return p_wanted;
+  end if;
+  loop
+    i := i + 1;
+    v_tag := lpad((floor(random() * 1000000))::int::text, 6, '0');
+    exit when not exists (select 1 from players where tag = v_tag) or i > 50;
+  end loop;
+  insert into players (tag, pseudo) values (v_tag, p_pseudo);
+  return v_tag;
+end; $$;
+
+-- retrouve un compte : pseudo + numéro complet, 10 essais ratés par heure au maximum
+create or replace function public.recover_player(p_pseudo text, p_tag text)
+returns boolean language plpgsql security definer set search_path = public as $$
+declare v_fail int; v_ok boolean;
+begin
+  select count(*) into v_fail from recover_attempts
+   where lower(pseudo) = lower(p_pseudo) and not ok and at > now() - interval '1 hour';
+  if v_fail >= 10 then raise exception 'trop d essais'; end if;
+  select exists (select 1 from players
+                  where tag = p_tag and lower(pseudo) = lower(p_pseudo)) into v_ok;
+  insert into recover_attempts (pseudo, ok) values (p_pseudo, v_ok);
+  return v_ok;
+end; $$;
+
+revoke all on function public.claim_pseudo(text, text) from public;
+revoke all on function public.recover_player(text, text) from public;
+grant execute on function public.claim_pseudo(text, text) to anon;
+grant execute on function public.recover_player(text, text) to anon;
+```
+
+Comment ça se comporte côté joueur : à la validation du pseudo, le jeu demande un numéro au
+serveur en proposant celui déjà utilisé sur l'appareil — les identités existantes sont donc
+conservées. Le classement n'affiche qu'une partie du numéro (`Benji #48***3`) ; le joueur voit le
+sien en entier dans la fenêtre du pseudo, avec l'invitation à le noter. Sur un autre téléphone,
+« J'ai déjà un compte » demande pseudo + numéro complet. Sans réseau, le jeu attribue un numéro
+local et le fait officialiser à la première occasion.
+
 ## 3. Récupérer les deux informations
 
 Menu de gauche → **Project Settings** (l'engrenage) → **API** :

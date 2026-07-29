@@ -262,13 +262,17 @@ La fenêtre du pseudo liste aussi les **comptes déjà utilisés sur l'appareil*
 plus récent au plus ancien) : un appui suffit pour reprendre le sien. Personne ne perd son numéro
 parce qu'un autre joueur est passé après lui.
 
-Limite connue : tout cela est **local**. Le même pseudo sur un autre téléphone recevra un autre
-numéro, et rien n'empêche deux appareils de tomber sur le même couple. Pour une identité portable,
-le numéro sera attribué par Supabase et **partiellement masqué dans le classement**
-(`Benji #1**5*`) : il identifie en public et sert de preuve en privé, sans code supplémentaire à
-retenir. La récupération sur un autre appareil demandera pseudo + numéro complet, avec un nombre
-d'essais limité côté serveur (10 échecs, puis une heure d'attente) pour empêcher de deviner les
-chiffres masqués. Un ajout, pas une refonte.
+Quand le classement en ligne est branché, le numéro est **attribué par Supabase** (table `players`,
+fonction `claim_pseudo`) et devient unique pour tout le monde. Il compte alors 6 chiffres, et le
+jeu propose au serveur le numéro déjà utilisé sur l'appareil : personne ne change d'identité au
+passage. Sans réseau, un numéro local est attribué puis officialisé à la première occasion.
+
+Le numéro sert à la fois d'identifiant public et de preuve, ce qui impose de ne jamais l'afficher
+en entier ailleurs que chez son propriétaire : le classement et la barre du menu montrent
+`Benji #48***3`, la fenêtre du pseudo l'affiche en clair avec l'invitation à le noter. Pour
+récupérer son compte sur un autre appareil, « J'ai déjà un compte » demande pseudo + numéro
+complet ; `recover_player` refuse au-delà de **10 essais ratés par heure**, ce qui rend le fait de
+deviner les trois chiffres masqués sans intérêt. Aucun code supplémentaire à retenir.
 
 ## 6. Monétisation
 

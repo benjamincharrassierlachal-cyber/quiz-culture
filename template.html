@@ -669,32 +669,90 @@
 
   /** Pop-up de pseudo : on peut valider ou fermer par la croix. */
   function askPseudo(done) {
-    fx.innerHTML =
-      '<div class="modal"><div class="modal-card">' +
-        '<button class="close-x" id="px">✕</button>' +
-        '<h2 class="center" style="margin:0 0 4px">Choisis ton pseudo</h2>' +
-        '<div class="hint center" style="margin:0 0 12px">Ton numéro de joueur : <b>#' + esc(S.getTag()) + '</b></div>' +
-        '<input type="text" id="pseudo" maxlength="14" placeholder="3 à 14 caractères" value="' + esc(S.getPseudo()) + '">' +
+    var recovering = false;
+
+    function draw() {
+      var known = S.getPseudo();
+      fx.innerHTML =
+        '<div class="modal"><div class="modal-card">' +
+          '<button class="close-x" id="px">✕</button>' +
+          (recovering ? recoverForm() : createForm(known)) +
+        '</div></div>';
+      wire();
+    }
+
+    function createForm(known) {
+      return '<h2 class="center" style="margin:0 0 4px">Choisis ton pseudo</h2>' +
+        '<div class="hint center" style="margin:0 0 12px">Ton numéro de joueur : <b id="mytag">#' +
+          esc(S.getTag()) + '</b><br>Note-le : avec ton pseudo, il te permet de retrouver ' +
+          'ton compte sur un autre téléphone.</div>' +
+        '<input type="text" id="pseudo" maxlength="14" placeholder="3 à 14 caractères" value="' + esc(known) + '">' +
         '<div class="hint center" id="perr"></div>' +
         '<button class="btn go" id="pok">Valider</button>' +
         accountList() +
-      '</div></div>';
-    var input = document.getElementById('pseudo');
-    if (!('ontouchstart' in window)) input.focus();
+        '<button class="btn ghost" id="prec" style="margin-top:10px">J\'ai déjà un compte</button>';
+    }
+
+    function recoverForm() {
+      return '<h2 class="center" style="margin:0 0 4px">Retrouver mon compte</h2>' +
+        '<div class="hint center" style="margin:0 0 12px">Saisis ton pseudo et ton numéro complet, ' +
+        'celui que tu as noté. Le classement n\'en montre qu\'une partie.</div>' +
+        '<input type="text" id="rpseudo" maxlength="14" placeholder="Ton pseudo">' +
+        '<input type="text" id="rtag" maxlength="6" inputmode="numeric" placeholder="Ton numéro (5 ou 6 chiffres)" style="margin-top:8px">' +
+        '<div class="hint center" id="rerr"></div>' +
+        '<button class="btn go" id="rok">Retrouver</button>' +
+        '<button class="btn ghost" id="rback" style="margin-top:10px">Retour</button>';
+    }
+
     function close() { fx.innerHTML = ''; if (done) done(); }
+
     function submit() {
+      var input = document.getElementById('pseudo');
       if (!S.setPseudo(input.value)) {
         document.getElementById('perr').textContent = 'Au moins 3 caractères.';
         return;
       }
+      var who = S.getPseudo();
+      S.registerTag(who).then(function () { if (view === 'modes') render(); });   // numéro officialisé en tâche de fond
       close();
     }
-    document.getElementById('pok').onclick = submit;
-    Array.prototype.forEach.call(document.querySelectorAll('[data-acc]'), function (b) {
-      b.onclick = function () { S.setPseudo(b.getAttribute('data-acc')); close(); };
-    });
-    document.getElementById('px').onclick = close;
-    input.onkeydown = function (e) { if (e.key === 'Enter') submit(); };
+
+    function recover() {
+      var rp = document.getElementById('rpseudo').value;
+      var rt = document.getElementById('rtag').value;
+      var err = document.getElementById('rerr');
+      var btn = document.getElementById('rok');
+      err.textContent = ''; btn.disabled = true; btn.textContent = 'Vérification…';
+      S.recoverAccount(rp, rt).then(function () {
+        close();
+        if (view === 'modes') render();
+      }, function (e) {
+        btn.disabled = false; btn.textContent = 'Retrouver';
+        var m = String((e && e.message) || 'Échec');
+        err.textContent = /trop d/i.test(m) ? 'Trop d\'essais : réessaie dans une heure.'
+          : (/local/i.test(m) ? 'Classement hors ligne : impossible pour l\'instant.' : m);
+      });
+    }
+
+    function wire() {
+      document.getElementById('px').onclick = close;
+      if (recovering) {
+        document.getElementById('rok').onclick = recover;
+        document.getElementById('rback').onclick = function () { recovering = false; draw(); };
+        document.getElementById('rtag').onkeydown = function (e) { if (e.key === 'Enter') recover(); };
+        return;
+      }
+      var input = document.getElementById('pseudo');
+      if (!('ontouchstart' in window)) input.focus();
+      document.getElementById('pok').onclick = submit;
+      document.getElementById('prec').onclick = function () { recovering = true; draw(); };
+      input.onkeydown = function (e) { if (e.key === 'Enter') submit(); };
+      Array.prototype.forEach.call(document.querySelectorAll('[data-acc]'), function (b) {
+        b.onclick = function () { S.setPseudo(b.getAttribute('data-acc')); close(); };
+      });
+    }
+
+    draw();
   }
 
   /** Comptes déjà utilisés sur ce téléphone : un appui suffit pour reprendre le sien. */
@@ -732,7 +790,7 @@
         '<button class="player" id="edit-pseudo">' +
           '<span class="avatar"><svg width="26" height="30" viewBox="0 0 12 16">' + sprite(1, 0) + '</svg></span>' +
           '<span class="who">' +
-            '<span class="name">' + (p ? esc(p) + ' <span class="num">#' + esc(tag) + '</span>' : 'Choisis ton pseudo') + '</span>' +
+            '<span class="name">' + (p ? esc(p) + ' <span class="num">#' + esc(S.maskTag(tag)) + '</span>' : 'Choisis ton pseudo') + '</span>' +
             (p ? '' : '<span class="edit">Pour apparaître au classement</span>') +
           '</span>' +
           '<span class="pencil">✏️</span>' +
@@ -1257,7 +1315,8 @@
     var mine = r.pseudo === me && (!r.tag || r.tag === myTag);
     var medal = i === 0 ? '🥇 ' : (i === 1 ? '🥈 ' : (i === 2 ? '🥉 ' : ''));
     return '<tr' + (mine ? ' class="me"' : '') + '><td class="n">' + medal + (i + 1) + '</td>' +
-      '<td>' + esc(r.pseudo) + ' <span class="muted" style="font-weight:700">#' + esc(r.tag || '?????') + '</span>' +
+      '<td>' + esc(r.pseudo) + ' <span class="muted" style="font-weight:700">#' +
+        esc(r.tag ? S.maskTag(r.tag) : '?????') + '</span>' +
       (r.seconds ? '<br><span class="muted" style="font-size:12px">⏱ ' + clock(r.seconds) + '</span>' : '') + '</td>' +
       '<td class="s">' + r.score + '</td></tr>';
   }

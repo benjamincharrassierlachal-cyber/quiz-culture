@@ -57,7 +57,7 @@
   }
 
   function readDeviceTag() {
-    try { var t = localStorage.getItem(K_TAG); return (t && /^\d{5}$/.test(t)) ? t : null; }
+    try { var t = localStorage.getItem(K_TAG); return (t && /^\d{5,6}$/.test(t)) ? t : null; }
     catch (e) { return null; }
   }
   /** Numéro de l'appareil : sert au joueur qui n'a pas choisi de pseudo. */
@@ -83,7 +83,7 @@
     if (!key) return deviceTag();                  // pas de pseudo : numéro de l'appareil
     var map = tagsMap();
     var known = tagOf(map[key]);
-    if (known && /^\d{5}$/.test(known)) return known;
+    if (known && /^\d{5,6}$/.test(known)) return known;
 
     var used = Object.keys(map).map(function (k) { return tagOf(map[k]); });
     var t = null;
@@ -93,6 +93,69 @@
     map[key] = { tag: t, name: cleanPseudo(pseudo === undefined || pseudo === null ? getPseudo() : pseudo), at: Date.now() };
     write(K_TAGS, map);
     return t;
+  }
+
+  /** Numéro masqué pour l'affichage public : « 482913 » → « 48***3 ».
+   *  Le numéro sert aussi de preuve pour récupérer son compte : il ne doit pas se lire
+   *  en entier dans le classement. Le joueur voit le sien en clair dans la fenêtre du pseudo. */
+  function maskTag(t) {
+    t = String(t || '');
+    if (t.length < 4) return t;
+    return t.slice(0, 2) + new Array(t.length - 2).join('*') + t.slice(-1);
+  }
+
+  /** Appel d'une fonction Supabase (RPC). Renvoie le message du serveur en cas de refus. */
+  function rpc(name, args) {
+    var c = conf();
+    if (!c) return Promise.reject(new Error('classement local'));
+    return fetch(c.url.replace(/\/$/, '') + '/rest/v1/rpc/' + name, {
+      method: 'POST',
+      cache: 'no-store',
+      headers: heads(c, { 'Content-Type': 'application/json' }),
+      body: JSON.stringify(args || {})
+    }).then(function (r) {
+      return r.text().then(function (t) {
+        var data = null;
+        try { data = t ? JSON.parse(t) : null; } catch (e) { data = t; }
+        if (!r.ok) throw new Error((data && data.message) || ('HTTP ' + r.status));
+        return data;
+      });
+    });
+  }
+
+  /** Fait officialiser le numéro par le serveur : il devient unique pour tout le monde.
+   *  Le numéro déjà utilisé sur l'appareil est proposé en premier, pour ne pas changer
+   *  d'identité en route. Hors ligne, on garde le numéro local et on réessaiera. */
+  function registerTag(pseudo) {
+    var name = cleanPseudo(pseudo || getPseudo());
+    var key = tagKey(name);
+    if (!key) return Promise.resolve(null);
+    var cur = entryOf(tagsMap()[key]);
+    if (!conf() || !online() || cur.ok) return Promise.resolve(cur.tag || getTag(name));
+    var wanted = cur.tag || getTag(name);
+    return rpc('claim_pseudo', { p_pseudo: name, p_wanted: wanted }).then(function (tag) {
+      if (!tag) return wanted;
+      var map = tagsMap(), e = entryOf(map[key]);
+      map[key] = { tag: String(tag), name: name, at: e.at || Date.now(), ok: true };
+      write(K_TAGS, map);
+      return String(tag);
+    }, function () { return wanted; });      // serveur injoignable : le numéro local fait l'affaire
+  }
+
+  /** Récupération d'un compte sur un autre appareil : pseudo + numéro complet.
+   *  Le serveur limite les essais, pour qu'on ne devine pas les chiffres masqués. */
+  function recoverAccount(pseudo, tag) {
+    var name = cleanPseudo(pseudo), num = String(tag || '').replace(/\D/g, '');
+    if (!pseudoValid(name)) return Promise.reject(new Error('Pseudo trop court.'));
+    if (!/^[0-9]{5,6}$/.test(num)) return Promise.reject(new Error('Numéro à 5 ou 6 chiffres.'));
+    return rpc('recover_player', { p_pseudo: name, p_tag: num }).then(function (found) {
+      if (found !== true) throw new Error('Ce pseudo et ce numéro ne vont pas ensemble.');
+      try { localStorage.setItem(K_PSEUDO, name); } catch (e) { /* ignore */ }
+      var map = tagsMap();
+      map[tagKey(name)] = { tag: num, name: name, at: Date.now(), ok: true };
+      write(K_TAGS, map);
+      return { pseudo: name, tag: num };
+    });
   }
 
   /** Nom affiché : pseudo + numéro. */
@@ -328,7 +391,10 @@
     getPseudo: getPseudo,
     setPseudo: setPseudo,
     getTag: getTag,
+    maskTag: maskTag,
     accounts: accounts,
+    registerTag: registerTag,
+    recoverAccount: recoverAccount,
     displayName: displayName,
     saveSlot: saveSlot,
     loadSlot: loadSlot,
