@@ -1214,8 +1214,35 @@
       .catch(function () { return { source: 'local', rows: localScores(mode).slice(0, limit) }; });
   }
 
+  /** Le stockage local est-il réellement utilisable ? (navigation privée, quota, réglages) */
+  function storageOk() {
+    try {
+      localStorage.setItem('quizculture.test', '1');
+      var ok = localStorage.getItem('quizculture.test') === '1';
+      localStorage.removeItem('quizculture.test');
+      return ok;
+    } catch (e) { return false; }
+  }
+
+  /** État de santé, affiché en bas des règles : de quoi diagnostiquer sans brancher un câble. */
+  function health() {
+    var c = conf();
+    return {
+      configured: !!c,
+      host: c ? c.url.replace(/^https?:\/\//, '').split('.')[0] : null,
+      keyKind: c ? (/^eyJ/.test(c.anonKey) ? 'anon (JWT)' : (/^sb_/.test(c.anonKey) ? 'publishable' : 'inconnue')) : null,
+      storage: storageOk(),
+      local: localScores().length,
+      best: best('bac') + ' / ' + best('detente'),
+      queued: queued().length,
+      lastError: (lastError() || {}).msg || null
+    };
+  }
+
   return {
     configured: function () { return !!conf(); },
+    storageOk: storageOk,
+    health: health,
     cleanPseudo: cleanPseudo,
     pseudoValid: pseudoValid,
     getPseudo: getPseudo,
@@ -2384,7 +2411,7 @@
   "anonKey": ""
 }
 ;</script>
-<script>var BUILD = {"version":"bb1f0e6","date":"2026-07-29 09:45"};</script>
+<script>var BUILD = {"version":"5d63466","date":"2026-07-29 10:07"};</script>
 <script>
 (function () {
   'use strict';
@@ -3122,9 +3149,26 @@
           '<li><b>Passer</b> — on saute la question</li></ul>' +
           sealSvg() +
         '</div></div>' + rollSvg('bot') + '</div>' +
+        healthLine() +
         '<button class="btn go" id="back">Retour</button>' +
       '</div>';
     document.getElementById('back').onclick = closeRules;
+  }
+
+  /** État technique, en tout petit sous les règles : version, classement, stockage, envois. */
+  function healthLine() {
+    var h;
+    try { h = S.health(); } catch (e) { return '<div class="hint center">état indisponible</div>'; }
+    var bits = [
+      'version ' + BUILD.version,
+      'classement : ' + (h.configured ? 'en ligne (' + h.host + ', clé ' + h.keyKind + ')' : 'local'),
+      'stockage : ' + (h.storage ? 'ok' : 'BLOQUÉ'),
+      'scores locaux : ' + h.local,
+      'records : ' + h.best,
+      'en attente : ' + h.queued
+    ];
+    return '<div class="hint center" style="margin-top:12px">' + esc(bits.join(' · ')) + '</div>' +
+      (h.lastError ? '<div class="oops">' + esc(h.lastError) + '</div>' : '');
   }
 
   /** Rouleau de bois et papier enroulé, en haut et en bas du parchemin. */

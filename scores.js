@@ -219,8 +219,35 @@
       .catch(function () { return { source: 'local', rows: localScores(mode).slice(0, limit) }; });
   }
 
+  /** Le stockage local est-il réellement utilisable ? (navigation privée, quota, réglages) */
+  function storageOk() {
+    try {
+      localStorage.setItem('quizculture.test', '1');
+      var ok = localStorage.getItem('quizculture.test') === '1';
+      localStorage.removeItem('quizculture.test');
+      return ok;
+    } catch (e) { return false; }
+  }
+
+  /** État de santé, affiché en bas des règles : de quoi diagnostiquer sans brancher un câble. */
+  function health() {
+    var c = conf();
+    return {
+      configured: !!c,
+      host: c ? c.url.replace(/^https?:\/\//, '').split('.')[0] : null,
+      keyKind: c ? (/^eyJ/.test(c.anonKey) ? 'anon (JWT)' : (/^sb_/.test(c.anonKey) ? 'publishable' : 'inconnue')) : null,
+      storage: storageOk(),
+      local: localScores().length,
+      best: best('bac') + ' / ' + best('detente'),
+      queued: queued().length,
+      lastError: (lastError() || {}).msg || null
+    };
+  }
+
   return {
     configured: function () { return !!conf(); },
+    storageOk: storageOk,
+    health: health,
     cleanPseudo: cleanPseudo,
     pseudoValid: pseudoValid,
     getPseudo: getPseudo,
