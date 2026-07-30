@@ -32,7 +32,8 @@
     jokerCost: 6,             // chaque joker coûte 6 points
     jokersFromLevel: 5,       // disponibles à partir de la 6ème
     jokerHideCount: 3,        // « 40/60 » : trois mauvaises réponses barrées
-    resumeMinSeconds: 5       // à la reprise, on garde le temps restant, jamais moins de 5 s
+    resumeMinSeconds: 5,      // à la reprise, on garde le temps restant, jamais moins de 5 s
+    pausePenaltySeconds: 20   // chaque pause ajoute 20 s au temps de jeu (départage du classement)
   };
 
   // ---------------------------------------------------------------- normalisation
@@ -197,6 +198,7 @@
       timeLeft: cfg.timerSeconds,
       budget: cfg.timerSeconds,     // secondes accordées pour la question en cours
       spent: 0,                     // temps de jeu cumulé, hors pauses
+      pauses: 0,                    // nombre de pauses, chacune pénalisée au temps
       jokers: { fifty: true, swap: true, pass: true },
       hiddenWrong: [],              // mauvaises réponses barrées par le joker 40/60
       current: null,
@@ -488,6 +490,16 @@
     return res;
   }
 
+  /** Chaque pause coûte du temps de jeu : sans cela, on pourrait chercher la réponse ailleurs
+   *  et rester devant un joueur honnête au classement, puisque le chrono est arrêté. */
+  function penalizePause(state) {
+    if (!state || state.finished) return { ok: false };
+    var cost = state.config.pausePenaltySeconds;
+    state.spent = Math.round((state.spent || 0) + cost);
+    state.pauses = (state.pauses || 0) + 1;
+    return { ok: true, cost: cost, pauses: state.pauses, spent: state.spent };
+  }
+
   // ---------------------------------------------------------------- jokers
 
   /** Les jokers s'ouvrent à partir de la 6ème, en mode BAC uniquement. */
@@ -597,6 +609,8 @@
       lives: state.lives,
       perfectSoFar: state.classErrors === 0,
       spent: state.spent || 0,
+      pauses: state.pauses || 0,
+      pausePenalty: state.config.pausePenaltySeconds,
       jokers: state.jokers,
       jokersOpen: jokersAvailable(state),
       jokerCost: state.config.jokerCost,
@@ -621,6 +635,7 @@
       seen: (state.seen || []).slice(),
       freeWrongStreak: state.freeWrongStreak || 0,
       spent: state.spent || 0,
+      pauses: state.pauses || 0,
       jokers: state.jokers ? Object.assign({}, state.jokers) : null,
       timeLeft: Math.round(state.timeLeft),
       currentId: state.current ? state.current.id : null,
@@ -665,6 +680,7 @@
 
     state.score = data.score || 0;
     state.spent = data.spent || 0;
+    state.pauses = data.pauses || 0;
     if (data.jokers) state.jokers = Object.assign({}, data.jokers);
     state.seen = (data.seen || []).slice();
     state.freeWrongStreak = data.freeWrongStreak || 0;
@@ -709,6 +725,7 @@
     answerFree: answerFree,
     answerMC: answerMC,
     buyTime: buyTime,
+    penalizePause: penalizePause,
     useJoker: useJoker,
     canUseJoker: canUseJoker,
     timeout: timeout,

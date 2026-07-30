@@ -331,7 +331,14 @@ function runSaveResume() {
     return { ok: false, reason: 'blocage en début de partie' };
   }
   if (!ui.toQuestion()) return { ok: false, reason: 'aucune question avant la pause' };
+  // le QCM est un choix définitif : aucun bouton ne doit ramener à la réponse libre
+  if (!ui.click('openmc')) return { ok: false, reason: 'impossible d\'ouvrir le QCM' };
+  if (/closemc/.test(lastHtml.app)) return { ok: false, reason: 'on peut revenir à la réponse libre après avoir vu le QCM' };
+  if (document.getElementById('answer-form')) return { ok: false, reason: 'le champ de réponse libre reste ouvert avec le QCM' };
+  if (!ui.option()) return { ok: false, reason: 'aucune proposition jouable' };
+  if (!ui.toQuestion()) return { ok: false, reason: 'blocage après le QCM' };
   if (!ui.click('quit')) return { ok: false, reason: 'bouton Pause absent' };
+  if (!/secondes/.test(lastHtml.app)) return { ok: false, reason: 'la pause n\'annonce pas son coût en temps' };
   if (/github\.io/.test(lastHtml.app)) return { ok: false, reason: 'l\'écran de pause montre une adresse' };
   if (!ui.click('p-save')) return { ok: false, reason: 'bouton « m\'arrêter ici » absent' };
   var slot = win.Scores.loadSlot();

@@ -67,6 +67,10 @@ Deux modes, choisis librement par le joueur pour **chaque** question :
 | **Réponse libre** (clavier ou dictée vocale) | **2 pts** | La question est remplacée par une autre de la même matière, **et cette nouvelle question se joue obligatoirement en choix multiple**. Aucune perte de points ni de position. |
 | **Choix multiple** (1 bonne + 4 fausses) | **1 pt** | Retour au **début de la classe** (matière 1, Français). Perte de tous les points gagnés depuis la validation de la classe précédente. |
 
+**Le passage au choix multiple est définitif** pour la question en cours : une fois les cinq
+propositions affichées, la réponse libre n'est plus proposée. Sans cela, il suffisait d'ouvrir le
+QCM, de lire les propositions et de revenir à la réponse libre pour empocher 2 points.
+
 Conséquence voulue : le mode libre est plus rentable et sans risque immédiat, mais le rater
 fait tomber dans le mode risqué. Une erreur libre suivie d'une erreur de QCM renvoie donc au
 début de la classe — c'est le vrai coût de l'erreur libre, et il n'y a plus d'exploit possible
@@ -130,6 +134,12 @@ Le bouton **Pause** (dans le bandeau, pas un message du navigateur) ouvre un éc
 | **M'arrêter ici** | la partie est mise de côté ; un bouton **Reprendre** apparaît sur l'écran-titre |
 | **Publier mon score** | le score rejoint le classement **de la classe atteinte**, la partie s'arrête |
 | **Abandonner** | retour à l'accueil, sans enregistrer ni sauvegarder |
+
+**Chaque pause coûte 20 secondes de temps de jeu** (`pausePenaltySeconds`). Le chrono de la question
+s'arrête, mais le compteur qui départage le classement, lui, avance : mettre le jeu en pause pour
+chercher une réponse ailleurs ou attraper une calculatrice ne permet donc plus de dépasser un joueur
+honnête à score égal. La consultation des règles en cours de partie compte comme une pause, pour la
+même raison. Le coût est annoncé sur l'écran de pause, avec le nombre de pauses déjà prises.
 
 Le **temps restant fait partie de la sauvegarde** : mettre la partie de côté sur une question
 difficile ne redonne pas 30 secondes. À la reprise, le chrono repart avec le temps qu'il restait,
@@ -259,6 +269,10 @@ couple pseudo → numéro. Deux joueurs qui alternent sur le même téléphone g
 revenir à un pseudo déjà utilisé redonne le même numéro. Le premier pseudo créé hérite du numéro
 déjà affiché, pour ne pas changer d'identité en cours de route ; un joueur sans pseudo utilise le
 numéro de l'appareil.
+
+Chaque compte de la liste porte une **croix** pour le retirer de l'appareil — utile quand la liste
+se remplit d'essais. Le numéro reste attribué côté serveur : ressaisir pseudo et numéro récupère le
+compte.
 
 La fenêtre du pseudo liste aussi les **comptes déjà utilisés sur l'appareil** (pseudo + numéro, du
 plus récent au plus ancien) : un appui suffit pour reprendre le sien. Personne ne perd son numéro
@@ -398,6 +412,6 @@ question suivante apparaissait le temps d'un éclair au moment de valider.
 | 1 | Moteur TypeScript + tests unitaires |
 | 2 | App Expo : écrans, timer, persistance SQLite, hors ligne |
 | 3 | Dictée vocale native |
-| 4 | Banque de 2 000 questions : 30 par pool (génération assistée + relecture) |
+| 4 | Banque doublée : 1 608 questions en mode BAC (24 par pool) et 1 000 en détente ✅ |
 | 5 | Polish : sons, animations, écran de stats, accessibilité |
 | 6 | Builds EAS, fiches stores, TestFlight / piste interne, publication |

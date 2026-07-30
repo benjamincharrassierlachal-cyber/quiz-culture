@@ -189,6 +189,12 @@
   .oops .chip{display:block; margin:8px auto 0}
 
   .accs{margin-top:14px; border-top:2px dashed var(--pale); padding-top:10px}
+  .acc-row{display:flex; align-items:center; gap:6px; margin-top:6px}
+  .acc-row .acc{margin-top:0; flex:1}
+  .acc-del{flex:none; width:34px; height:34px; border:2px solid var(--ink); border-radius:10px;
+           background:#fff; box-shadow:2px 2px 0 var(--ink); font-size:14px; font-weight:800;
+           color:#a3313c; line-height:1}
+  .acc-del:active{transform:translate(2px,2px); box-shadow:0 0 0 var(--ink)}
   .acc{display:flex; width:100%; align-items:center; justify-content:space-between; margin-top:6px;
        padding:8px 12px; border:2px solid var(--ink); border-radius:12px; background:#fff;
        box-shadow:2px 2px 0 var(--ink); font-weight:800; font-size:14px}
@@ -750,6 +756,12 @@
       Array.prototype.forEach.call(document.querySelectorAll('[data-acc]'), function (b) {
         b.onclick = function () { S.setPseudo(b.getAttribute('data-acc')); close(); };
       });
+      Array.prototype.forEach.call(document.querySelectorAll('[data-acc-del]'), function (b) {
+        b.onclick = function () {
+          S.forgetAccount(b.getAttribute('data-acc-del'));
+          draw();                            // la fenêtre se redessine, la ligne a disparu
+        };
+      });
     }
 
     draw();
@@ -762,8 +774,12 @@
     if (!list.length) return '';
     return '<div class="accs"><div class="hint center">Déjà joué sur ce téléphone</div>' +
       list.slice(0, 6).map(function (a) {
-        return '<button class="acc" data-acc="' + esc(a.pseudo) + '">' + esc(a.pseudo) +
-          '<span class="num">#' + esc(a.tag) + '</span></button>';
+        return '<div class="acc-row">' +
+          '<button class="acc" data-acc="' + esc(a.pseudo) + '">' + esc(a.pseudo) +
+            '<span class="num">#' + esc(a.tag) + '</span></button>' +
+          '<button class="acc-del" data-acc-del="' + esc(a.pseudo) + '" ' +
+            'title="Retirer ce compte de la liste" aria-label="Retirer ' + esc(a.pseudo) + '">✕</button>' +
+        '</div>';
       }).join('') + '</div>';
   }
 
@@ -940,7 +956,7 @@
       body += '<div class="hint">' + (p.mode === 'bac'
         ? 'Bonne réponse : +1 point. Erreur : retour au début de la classe, un cœur perdu.'
         : 'Bonne réponse : +1 point. Erreur : on passe simplement à la suivante.') + '</div>';
-      if (!p.mcForced) body += '<button class="btn ghost" id="closemc">Revenir à la réponse libre (2 pts)</button>';
+      // pas de retour en arrière : sinon on lirait les propositions avant de répondre librement
     } else {
       body +=
         // formulaire : la touche « OK » du clavier mobile valide directement, sans le masquer
@@ -952,13 +968,15 @@
           '</div>' +
           '<button type="submit" class="btn go" id="send">Valider (2 pts)</button>' +
         '</form>' +
-        '<button class="btn ghost" id="openmc">Voir 5 propositions (1 pt)</button>';
+        '<button class="btn ghost" id="openmc">Voir 5 propositions (1 pt)</button>' +
+        '<div class="hint">Attention : une fois les propositions affichées, la réponse libre n\'est plus possible.</div>';
     }
     body += '</div>';
     app.innerHTML = body;
     wirePlay();
   }
 
+  var pauseCost = null;
   /** Pause : quatre issues claires, sans message du navigateur. */
   function renderPause() {
     var p = E.progress(game);
@@ -969,6 +987,9 @@
       '<div class="card">' + infoBtn() +
         '<h1 class="center">Pause</h1>' +
         '<p class="center muted" style="margin-top:0">' + esc(where) + ' — <b>' + game.score + ' points</b></p>' +
+        '<div class="hint center" style="margin:0 0 6px">Une pause coûte <b>' + p.pausePenalty +
+          ' secondes</b> de temps de jeu' + (p.pauses > 1 ? ' · ' + p.pauses + ' pauses au total' : '') +
+          '. Le classement départage les scores égaux au temps.</div>' +
         '<button class="choice go" id="p-resume"><b>▶ Continuer à jouer</b>' +
           '<small>Le chrono reprend où tu l\'as laissé : ' + Math.ceil(game.timeLeft) + ' s.</small></button>' +
         '<button class="choice save" id="p-save"><b>💾 M\'arrêter ici</b>' +
@@ -1035,7 +1056,11 @@
   function openRules() {
     if (view === 'rules') return;
     rulesFrom = view;
-    if (view === 'play') stopTimer();
+    if (view === 'play' && game && !game.finished) {
+      stopTimer();
+      E.penalizePause(game);                 // consulter les règles en jeu compte comme une pause
+      autoSave();
+    }
     view = 'rules'; render();
   }
   function closeRules() {
@@ -1437,7 +1462,12 @@
   function wirePlay() {
     var inf = document.getElementById('info'); if (inf) inf.onclick = openRules;
     var quit = document.getElementById('quit');
-    if (quit) quit.onclick = function () { stopTimer(); view = 'pause'; render(); };
+    if (quit) quit.onclick = function () {
+      stopTimer();
+      pauseCost = E.penalizePause(game);      // le chrono s'arrête, le temps de jeu non
+      autoSave();
+      view = 'pause'; render();
+    };
     var buy = document.getElementById('buy');
     if (buy) buy.onclick = function () { if (E.buyTime(game).ok) sfx.buy(); render(); };
     var input = document.getElementById('free');
@@ -1456,7 +1486,6 @@
       };
     }
     var openmc = document.getElementById('openmc'); if (openmc) openmc.onclick = function () { mcOpen = true; render(); };
-    var closemc = document.getElementById('closemc'); if (closemc) closemc.onclick = function () { mcOpen = false; render(); };
     var mic = document.getElementById('mic'); if (mic) mic.onclick = dictate;
     Array.prototype.forEach.call(document.querySelectorAll('[data-opt]'), function (b) {
       b.onclick = function () { submitMC(game.options[+b.getAttribute('data-opt')]); };

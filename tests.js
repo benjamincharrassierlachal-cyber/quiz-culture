@@ -324,9 +324,19 @@ s.timeLeft = 0;
 E.timeout(s);
 eq(E.progress(s).spent, 65, 'un temps écoulé compte le temps entier');
 
+// une pause coûte du temps de jeu : le chrono s'arrête, pas le compteur du classement
+var beforePause = E.progress(s).spent;
+var pz = E.penalizePause(s);
+eq(pz.cost, 20, 'une pause coûte 20 secondes');
+eq(E.progress(s).spent, beforePause + 20, 'les secondes de pause sont ajoutées au temps de jeu');
+E.penalizePause(s);
+eq(E.progress(s).pauses, 2, 'les pauses sont comptées');
+eq(E.progress(s).spent, beforePause + 40, 'deux pauses coûtent 40 secondes');
+
 var tsnap = E.serialize(s);
 var tback = E.restore(tsnap, { bac: bank, detente: relax }, {});
 eq(E.progress(tback).spent, E.progress(s).spent, 'le temps de jeu survit à une reprise');
+eq(E.progress(tback).pauses, 2, 'le nombre de pauses survit à une reprise');
 eq(JSON.stringify(tback.jokers), JSON.stringify(s.jokers), 'les jokers restants survivent à une reprise');
 
 var sc = require('./scores.js');
@@ -443,10 +453,11 @@ var counts = {};
 bank.questions.forEach(function (x) { counts[x.level + '|' + x.subject] = (counts[x.level + '|' + x.subject] || 0) + 1; });
 var pools = Object.keys(counts);
 eq(pools.length, 5 * 5 + 7 * 6, 'tous les pools attendus existent (25 primaire + 42 secondaire)');
-ok(pools.every(function (k) { return counts[k] >= 6; }), 'au moins 6 questions par pool',
-  pools.filter(function (k) { return counts[k] < 6; }).join(', '));
-var small = pools.filter(function (k) { return counts[k] < 12; });
-ok(small.length === 0, 'au moins 12 questions dans chacun des 67 pools', small.join(', '));
+ok(pools.every(function (k) { return counts[k] >= 20; }), 'au moins 20 questions par pool',
+  pools.filter(function (k) { return counts[k] < 20; }).join(', '));
+var small = pools.filter(function (k) { return counts[k] < 24; });
+ok(small.length === 0, 'au moins 24 questions dans chacun des 67 pools', small.join(', '));
+ok(bank.questions.length >= 1600, 'au moins 1 600 questions en mode BAC (' + bank.questions.length + ')');
 ok(relax.questions.length >= 1000, 'au moins 1 000 questions en détente (' + relax.questions.length + ')');
 eq(relax.themes.length, 8, 'huit thèmes en détente');
 [1, 2, 3].forEach(function (t) {

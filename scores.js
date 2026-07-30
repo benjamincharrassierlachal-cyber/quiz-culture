@@ -185,6 +185,19 @@
       .sort(function (a, b) { return b.at - a.at; });
   }
 
+  /** Retire un compte de la liste locale. Le numéro reste attribué côté serveur : c'est bien
+   *  le but, saisir de nouveau ce pseudo et ce numéro permet de le récupérer. */
+  function forgetAccount(pseudo) {
+    var key = tagKey(pseudo), map = tagsMap();
+    if (!map[key]) return false;
+    delete map[key];
+    write(K_TAGS, map);
+    if (tagKey(getPseudo()) === key) {        // c'était le joueur en cours : on le déconnecte
+      try { localStorage.removeItem(K_PSEUDO); } catch (e) { /* ignore */ }
+    }
+    return true;
+  }
+
   // ------------------------------------------------------------------ meilleur score
   function best(mode) { return (read(K_BEST, {}) || {})[mode || 'bac'] || 0; }
   function saveBest(mode, score) {
@@ -393,6 +406,7 @@
     getTag: getTag,
     maskTag: maskTag,
     accounts: accounts,
+    forgetAccount: forgetAccount,
     registerTag: registerTag,
     recoverAccount: recoverAccount,
     displayName: displayName,
