@@ -17,6 +17,7 @@ var bank = JSON.parse(data);            // garde-fous : on ne construit pas avec
 var relaxBank = JSON.parse(relax);
 JSON.parse(board);
 
+var stampDate = new Date().toISOString().slice(0, 10);
 var stamp = JSON.stringify({
   version: crypto.createHash('sha1').update(tpl + engine + scores + data + relax).digest('hex').slice(0, 7),
   date: new Date().toISOString().slice(0, 16).replace('T', ' ')
@@ -108,6 +109,41 @@ fs.mkdirSync(path.join(webDir, 'icons'), { recursive: true });
 fs.writeFileSync(path.join(webDir, 'index.html'), webHtml);
 fs.writeFileSync(path.join(webDir, 'manifest.webmanifest'), JSON.stringify(manifest, null, 2));
 fs.writeFileSync(path.join(webDir, 'sw.js'), sw);
+// page de confidentialité : exigée par les stores, et honnête envers les joueurs
+var privacy = '<!doctype html>\n<html lang="fr"><head><meta charset="utf-8">' +
+  '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+  '<title>Le Quizz du BAC — Confidentialité</title>' +
+  '<style>body{max-width:38rem;margin:2rem auto;padding:0 1rem;font:16px/1.6 -apple-system,' +
+  'BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#2a2140}h1{font-size:1.6rem}' +
+  'h2{font-size:1.1rem;margin-top:2rem}code{background:#f3f0fa;padding:.1rem .3rem;border-radius:4px}' +
+  '</style></head><body>' +
+  '<h1>Confidentialité — Le Quizz du BAC</h1>' +
+  '<p>Dernière mise à jour : ' + stampDate + '.</p>' +
+  '<h2>Ce que le jeu enregistre sur votre appareil</h2>' +
+  '<p>Le pseudo que vous choisissez, votre numéro de joueur, vos scores, la partie en cours et la ' +
+  'liste des questions déjà vues. Ces informations restent dans le navigateur (stockage local) et ' +
+  'peuvent être effacées à tout moment en vidant les données du site.</p>' +
+  '<h2>Ce qui est envoyé en ligne</h2>' +
+  '<p>Uniquement si le classement en ligne est activé, et uniquement quand vous publiez un score : ' +
+  'le pseudo, le numéro de joueur, le score, le mode de jeu, la classe atteinte et le temps de jeu. ' +
+  'Ces données sont stockées chez Supabase (hébergement en Europe) et servent exclusivement à ' +
+  'afficher le classement.</p>' +
+  '<h2>Ce que le jeu ne fait pas</h2>' +
+  '<p>Aucun compte, aucun mot de passe, aucune adresse e-mail, aucun numéro de téléphone, aucune ' +
+  'donnée de localisation. Aucune publicité, aucun traqueur, aucun partage avec des tiers. Le ' +
+  'micro n\'est utilisé que si vous appuyez sur le bouton de dictée, et la reconnaissance vocale ' +
+  'est celle de votre téléphone.</p>' +
+  '<h2>Enfants</h2>' +
+  '<p>Le jeu s\'adresse notamment aux enfants. C\'est la raison pour laquelle il ne demande ni ' +
+  'inscription ni donnée personnelle : un pseudo librement choisi suffit à jouer et à figurer au ' +
+  'classement.</p>' +
+  '<h2>Supprimer ses données</h2>' +
+  '<p>Effacer les données du site supprime tout ce qui est stocké sur l\'appareil. Pour retirer un ' +
+  'score publié du classement en ligne, écrivez à l\'adresse de contact indiquée sur la fiche de ' +
+  'l\'application.</p>' +
+  '</body></html>\n';
+fs.writeFileSync(path.join(webDir, 'confidentialite.html'), privacy);
+
 fs.writeFileSync(path.join(webDir, '_headers'),
   '/*\n  Cache-Control: no-cache\n');          // Netlify : évite de servir une vieille version
 

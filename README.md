@@ -6,6 +6,7 @@ quiz-culture/
 ├── web/                           ← version installable sur téléphone (à publier telle quelle)
 ├── INSTALLER-SUR-TELEPHONE.md     ← installer sur le téléphone, pas à pas
 ├── GITHUB.md                      ← publier via GitHub Pages (workflow inclus)
+├── PLAY-STORE.md                  ← publier sur le Play Store (TWA), pas à pas
 ├── .github/workflows/deploy.yml   ← tests + audit + publication à chaque push
 ├── DESIGN.md                      ← règles, modèle de données, habillage, roadmap
 ├── engine.js                      ← moteur de jeu (logique pure) : la source de vérité des règles

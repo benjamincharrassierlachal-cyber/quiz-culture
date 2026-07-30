@@ -875,6 +875,8 @@
         theme: state.current ? state.current.theme : null,
         score: state.score,
         spent: state.spent || 0,
+        pauses: state.pauses || 0,
+        pausePenalty: state.config.pausePenaltySeconds,
         correct: state.correctCount,
         mcForced: false
       };
@@ -27039,7 +27041,7 @@
   "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbnVpZ2J0c3loZHpsaXBuZ29sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMTEyNTMsImV4cCI6MjEwMDg4NzI1M30.eEw1D1Nbdu7LPSGbXScZICuA2Pj4WGiLnOHC_o_pJ3M"
 }
 ;</script>
-<script>var BUILD = {"version":"0cb9976","date":"2026-07-30 09:52"};</script>
+<script>var BUILD = {"version":"574a566","date":"2026-07-30 14:18"};</script>
 <script>
 (function () {
   'use strict';
@@ -27744,7 +27746,8 @@
       '<div class="card">' + infoBtn() +
         '<h1 class="center">Pause</h1>' +
         '<p class="center muted" style="margin-top:0">' + esc(where) + ' — <b>' + game.score + ' points</b></p>' +
-        '<div class="hint center" style="margin:0 0 6px">Une pause coûte <b>' + p.pausePenalty +
+        '<div class="hint center" style="margin:0 0 6px">Une pause coûte <b>' +
+          (p.pausePenalty || E.CONFIG.pausePenaltySeconds) +
           ' secondes</b> de temps de jeu' + (p.pauses > 1 ? ' · ' + p.pauses + ' pauses au total' : '') +
           '. Le classement départage les scores égaux au temps.</div>' +
         '<button class="choice go" id="p-resume"><b>▶ Continuer à jouer</b>' +

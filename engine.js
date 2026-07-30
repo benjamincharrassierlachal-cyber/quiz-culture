@@ -590,6 +590,8 @@
         theme: state.current ? state.current.theme : null,
         score: state.score,
         spent: state.spent || 0,
+        pauses: state.pauses || 0,
+        pausePenalty: state.config.pausePenaltySeconds,
         correct: state.correctCount,
         mcForced: false
       };
