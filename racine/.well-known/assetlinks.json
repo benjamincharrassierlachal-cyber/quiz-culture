@@ -3,6 +3,6 @@
   "target": {
     "namespace": "android_app",
     "package_name": "com.b1jam1c.quizzdubac",
-    "sha256_cert_fingerprints": ["REMPLACER_PAR_L_EMPREINTE_DE_LA_PLAY_CONSOLE"]
+    "sha256_cert_fingerprints": ["08:33:DF:58:8B:85:C7:A9:C4:08:BB:CE:7A:8C:31:F4:15:DD:FB:D3:73:B4:DA:84:59:C4:B9:D9:8B:37:57:1F"]
   }
 }]

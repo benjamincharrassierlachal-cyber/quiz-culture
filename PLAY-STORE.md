@@ -85,26 +85,36 @@ pour une application vendue.
 
 ## 4. Emballer le jeu (Bubblewrap)
 
-Sur l'ordinateur, une fois pour toutes :
+### L'installation qui marche sous Windows (établie à la dure)
 
-```bash
-npm install -g @bubblewrap/cli
-bubblewrap init --manifest https://benjamincharrassierlachal-cyber.github.io/quiz-culture/manifest.webmanifest
+Les trois installateurs automatiques de Bubblewrap sont cassés sous Windows. Voici la
+configuration qui fonctionne, à ne pas refaire mais à ne pas casser non plus.
+
+| Élément | Emplacement | Pourquoi |
+|---|---|---|
+| JDK 17 | `C:\Users\Benjamin\jdk17` | Temurin installé depuis adoptium.net. **Le chemin ne doit contenir aucun espace** : Bubblewrap construit ses commandes sans guillemets, et `C:\Program Files\…` casse la signature de l'APK. |
+| Outils SDK | `…\.bubblewrap\android_sdk\cmdline-tools\latest\` | Téléchargés à la main (*Command line tools only*). Ceux que Bubblewrap installe datent de 2020 et sont incompatibles avec Java 17 (`ClassNotFoundException: SdkManagerCli`). |
+| Clé de signature | `C:\Users\Benjamin\android.keystore` | À sauvegarder hors de l'ordinateur. |
+
+Le fichier `C:\Users\Benjamin\.bubblewrap\config.json` doit contenir exactement :
+
+```json
+{"jdkPath":"C:\\Users\\Benjamin\\jdk17","androidSdkPath":"C:\\Users\\Benjamin\\.bubblewrap\\android_sdk"}
 ```
 
-Bubblewrap pose quelques questions : nom de l'application, nom du package, couleur de la barre
-d'état, et propose de télécharger le JDK et le SDK Android nécessaires — accepter.
+Les symptômes rencontrés, si l'un revient un jour :
 
-Points à surveiller pendant l'init :
+- *Bubblewrap redemande le JDK à chaque lancement* → il n'a pas écrit `config.json`, le remplir à la main.
+- *`ClassNotFoundException: SdkManagerCli`* → outils SDK trop anciens pour Java 17.
+- *`Could not determine SDK root`* → les outils ne sont pas dans `cmdline-tools\latest\`.
+- *`'C:\Program' n'est pas reconnu`* → un espace dans le chemin du JDK.
 
-- **Target API level** : viser **API 36 (Android 16)**. Depuis le 31 août 2026, les nouvelles
-  applications doivent cibler Android 16 ; en dessous, Google refuse l'envoi.
-- **Signing key** : laisser Bubblewrap créer la clé, puis **sauvegarder le fichier `.keystore` et
-  son mot de passe** ailleurs que sur l'ordinateur.
+### Le projet
 
-Puis, à chaque version :
+Généré dans `C:\Users\Benjamin` (`twa-manifest.json`, `android.keystore`). Pour chaque version :
 
-```bash
+```powershell
+cd $HOME
 bubblewrap build
 ```
 
