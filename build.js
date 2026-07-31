@@ -54,9 +54,9 @@ var webHtml = html.replace('<!--PWA-->',
   '</script>');
 
 var manifest = {
-  name: 'Quiz Culture',
-  short_name: 'Quiz Culture',
-  description: 'Quiz de culture générale, du CP au Bac. Jouable hors ligne.',
+  name: 'Quizz Culture Générale & BAC',   // titre repris par Bubblewrap et par le Play Store
+  short_name: 'Quizz du BAC',             // nom affiché sous l'icône : court, sinon tronqué
+  description: 'Quizz de culture générale : partez du CP et décrochez le BAC. Jouable hors ligne.',
   lang: 'fr',
   start_url: './',
   scope: './',
@@ -133,14 +133,17 @@ var privacy = '<!doctype html>\n<html lang="fr"><head><meta charset="utf-8">' +
   'donnée de localisation. Aucune publicité, aucun traqueur, aucun partage avec des tiers. Le ' +
   'micro n\'est utilisé que si vous appuyez sur le bouton de dictée, et la reconnaissance vocale ' +
   'est celle de votre téléphone.</p>' +
-  '<h2>Enfants</h2>' +
-  '<p>Le jeu s\'adresse notamment aux enfants. C\'est la raison pour laquelle il ne demande ni ' +
-  'inscription ni donnée personnelle : un pseudo librement choisi suffit à jouer et à figurer au ' +
-  'classement.</p>' +
+  '<h2>Âge des joueurs</h2>' +
+  '<p>Le jeu s\'adresse au grand public : ses questions vont du niveau primaire au niveau du ' +
+  'baccalauréat, mais il n\'est pas conçu spécifiquement pour les enfants et ne leur est pas ' +
+  'destiné en priorité. Il ne demande ni inscription ni donnée personnelle : un pseudo librement ' +
+  'choisi suffit à jouer et à figurer au classement.</p>' +
   '<h2>Supprimer ses données</h2>' +
   '<p>Effacer les données du site supprime tout ce qui est stocké sur l\'appareil. Pour retirer un ' +
-  'score publié du classement en ligne, écrivez à l\'adresse de contact indiquée sur la fiche de ' +
-  'l\'application.</p>' +
+  'score publié du classement en ligne, écrivez à <a href="mailto:quizzdubac@gmail.com">' +
+  'quizzdubac@gmail.com</a>.</p>' +
+  '<h2>Éditeur</h2>' +
+  '<p>B1JAM1C — contact : <a href="mailto:quizzdubac@gmail.com">quizzdubac@gmail.com</a>.</p>' +
   '</body></html>\n';
 fs.writeFileSync(path.join(webDir, 'confidentialite.html'), privacy);
 

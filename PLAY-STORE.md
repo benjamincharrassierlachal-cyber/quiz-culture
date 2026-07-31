@@ -9,13 +9,42 @@ clic et la disponibilité publique.
 
 ---
 
+## 0. Le compte (fait)
+
+| | |
+|---|---|
+| Nom du développeur | **B1JAM1C** |
+| Type de compte | Personnel |
+| ID du compte | 6932346628049029426 |
+| E-mail de contact public | **quizzdubac@gmail.com** |
+| Site web déclaré | `https://benjamincharrassierlachal-cyber.github.io/quiz-culture/` |
+| Statut | **Identité validée, téléphone vérifié.** Le compte peut créer des applications. |
+
+Décisions prises :
+
+| | |
+|---|---|
+| Titre sur le Store | **Quizz Culture Générale & BAC** (28 caractères sur 30) |
+| Type | Jeu → catégorie *Quiz* |
+| Langue par défaut | Français (France) |
+| Modèle | **Payante** → profil de paiement marchand obligatoire avant de créer l'app |
+| Public cible | 13 ans et plus (à confirmer dans le formulaire *Public cible et contenu*) |
+| Nom du package | **`com.b1jam1c.quizzdubac`** — définitif à vie, et visible dans l'URL de la fiche (`play.google.com/store/apps/details?id=…`). Choisi pour ne pas exposer le nom civil. |
+| Monétisation | Une seule application. Pas de version gratuite avec publicité : AdMob ne fonctionne pas dans une TWA, et la version web joue déjà le rôle de version gratuite. À rediscuter après le lancement. |
+
+Le titre du Store et le nom affiché sous l'icône sont deux choses différentes : sous l'icône, c'est
+le `short_name` du manifeste (« Quizz du BAC »), plus court et plus lisible.
+
+L'adresse `quizzdubac@gmail.com` doit apparaître **à l'identique** dans la fiche du Store et dans
+`web/confidentialite.html` — Google compare les deux.
+
 ## 1. Ce qu'il faut préparer avant de commencer
 
 | Élément | Détail |
 |---|---|
 | Compte Google Play Console | **25 $ une seule fois**, pas d'abonnement. Vérification d'identité obligatoire (pièce d'identité, adresse). |
 | Type de compte | **Personnel** (ton cas) ou organisation. Le compte personnel impose le test fermé du §2. |
-| Nom du package | `com.lachal.quizzdubac` par exemple. **Définitif** : il ne peut jamais être changé. |
+| Nom du package | `com.b1jam1c.quizzdubac` par exemple. **Définitif** : il ne peut jamais être changé. |
 | Clé de signature | Un fichier `.keystore` généré une fois. **À sauvegarder précieusement** : le perdre interdit toute mise à jour. |
 | Page de confidentialité | Générée par `node build.js` → `web/confidentialite.html`, donc en ligne à `…/confidentialite.html`. Son adresse est demandée dans la fiche. |
 | Visuels | Icône 512 × 512, bannière 1024 × 500, au moins 2 captures d'écran par format. |
@@ -87,7 +116,7 @@ SHA-256 de la clé. C'est cette empreinte qu'il faut coller dans `assetlinks.jso
   "relation": ["delegate_permission/common.handle_all_urls"],
   "target": {
     "namespace": "android_app",
-    "package_name": "com.lachal.quizzdubac",
+    "package_name": "com.b1jam1c.quizzdubac",
     "sha256_cert_fingerprints": ["<empreinte affichée par bubblewrap>"]
   }
 }]

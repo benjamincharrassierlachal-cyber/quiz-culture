@@ -1,7 +1,7 @@
 {
-  "name": "Quiz Culture",
-  "short_name": "Quiz Culture",
-  "description": "Quiz de culture générale, du CP au Bac. Jouable hors ligne.",
+  "name": "Quizz Culture Générale & BAC",
+  "short_name": "Quizz du BAC",
+  "description": "Quizz de culture générale : partez du CP et décrochez le BAC. Jouable hors ligne.",
   "lang": "fr",
   "start_url": "./",
   "scope": "./",
