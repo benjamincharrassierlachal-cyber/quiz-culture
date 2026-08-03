@@ -263,6 +263,11 @@
   /* diplôme et classement */
   .diploma{border:3px solid var(--ink); border-radius:14px; overflow:hidden; box-shadow:5px 5px 0 var(--ink); margin-top:10px}
   .diploma svg{display:block; width:100%; height:auto}
+  /* zone défilante : on voit tout le classement sans quitter la carte */
+  .rank-wrap{position:relative; max-height:46vh; min-height:180px; overflow-y:auto;
+    margin-top:10px; padding:0 2px; -webkit-overflow-scrolling:touch;
+    border-top:2px dashed var(--pale); border-bottom:2px dashed var(--pale)}
+  .rank-pos{margin:10px 0 0; text-align:center; font-size:14px; font-weight:800}
   table.rank{width:100%; border-collapse:collapse; margin-top:10px; font-size:15px}
   table.rank td{padding:8px 6px; border-bottom:2px dashed var(--pale)}
   table.rank td.n{width:34px; color:var(--muted); font-weight:800}
@@ -27035,7 +27040,7 @@
   "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbnVpZ2J0c3loZHpsaXBuZ29sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMTEyNTMsImV4cCI6MjEwMDg4NzI1M30.eEw1D1Nbdu7LPSGbXScZICuA2Pj4WGiLnOHC_o_pJ3M"
 }
 ;</script>
-<script>var BUILD = {"version":"91712f2","date":"2026-07-31 15:02"};</script>
+<script>var BUILD = {"version":"d2d8f4c","date":"2026-08-03 08:02"};</script>
 <script>
 (function () {
   'use strict';
@@ -27053,6 +27058,7 @@
   var game = null, tick = null, feedback = null, mcOpen = false, revealed = null;
   var jokersAnnounced = false;   // l'écran « tu as 3 jokers » ne s'affiche qu'une fois par partie
   var recognizing = false, draft = '', anim = null, pseudoAsked = false, rank = null, lastQ = null;
+  var rankMeSeen = false;    // une seule ancre de défilement, même si le pseudo apparaît plusieurs fois
 
   function muted() { return localStorage.getItem(MUTE_KEY) === '1'; }
   // plus de bouton son : le joueur coupe le son de son téléphone. La clé reste lue par les tests.
@@ -28091,10 +28097,29 @@
   }
 
   /** Une ligne du classement. */
+  /** Place la zone défilante sur ma ligne, avec au moins deux voisins visibles
+   *  au-dessus et au-dessous. Sans ma ligne, on reste sur les premiers. */
+  function centreSurMoi() {
+    var wrap = document.getElementById('rank-wrap');
+    var mine = document.getElementById('me-row');
+    if (!wrap || !mine) return;
+    var h = mine.offsetHeight || 44;
+    var cible = mine.offsetTop - (wrap.clientHeight - h) / 2;   // ma ligne au centre
+    var max = wrap.scrollHeight - wrap.clientHeight;            // sans dépasser le bas
+    wrap.scrollTop = Math.max(0, Math.min(cible, max));
+  }
+
+  function isMine(r, me, myTag) {
+    return r.pseudo === me && (!r.tag || r.tag === myTag);
+  }
+
   function rankRow(r, i, me, myTag) {
-    var mine = r.pseudo === me && (!r.tag || r.tag === myTag);
+    var mine = isMine(r, me, myTag);
     var medal = i === 0 ? '🥇 ' : (i === 1 ? '🥈 ' : (i === 2 ? '🥉 ' : ''));
-    return '<tr' + (mine ? ' class="me"' : '') + '><td class="n">' + medal + (i + 1) + '</td>' +
+    // la première ligne qui est la mienne sert d'ancre au défilement automatique
+    if (mine && !rankMeSeen) { rankMeSeen = true; mine = ' class="me" id="me-row"'; }
+    else mine = mine ? ' class="me"' : '';
+    return '<tr' + mine + '><td class="n">' + medal + (i + 1) + '</td>' +
       '<td>' + esc(r.pseudo) + ' <span class="muted" style="font-weight:700">#' +
         esc(r.tag ? S.maskTag(r.tag) : '?????') + '</span>' +
       (r.seconds ? '<br><span class="muted" style="font-size:12px">⏱ ' + clock(r.seconds) + '</span>' : '') + '</td>' +
@@ -28104,7 +28129,8 @@
   function renderRanking() {
     var me = S.getPseudo(), myTag = S.getTag(), myLevel = S.lastLevel();
     var rows = (rank && rank.rows) || [];
-    var body = '';
+    var body = '', place = null, total = 0;
+    rankMeSeen = false;
 
     if (rank.mode === 'bac') {
       // regroupement par classe, de la Terminale vers le CP : on compare ce qui est comparable
@@ -28118,14 +28144,24 @@
         .filter(function (lv) { return groups[lv]; });
       if (rank.onlyMine && myLevel) order = order.filter(function (lv) { return lv === myLevel; });
       order.forEach(function (lv) {
-        var list = groups[lv].sort(S.byScoreThenTime).slice(0, 20);
+        var list = groups[lv].sort(S.byScoreThenTime);
+        // ma place se compte dans ma classe : c'est le classement qui a du sens
+        list.forEach(function (r, i) {
+          if (isMine(r, me, myTag) && place === null) { place = i + 1; total = list.length; }
+        });
         body += '<div class="rank-head">' + esc(lv) + '</div><table class="rank">' +
           list.map(function (r, i) { return rankRow(r, i, me, myTag); }).join('') + '</table>';
       });
     } else {
-      body = '<table class="rank">' + rows.slice().sort(S.byScoreThenTime)
-        .slice(0, 50).map(function (r, i) { return rankRow(r, i, me, myTag); }).join('') + '</table>';
+      var list = rows.slice().sort(S.byScoreThenTime);
+      total = list.length;
+      list.forEach(function (r, i) {
+        if (isMine(r, me, myTag) && place === null) place = i + 1;
+      });
+      body = '<table class="rank">' +
+        list.map(function (r, i) { return rankRow(r, i, me, myTag); }).join('') + '</table>';
     }
+    if (rows.length) body = '<div class="rank-wrap" id="rank-wrap">' + body + '</div>';
 
     app.innerHTML =
       '<div class="card">' + infoBtn() +
@@ -28141,6 +28177,9 @@
         '</div>' +
         (rank.loading ? '<p class="center muted">Chargement…</p>'
                       : (rows.length ? body : '<p class="center muted">Aucun score pour l\'instant. Joue une partie !</p>')) +
+        (place ? '<p class="rank-pos">Tu es <span class="tag">' + place +
+          (place === 1 ? 'er' : 'e') + ' sur ' + total + '</span>' +
+          (rank.mode === 'bac' ? ' dans ta classe' : '') + '</p>' : '') +
         '<div class="hint center">' + (rank.source === 'online' ? 'Classement en ligne.' :
           (S.configured() ? 'Hors ligne : scores de cet appareil.' : 'Classement local à cet appareil.')) +
           (S.queued().length ? ' ' + S.queued().length + ' score(s) en attente d\'envoi.' : '') + '</div>' +
@@ -28149,6 +28188,7 @@
         '<button class="btn ghost" id="menu">Menu</button>' +
       '</div>';
     document.getElementById('info').onclick = openRules;
+    centreSurMoi();
     var rt = document.getElementById('retry');
     if (rt) rt.onclick = function () {
       rt.disabled = true; rt.textContent = 'Envoi…';

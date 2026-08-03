@@ -132,9 +132,34 @@ SHA-256 de la clé. C'est cette empreinte qu'il faut coller dans `assetlinks.jso
 }]
 ```
 
-**Attention** : si tu utilises la signature gérée par Google (Play App Signing, activée par défaut),
-c'est l'empreinte **fournie par la Play Console** qu'il faut mettre dans ce fichier, pas celle de ta
-clé locale. La Console l'affiche dans *Configuration → Intégrité de l'application*.
+**Le piège qui a coûté deux jours.** N'écris pas ce fichier à la main. La Play Console le génère,
+avec la bonne empreinte, en bas de la page de signature d'application :
+
+```
+https://play.google.com/console/u/0/developers/6932346628049029426/app/4973902271913481632/keymanagement
+```
+
+section **« Fichier JSON Digital Asset Links »**. Copie ce bloc, point final.
+
+Pourquoi : une application peut avoir **trois** empreintes différentes, et seule la bonne fonctionne.
+
+| Empreinte | Où on la lit | Utilité |
+|---|---|---|
+| `AE:C8:C9:…` | **bloc JSON généré par la Console** | **la seule qui compte** — clé de signature d'origine, celle que Chrome interroge |
+| `08:33:DF:…` | *Clé classique → Empreinte SHA-256* | clé courante après rotation post-quantique — insuffisante seule |
+| `AB:4C:42:…` | *Certificat de clé d'importation* | ne sert qu'aux APK construits en local |
+
+Le symptôme quand l'empreinte est fausse : l'application s'installe, se lance, fonctionne — mais
+affiche une **barre d'adresse Chrome** en haut. Aucun message d'erreur nulle part, ni sur l'appareil,
+ni dans la Console. Et l'API de vérification de Google
+(`digitalassetlinks.googleapis.com/v1/statements:list`) répond « valide », puisqu'elle ne fait que
+relire le fichier sans le confronter à l'application installée.
+
+Le test qui tranche : installer à la main l'APK local (`app-release-signed.apk`). S'il s'ouvre sans
+barre alors que la version du Play Store en affiche une, c'est une question d'empreinte, pas de
+configuration.
+
+Les trois empreintes sont déclarées dans `racine/.well-known/assetlinks.json` — les garder toutes.
 
 ## 5. Remplir la fiche Play Console
 
