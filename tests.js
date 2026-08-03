@@ -473,6 +473,22 @@ relax.themes.forEach(function (th) {
   ok(n >= 125, 'thème « ' + th + ' » complet (' + n + ' questions)');
 });
 
+// ---------------------------------------------------------------- filtre des pseudos
+var S = require('./scores.js');
+[['Benji', 1], ['Marie-Lou', 1], ['Le Conquistador', 1], ['Unique', 1], ['Fichier', 1],
+ ['Connaissance', 1], ['Anaconda', 1], ['Culture G', 1], ['Réputé', 1], ['Pédro', 1]
+].forEach(function (c) {
+  ok(!S.pseudoRefus(c[0]), 'pseudo honnête accepté : ' + c[0], String(S.pseudoRefus(c[0])));
+});
+['Salope', 's4l0pe', 'saaalope', 'Enculé', 'con', 'LE CON', 'Pd', 'ntm93', 'Batard',
+ 'Nique ta mere', 'Merde', 'B4t4rd', 'sal.ope'
+].forEach(function (n) {
+  ok(!!S.pseudoRefus(n), 'pseudo grossier refusé : ' + n);
+});
+ok(!!S.pseudoRefus('ab'), 'pseudo trop court toujours refusé');
+ok(S.pseudoRefus('Salope') !== S.pseudoRefus('ab'), 'le message distingue grossièreté et longueur');
+
+
 if (!differed) {
   console.log('\n' + pass + ' tests OK, ' + fail + ' échec(s)');
   process.exit(fail ? 1 : 0);

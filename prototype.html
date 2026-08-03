@@ -1068,7 +1068,51 @@
       .trim()
       .slice(0, 14);
   }
-  function pseudoValid(p) { return cleanPseudo(p).length >= 3; }
+  /* ---- filtre des pseudos grossiers -------------------------------------
+   * Deux listes, parce qu'un simple « contient » produit des refus absurdes :
+   * « connaissance » contient « con », « unique » contient « nique », « fichier »
+   * contient « chier ». Les termes ambigus ne sont donc refusés que s'ils forment
+   * un mot entier ; les autres, assez longs pour être sans équivoque, sont
+   * cherchés n'importe où.
+   * Les listes s'écrivent en forme réduite : sans accent, sans lettre doublée. */
+  var GROS_PARTOUT = ['conard', 'conasse', 'encule', 'enculer', 'enfoire', 'salope', 'salopard',
+    'putain', 'batard', 'tarlouze', 'tafiole', 'bougnoule', 'youpin', 'negrese',
+    'pedophil', 'zoophil', 'pornograf', 'sodomi', 'violeur', 'ntm', 'fdp'];
+  var GROS_MOTS = ['con', 'cons', 'cul', 'culs', 'pd', 'pede', 'pedes', 'pute', 'putes',
+    'bite', 'bites', 'zob', 'couile', 'couiles', 'nichon', 'nichons', 'sexe', 'penis', 'vagin',
+    'chate', 'salaud', 'salauds', 'merde', 'merdes', 'chier', 'nique', 'niquer', 'niquez',
+    'caca', 'pipi', 'nazi', 'nazis', 'hitler', 'negre', 'negres', 'viol', 'pise', 'anus',
+    'sperme', 'suce', 'sucer', 'baise', 'baiser', 'foutre', 'salop'];
+
+  /** Forme réduite : sans accent, sans habillage, sans lettre doublée.
+   *  Neutralise « S4l0pe », « saaalope » et « s.a.l.o.p.e ». */
+  function reduit(s) {
+    var t = String(s || '').toLowerCase();
+    if (t.normalize) t = t.normalize('NFD').replace(/[̀-ͯ]/g, '');
+    return t
+      .replace(/[0@]/g, 'o').replace(/[1!|]/g, 'i').replace(/3/g, 'e').replace(/4/g, 'a')
+      .replace(/[5$]/g, 's').replace(/7/g, 't').replace(/8/g, 'b')
+      .replace(/[^a-z]/g, '')
+      .replace(/(.)\1+/g, '$1');
+  }
+
+  /** null si le pseudo est acceptable, sinon la raison du refus. */
+  function pseudoRefus(p) {
+    var c = cleanPseudo(p);
+    if (c.length < 3) return 'Au moins 3 caractères.';
+    var mots = c.split(/[\s_-]+/).map(reduit).filter(Boolean);
+    var tout = mots.join('');
+    var i;
+    for (i = 0; i < GROS_PARTOUT.length; i++) {
+      if (tout.indexOf(GROS_PARTOUT[i]) !== -1) return 'Ce pseudo n\'est pas accepté.';
+    }
+    for (i = 0; i < mots.length; i++) {
+      if (GROS_MOTS.indexOf(mots[i]) !== -1) return 'Ce pseudo n\'est pas accepté.';
+    }
+    return null;
+  }
+
+  function pseudoValid(p) { return !pseudoRefus(p); }
   function getPseudo() { try { return localStorage.getItem(K_PSEUDO) || ''; } catch (e) { return ''; } }
 
   /** Numéro à 5 chiffres, tiré au hasard. */
@@ -1442,6 +1486,7 @@
     hasSlot: hasSlot,
     lastLevel: lastLevel,
     byScoreThenTime: byScoreThenTime,
+    pseudoRefus: pseudoRefus,
     lastError: lastError,
     clearError: clearError,
     best: best,
@@ -27040,7 +27085,7 @@
   "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbnVpZ2J0c3loZHpsaXBuZ29sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMTEyNTMsImV4cCI6MjEwMDg4NzI1M30.eEw1D1Nbdu7LPSGbXScZICuA2Pj4WGiLnOHC_o_pJ3M"
 }
 ;</script>
-<script>var BUILD = {"version":"d2d8f4c","date":"2026-08-03 08:02"};</script>
+<script>var BUILD = {"version":"fd70edb","date":"2026-08-03 11:42"};</script>
 <script>
 (function () {
   'use strict';
@@ -27473,8 +27518,9 @@
 
     function submit() {
       var input = document.getElementById('pseudo');
-      if (!S.setPseudo(input.value)) {
-        document.getElementById('perr').textContent = 'Au moins 3 caractères.';
+      var refus = S.pseudoRefus(input.value);
+      if (refus || !S.setPseudo(input.value)) {
+        document.getElementById('perr').textContent = refus || 'Au moins 3 caractères.';
         return;
       }
       var who = S.getPseudo();

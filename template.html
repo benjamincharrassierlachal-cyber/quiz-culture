@@ -720,8 +720,9 @@
 
     function submit() {
       var input = document.getElementById('pseudo');
-      if (!S.setPseudo(input.value)) {
-        document.getElementById('perr').textContent = 'Au moins 3 caractères.';
+      var refus = S.pseudoRefus(input.value);
+      if (refus || !S.setPseudo(input.value)) {
+        document.getElementById('perr').textContent = refus || 'Au moins 3 caractères.';
         return;
       }
       var who = S.getPseudo();
