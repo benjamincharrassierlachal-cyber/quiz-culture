@@ -49,27 +49,64 @@
       .replace(/[^a-z0-9\s-]/g, ' ')                    // ponctuation
       .replace(/\s+/g, ' ')
       .trim()
-      .replace(/^(le|la|les|l|un|une|des|au|aux|en|the|a)\s+/, '')
+      // déterminants en tête, y compris enchaînés : « de la Terre » ≡ « la Terre » ≡ « Terre »
+      .replace(/^(?:(?:le|la|les|l|un|une|des|de|du|d|au|aux|en|the|a)\s+)+/, '')
       .trim();
   }
 
+  /** Valeur d'une fraction, d'un pourcentage ou d'un décimal : « 2/10 », « 20 % » et « 0,2 »
+   *  donnent tous 0.2. NaN si l'écriture n'est pas de cette forme. */
+  function toRational(s) {
+    var raw = String(s === null || s === undefined ? '' : s)
+      .toLowerCase()
+      .replace(/\s| /g, '')
+      .replace(/,/g, '.')
+      .replace(/^[+]/, '');
+    var m = raw.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/);
+    if (m) {
+      var den = parseFloat(m[2]);
+      return den === 0 ? NaN : parseFloat(m[1]) / den;
+    }
+    if (/^-?\d+(?:\.\d+)?%$/.test(raw)) return parseFloat(raw) / 100;
+    if (/^-?\d+(?:\.\d+)?$/.test(raw)) return parseFloat(raw);
+    return NaN;
+  }
+
+  /** Deux écritures désignent-elles la même valeur ? « 1/5 » et « 2/10 », oui. */
+  function sameValue(a, b) {
+    var x = toRational(a), y = toRational(b);
+    return !isNaN(x) && !isNaN(y) && Math.abs(x - y) < 1e-9;
+  }
+
+  /* Distance de Damerau-Levenshtein : comme Levenshtein, mais l'inversion de deux
+   * lettres voisines ne coûte qu'un point. C'est la faute de frappe la plus courante
+   * — « Zoal » pour « Zola », « oublié » pour « oublie » — et la compter double
+   * revenait à refuser des réponses manifestement justes. */
   function levenshtein(a, b) {
     if (a === b) return 0;
     if (!a.length) return b.length;
     if (!b.length) return a.length;
-    var prev = new Array(b.length + 1), cur = new Array(b.length + 1), i, j;
-    for (j = 0; j <= b.length; j++) prev[j] = j;
+    var av = new Array(b.length + 1), prev = new Array(b.length + 1), cur = new Array(b.length + 1), i, j;
+    for (j = 0; j <= b.length; j++) { prev[j] = j; av[j] = 0; }
     for (i = 1; i <= a.length; i++) {
       cur[0] = i;
       for (j = 1; j <= b.length; j++) {
         cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+        if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+          cur[j] = Math.min(cur[j], av[j - 2] + 1);          // deux lettres inversées
+        }
       }
-      for (j = 0; j <= b.length; j++) prev[j] = cur[j];
+      for (j = 0; j <= b.length; j++) { av[j] = prev[j]; prev[j] = cur[j]; }
     }
     return prev[b.length];
   }
 
-  function tolerance(len) { return len <= 4 ? 0 : (len <= 8 ? 1 : 2); }
+  /* Fautes de frappe tolérées, selon la longueur de la réponse attendue.
+   * Une lettre dès 4 caractères : « Zoal » pour « Zola » passe. Le garde-fou des
+   * distracteurs empêche qu'une tolérance élargie fasse accepter une autre réponse. */
+  function tolerance(len) {
+    return len <= 3 ? 0 : (len <= 7 ? 1 : (len <= 12 ? 2 : 3));
+  }
 
   var WORD_NUMBERS = {
     zero: 0, un: 1, une: 1, deux: 2, trois: 3, quatre: 4, cinq: 5, six: 6, sept: 7,
@@ -121,6 +158,11 @@
           if (!isNaN(an) && an === gn) return true;
         }
       }
+    }
+
+    // même valeur écrite autrement : 2/10 vaut 1/5, 50 % vaut 1/2, 0,25 vaut 1/4
+    for (var v = 0; v < question.accepted.length; v++) {
+      if (sameValue(input, question.accepted[v])) return true;
     }
 
     var acc = bestDistance(given, question.accepted);
@@ -719,6 +761,8 @@
     CONFIG: CONFIG,
     normalize: normalize,
     levenshtein: levenshtein,
+    toRational: toRational,
+    sameValue: sameValue,
     toNumber: toNumber,
     checkFree: checkFree,
     createGame: createGame,

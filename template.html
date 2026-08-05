@@ -1357,6 +1357,20 @@
     wrap.scrollTop = Math.max(0, Math.min(cible, max));
   }
 
+  /** Une seule ligne par joueur : sa meilleure partie, la plus rapide en cas d'égalité.
+   *  La liste reçue doit déjà être triée par S.byScoreThenTime — le premier vu est donc
+   *  le meilleur. Sans cela, dix tentatives d'un même pseudo remplissent le classement. */
+  function meilleurParJoueur(triees) {
+    var vus = {}, sortie = [];
+    triees.forEach(function (r) {
+      var cle = r.tag ? ('#' + r.tag) : ('@' + String(r.pseudo || '').toLowerCase());
+      if (vus[cle]) return;
+      vus[cle] = true;
+      sortie.push(r);
+    });
+    return sortie;
+  }
+
   function isMine(r, me, myTag) {
     return r.pseudo === me && (!r.tag || r.tag === myTag);
   }
@@ -1392,7 +1406,9 @@
         .filter(function (lv) { return groups[lv]; });
       if (rank.onlyMine && myLevel) order = order.filter(function (lv) { return lv === myLevel; });
       order.forEach(function (lv) {
-        var list = groups[lv].sort(S.byScoreThenTime);
+        // une ligne par joueur et par classe : on garde sa meilleure partie dans cette classe,
+        // mais il reste visible dans chacune des classes où il s'est illustré
+        var list = meilleurParJoueur(groups[lv].sort(S.byScoreThenTime));
         // ma place se compte dans ma classe : c'est le classement qui a du sens
         list.forEach(function (r, i) {
           if (isMine(r, me, myTag) && place === null) { place = i + 1; total = list.length; }
@@ -1401,7 +1417,7 @@
           list.map(function (r, i) { return rankRow(r, i, me, myTag); }).join('') + '</table>';
       });
     } else {
-      var list = rows.slice().sort(S.byScoreThenTime);
+      var list = meilleurParJoueur(rows.slice().sort(S.byScoreThenTime));
       total = list.length;
       list.forEach(function (r, i) {
         if (isMine(r, me, myTag) && place === null) place = i + 1;

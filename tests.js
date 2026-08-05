@@ -473,6 +473,37 @@ relax.themes.forEach(function (th) {
   ok(n >= 125, 'thème « ' + th + ' » complet (' + n + ' questions)');
 });
 
+// ---------------------------------------------------------------- écritures équivalentes
+var qFrac = { accepted: ['1/5'], distractors: ['1/4', '2/5', '1/3', '3/10'], strict: true };
+['1/5', '2/10', '4/20', '0,2', '0.2', '20%'].forEach(function (a) {
+  ok(E.checkFree(qFrac, a), 'fraction équivalente acceptée : ' + a);
+});
+['1/4', '2/5', '0,25'].forEach(function (a) {
+  ok(!E.checkFree(qFrac, a), 'valeur différente refusée : ' + a);
+});
+var qProba = { accepted: ['1/2'], distractors: ['1/3', '2/3', '1/4', '3/4'], strict: true };
+['1/2', '2/4', '50%', '0,5'].forEach(function (a) {
+  ok(E.checkFree(qProba, a), 'probabilité écrite autrement : ' + a);
+});
+ok(isNaN(E.toRational('1/0')), 'division par zéro : pas de valeur');
+ok(isNaN(E.toRational('Zola')), 'un mot n\'est pas une valeur');
+
+// ---------------------------------------------------------------- fautes de frappe
+eq(E.levenshtein('zoal', 'zola'), 1, 'deux lettres inversées coûtent 1');
+eq(E.levenshtein('chien', 'chine'), 1, 'inversion au milieu du mot');
+eq(E.levenshtein('kitten', 'sitting'), 3, 'la distance classique est préservée');
+var qZola = { accepted: ['Zola'], distractors: ['Hugo', 'Balzac', 'Flaubert', 'Maupassant'] };
+['Zola', 'Zoal', 'Zolla'].forEach(function (a) {
+  ok(E.checkFree(qZola, a), 'faute de frappe tolérée : ' + a);
+});
+ok(!E.checkFree(qZola, 'Hugo'), 'un distracteur reste refusé');
+ok(!E.checkFree(qZola, 'Huog'), 'un distracteur mal tapé reste refusé');
+
+// ---------------------------------------------------------------- déterminants
+eq(E.normalize('de la Terre'), E.normalize('la Terre'), 'déterminant initial ignoré');
+eq(E.normalize("l'Espagne"), E.normalize('Espagne'), 'apostrophe et article ignorés');
+
+
 // ---------------------------------------------------------------- filtre des pseudos
 var S = require('./scores.js');
 [['Benji', 1], ['Marie-Lou', 1], ['Le Conquistador', 1], ['Unique', 1], ['Fichier', 1],
