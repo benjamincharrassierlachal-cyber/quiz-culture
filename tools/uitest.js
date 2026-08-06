@@ -402,10 +402,49 @@ try { jk = runJokers(); } catch (e) { jk = { ok: false, reason: 'EXCEPTION : ' +
 if (jk.ok) console.log('  ok   Jokers : ' + jk.end);
 else { fails++; console.log('  FAIL Jokers : ' + jk.reason); }
 
+// ------------------------------------------------------------------ recommencer depuis la pause
+function runRestart() {
+  var ui = boot();
+  ui.click('start'); ui.click('m-relax'); ui.click('px');
+
+  // on avance de quelques questions pour avoir une partie « en cours »
+  var steps = 0;
+  while (steps++ < 8) {
+    if (ui.answer()) continue;
+    if (ui.option()) continue;
+    if (ui.click('next')) continue;
+    break;
+  }
+  if (!ui.toQuestion()) return { ok: false, reason: 'aucune question avant la pause' };
+  if (!ui.click('quit')) return { ok: false, reason: 'bouton Pause absent' };
+  if (!/id="p-restart"/.test(lastHtml.app)) return { ok: false, reason: 'pas de bouton Recommencer sur la pause' };
+  if (!ui.click('p-restart')) return { ok: false, reason: 'bouton Recommencer inactif' };
+  if (!ui.toQuestion()) return { ok: false, reason: 'la nouvelle partie ne montre pas de question' };
+  if (win.Scores.loadSlot()) return { ok: false, reason: 'l\'ancienne partie reste sauvegardée' };
+
+  // la nouvelle partie doit repartir de zéro, et aller au bout
+  var loops = 0;
+  while (loops++ < 400) {
+    if (/Quizz terminé/.test(lastHtml.app)) break;
+    if (ui.answer()) continue;
+    if (ui.option()) continue;
+    if (ui.click('next')) continue;
+    return { ok: false, reason: 'blocage après le redémarrage' };
+  }
+  if (loops >= 400) return { ok: false, reason: 'la partie relancée ne se termine pas' };
+  return { ok: true, end: 'partie relancée depuis la pause, ancienne sauvegarde effacée, nouvelle partie menée au bout' };
+}
+
+
 var sr;
 try { sr = runSaveResume(); } catch (e) { sr = { ok: false, reason: 'EXCEPTION : ' + e.message }; }
 if (sr.ok) console.log('  ok   Pause, sauvegarde et reprise : ' + sr.end);
 else { fails++; console.log('  FAIL Pause, sauvegarde et reprise : ' + sr.reason); }
+
+var rs;
+try { rs = runRestart(); } catch (e) { rs = { ok: false, reason: 'EXCEPTION : ' + e.message }; }
+if (rs.ok) console.log('  ok   Recommencer depuis la pause : ' + rs.end);
+else { fails++; console.log('  FAIL Recommencer depuis la pause : ' + rs.reason); }
 
 console.log(fails ? '\n' + fails + ' parcours en échec' : '\nTous les parcours aboutissent.');
 process.exit(fails ? 1 : 0);

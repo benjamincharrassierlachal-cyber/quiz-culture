@@ -263,6 +263,7 @@
   .choice.go{background:linear-gradient(120deg,#eef3ff,#fff)}
   .choice.save{background:linear-gradient(120deg,#fff6da,#fff)}
   .choice.pub{background:linear-gradient(120deg,#eafff5,#fff)}
+  .choice.again{background:linear-gradient(120deg,#f2eeff,#fff)}
   .choice.quit{background:linear-gradient(120deg,#ffeef0,#fff)}
   .resume{background:linear-gradient(120deg,#fff2c9,#fff8e4)}
 
@@ -48398,7 +48399,7 @@
   "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbnVpZ2J0c3loZHpsaXBuZ29sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMTEyNTMsImV4cCI6MjEwMDg4NzI1M30.eEw1D1Nbdu7LPSGbXScZICuA2Pj4WGiLnOHC_o_pJ3M"
 }
 ;</script>
-<script>var BUILD = {"version":"0968092","date":"2026-08-05 13:47"};</script>
+<script>var BUILD = {"version":"55a6b44","date":"2026-08-06 13:57"};</script>
 <script>
 (function () {
   'use strict';
@@ -48966,8 +48967,8 @@
       pseudoAsked = true;
       return askPseudo(function () { startMode(mode); });
     }
-    if (mode === 'bac') game = E.createGame(BANK, { seen: seenIds() });
-    else game = E.createRelax(RELAX, {});
+    if (mode === 'bac') game = E.createGame(BANK, { seen: seenIds('bac') });
+    else game = E.createRelax(RELAX, { seen: seenIds('detente') });
     feedback = null; revealed = null; mcOpen = false; draft = ''; anim = null; lastQ = null;
     jokersAnnounced = false;
     view = 'play'; startTimer(); render();
@@ -48994,12 +48995,22 @@
     view = 'play'; startTimer(); render();
   }
 
-  /** Historique des questions vues, conservé entre les parties (anti-répétition). */
-  function seenIds() {
-    try { return JSON.parse(localStorage.getItem('quizculture.seen')) || []; } catch (e) { return []; }
+  /* Historique des questions vues, conservé entre les parties (anti-répétition).
+   * Un tiroir par mode : les deux banques n'ont ni la même taille ni le même rythme, et
+   * les mélanger faisait tronquer l'historique du BAC par les parties de détente.
+   * Le plafond laisse toujours de quoi recycler : 1 200 mémorisées sur 1 608 questions
+   * en BAC, 700 sur 1 000 en détente. Passé ce seuil, les plus anciennes redeviennent
+   * disponibles — le joueur ne peut donc jamais se retrouver à court. */
+  var SEEN_KEY = { bac: 'quizculture.seen', detente: 'quizculture.seen.detente' };
+  var SEEN_MAX = { bac: 1200, detente: 700 };
+
+  function seenIds(mode) {
+    try { return JSON.parse(localStorage.getItem(SEEN_KEY[mode] || SEEN_KEY.bac)) || []; }
+    catch (e) { return []; }
   }
-  function saveSeen(ids) {
-    try { localStorage.setItem('quizculture.seen', JSON.stringify(ids.slice(-1200))); } catch (e) { /* ignore */ }
+  function saveSeen(mode, ids) {
+    var key = SEEN_KEY[mode] || SEEN_KEY.bac, max = SEEN_MAX[mode] || SEEN_MAX.bac;
+    try { localStorage.setItem(key, JSON.stringify(ids.slice(-max))); } catch (e) { /* ignore */ }
   }
 
   function renderPlay() {
@@ -49117,10 +49128,18 @@
         '<button class="choice pub" id="p-publish"><b>🏆 Publier mon score</b>' +
           '<small>Ton score de ' + game.score + ' points rejoint le classement' +
           (game.mode === 'detente' ? '' : ' de la classe ' + esc(p.level)) + ', et la partie s\'arrête.</small></button>' +
+        '<button class="choice again" id="p-restart"><b>↻ Recommencer</b>' +
+          '<small>Une nouvelle partie ' + (game.mode === 'detente' ? 'détente' : 'du CP au BAC') +
+          ', tout de suite. La partie en cours est perdue.</small></button>' +
         '<button class="choice quit" id="p-quit"><b>✕ Abandonner</b>' +
           '<small>Retour à l\'accueil sans enregistrer ni sauvegarder.</small></button>' +
       '</div>';
     document.getElementById('info').onclick = openRules;
+    document.getElementById('p-restart').onclick = function () {
+      stopTimer();
+      S.clearSlot();
+      startMode(game.mode);
+    };
     document.getElementById('p-resume').onclick = function () { view = 'play'; startTimer(); render(); };
     document.getElementById('p-save').onclick = function () {
       autoSave();
@@ -49138,7 +49157,7 @@
     stopTimer();
     var level = game.mode === 'bac' ? E.progress(game).level : null;
     try {
-      if (game.mode === 'bac') saveSeen(game.seen);
+      saveSeen(game.mode, game.seen);
       S.submit({ pseudo: S.getPseudo(), score: game.score, mode: game.mode, level: level,
         seconds: E.progress(game).spent });
     } catch (e) { /* score non enregistré */ }
@@ -49754,7 +49773,7 @@
     else if (r.event === 'resetToFirst') sfx.heart();
     else sfx.bad();
     if (r.bonus) setTimeout(sfx.bonus, 420);
-    saveSeen(game.seen);          // mémoire des questions vues, d'une partie à l'autre
+    saveSeen(game.mode, game.seen);   // mémoire des questions vues, d'une partie à l'autre
     autoSave();                   // et sauvegarde de la partie en cours
     render();
     setTimeout(function () {
@@ -49783,7 +49802,7 @@
     S.clearSlot();                // la partie est terminée : plus rien à reprendre
     // enregistrement et son isolés : s'ils échouent, l'écran de fin s'affiche quand même
     try {
-      saveSeen(game.seen);
+      saveSeen(game.mode, game.seen);
       S.submit({
         pseudo: S.getPseudo(), score: game.score, mode: game.mode === 'bac' ? 'bac' : 'detente',
         level: game.mode === 'bac' ? ALL_LEVELS[Math.min(game.levelIndex, ALL_LEVELS.length - 1)] : null,
