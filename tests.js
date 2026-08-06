@@ -140,14 +140,10 @@ eq(good(s, 'mc').points, 1, 'le QCM rapporte 1 point');
 ok(!E.progress(s).mcForced, 'garde-fou levé après une bonne réponse');
 
 // ---------------------------------------------------------------- timer
-section('Timer, rachat et expiration (mode BAC)');
+section('Timer et expiration (mode BAC)');
 s = game();
 eq(s.timeLeft, 30, 'timer de 30 s');
-eq(E.buyTime(s).ok, false, 'rachat impossible sans point');
-good(s, 'free');
-eq(E.buyTime(s).ok, true, 'rachat possible');
-eq(s.timeLeft, 45, '+15 secondes');
-eq(s.score, 1, '−1 point');
+ok(typeof E.buyTime === 'undefined', 'le rachat de temps a bien été retiré');
 s = game();
 goodRun(s, 2);
 r = E.timeout(s);
@@ -189,14 +185,12 @@ eq(good(d, 'mc').points, 1, 'le QCM rapporte 1 point');
 r = E.timeout(d);
 eq(r.lost, 0, 'un timeout ne coûte rien');
 eq(E.progress(d).question, 5, 'et fait avancer');
-eq(E.buyTime(d).ok, true, 'le rachat de temps existe aussi en détente');
-eq(d.timeLeft, 45, '+15 secondes');
 
 d = relaxGame();
 guard = 0;
 while (!d.finished && guard++ < 100) good(d, 'free');
 eq(d.finished, true, 'la partie se termine après 30 questions');
-eq(d.score, 60, 'score maximum : 30 × 2 points');
+eq(d.score, 76, 'score maximum en détente : 30 × 2 points + 16 primes de rapidité');
 eq(d.correctCount, 30, '30 bonnes réponses comptées');
 
 // ---------------------------------------------------------------- sauvegarde et reprise
@@ -316,10 +310,8 @@ s.timeLeft = 25;
 good(s);
 eq(E.progress(s).spent, 15, 'le compteur s\'additionne question après question');
 s.timeLeft = 10;
-E.buyTime(s);                          // +15 s achetés : le budget suit
-eq(s.timeLeft, 25, 'le rachat ajoute 15 secondes');
 good(s);
-eq(E.progress(s).spent, 35, 'le temps racheté compte aussi');
+eq(E.progress(s).spent, 35, 'une question longue compte pour ce qu\'elle dure');
 s.timeLeft = 0;
 E.timeout(s);
 eq(E.progress(s).spent, 65, 'un temps écoulé compte le temps entier');
@@ -472,6 +464,31 @@ relax.themes.forEach(function (th) {
   var n = relax.questions.filter(function (x) { return x.theme === th; }).length;
   ok(n >= 125, 'thème « ' + th + ' » complet (' + n + ' questions)');
 });
+
+// ---------------------------------------------------------------- prime de rapidité
+section('Prime de rapidité');
+s = game();
+ok(!E.speedOpen(s), 'fermée au CP');
+eq(good(s, 'free').speed, 0, 'aucune prime avant le CM1');
+// on avance jusqu'au CM1
+var g2 = 0;
+while (E.progress(s).level !== 'CM1' && g2++ < 200) goodRun(s, 1, 'free');
+ok(E.speedOpen(s), 'ouverte à partir du CM1');
+s.timeLeft = 30;                       // réponse immédiate
+eq(good(s, 'free').speed, 1, 'réponse libre rapide : +1 point');
+s.timeLeft = 30 - (E.CONFIG.speedBonusWithin + 1);   // une seconde de trop
+eq(good(s, 'free').speed, 0, 'au-delà du seuil, pas de prime');
+s.timeLeft = 30;
+eq(good(s, 'mc').speed || 0, 0, 'le choix multiple ne donne jamais de prime');
+
+d = relaxGame();
+ok(!E.speedOpen(d), 'détente : fermée sur les premières questions');
+var g3 = 0;
+while (E.progress(d).question < E.CONFIG.speedBonusFromQuestion && g3++ < 60) good(d, 'free');
+ok(E.speedOpen(d), 'détente : ouverte à la 15ème question');
+d.timeLeft = 30;
+eq(good(d, 'free').speed, 1, 'détente : réponse rapide primée');
+
 
 // ---------------------------------------------------------------- écritures équivalentes
 var qFrac = { accepted: ['1/5'], distractors: ['1/4', '2/5', '1/3', '3/10'], strict: true };

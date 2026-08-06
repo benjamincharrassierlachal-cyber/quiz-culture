@@ -257,6 +257,8 @@
   .choice.go{background:linear-gradient(120deg,#eef3ff,#fff)}
   .choice.save{background:linear-gradient(120deg,#fff6da,#fff)}
   .choice.pub{background:linear-gradient(120deg,#eafff5,#fff)}
+  .chip.speed{background:#fff6da; border-color:#f0d68a; color:#8a6a00; cursor:default}
+  .chip.speed.on{background:#ffe89a; border-color:#e5be3d; color:#5c4600}
   .choice.again{background:linear-gradient(120deg,#f2eeff,#fff)}
   .choice.quit{background:linear-gradient(120deg,#ffeef0,#fff)}
   .resume{background:linear-gradient(120deg,#fff2c9,#fff8e4)}
@@ -305,6 +307,7 @@
   var view = 'title';        // title | modes | play | pause | map | diploma | endBac | endRelax | ranking
   var game = null, tick = null, feedback = null, mcOpen = false, revealed = null;
   var jokersAnnounced = false;   // l'écran « tu as 3 jokers » ne s'affiche qu'une fois par partie
+  var speedAnnounced = false;    // idem pour l'écran « prime de rapidité »
   var recognizing = false, draft = '', anim = null, pseudoAsked = false, rank = null, lastQ = null;
   var rankMeSeen = false;    // une seule ancre de défilement, même si le pseudo apparaît plusieurs fois
 
@@ -569,11 +572,16 @@
     if (view === 'pause') return renderPause();
     if (view === 'map') return renderMap();
     if (view === 'jokers') return renderJokersIntro();
+    if (view === 'speed') return renderSpeedIntro();
     if (view === 'rules') return renderRules();
     if (view === 'diploma') return renderDiploma();
     if (view === 'endBac') return renderEndBac();
     if (view === 'endRelax') return renderEndRelax();
     if (view === 'ranking') return renderRanking();
+    // la prime de rapidité s'ouvre en cours de partie : on l'annonce avant la question suivante
+    if (game && !game.finished && !speedAnnounced && E.speedOpen(game)) {
+      speedAnnounced = true; stopTimer(); view = 'speed'; return renderSpeedIntro();
+    }
     renderPlay();
   }
 
@@ -859,7 +867,7 @@
     if (mode === 'bac') game = E.createGame(BANK, { seen: seenIds('bac') });
     else game = E.createRelax(RELAX, { seen: seenIds('detente') });
     feedback = null; revealed = null; mcOpen = false; draft = ''; anim = null; lastQ = null;
-    jokersAnnounced = false;
+    jokersAnnounced = false; speedAnnounced = false;
     view = 'play'; startTimer(); render();
   }
 
@@ -881,6 +889,7 @@
     var pr = E.progress(game);
     jokersAnnounced = !(pr.jokersOpen && pr.jokers && pr.jokers.fifty && pr.jokers.swap && pr.jokers.pass);
     if (!jokersAnnounced) { jokersAnnounced = true; view = 'jokers'; return render(); }
+    speedAnnounced = E.speedOpen(game);   // déjà ouverte à la reprise : inutile de la présenter
     view = 'play'; startTimer(); render();
   }
 
@@ -951,7 +960,9 @@
         (feedback && feedback.delta ? '<span class="gain ' + (feedback.delta > 0 ? 'plus">+' : 'minus">') + feedback.delta + '</span>' : '') +
         '<div class="timer ' + cls + '"><i style="width:' + pct + '%"></i></div>' +
         '<div class="between"><small class="muted">' + Math.ceil(game.timeLeft) + ' s</small>' +
-          '<button class="chip" id="buy" ' + (game.score < 1 ? 'disabled' : '') + '>−1 point → +15 s</button></div>' +
+          (E.speedOpen(game)
+            ? '<span class="chip speed' + (E.speedBonus(game) ? ' on' : '') + '">⚡ +1 avant 11 s</span>'
+            : '') + '</div>' +
         (p.jokersOpen ? jokerBar(p) : '') +
         '<div class="subject" style="color:' + (SUBJECT_COLORS[q.subject || p.subject] || '#0aa2c0') + '">' +
           esc(p.mode === 'bac' ? (q.subject || p.subject) : (q.theme || p.theme || '')) + '</div>' +
@@ -1113,9 +1124,14 @@
           '<li><b>5 propositions</b> : <b>1 point</b></li></ul>' +
 
           '<h2>Le temps</h2>' +
-          '<p>30 secondes par question. Tu peux acheter <b>+15 secondes contre 1 point</b>, autant de ' +
-          'fois que tu as des points. Temps écoulé : <b>−2 points</b>, tu gardes ta place et une ' +
+          '<p>30 secondes par question. Temps écoulé : <b>−2 points</b>, tu gardes ta place et une ' +
           'nouvelle question arrive.</p>' +
+
+          '<h2>La prime de rapidité ⚡</h2>' +
+          '<p>Une <b>réponse libre</b> donnée avant la <b>11ème seconde</b> rapporte <b>1 point de ' +
+          'plus</b>. Elle s\'applique à partir du <b>CM1</b> en mode BAC, et à partir de la ' +
+          '<b>15ème question</b> en mode détente.</p>' +
+          '<p>Le choix multiple n\'y donne jamais droit : savoir vite rapporte plus que deviner vite.</p>' +
 
           '<h2>Se tromper</h2>' +
           '<ul><li><b>Réponse libre fausse</b> : aucune perte, mais la question suivante se joue ' +
@@ -1211,6 +1227,30 @@
             '<span class="jk-txt"><b>' + r.label + '</b><small>' + r.use + '</small></span>' +
             '<span class="jk-cost">−' + cost + ' pts</span></div>';
         }).join('') +
+        '<button class="btn go" id="next">C\'est parti !</button>' +
+      '</div>';
+    document.getElementById('info').onclick = openRules;
+    document.getElementById('next').onclick = function () { view = 'play'; startTimer(); render(); };
+  }
+
+
+  /** Annonce de la prime de rapidité, sur le modèle de l'écran des jokers. */
+  function renderSpeedIntro() {
+    var c = E.CONFIG;
+    var quand = game.mode === 'detente'
+      ? 'à partir de la ' + c.speedBonusFromQuestion + 'ème question'
+      : 'à partir du CM1';
+    app.innerHTML =
+      '<div class="card center">' + infoBtn() +
+        '<h1>Vitesse débloquée ⚡</h1>' +
+        '<p class="muted" style="margin-top:0">Désormais, ' + quand + ', une <b>réponse libre ' +
+          'donnée avant la ' + (c.speedBonusWithin + 1) + 'ème seconde</b> rapporte ' +
+          '<b>+' + c.speedBonusPoints + ' point</b>.</p>' +
+        '<div class="jk-row"><span class="joker big">⚡</span>' +
+          '<span class="jk-txt"><b>Réponse libre rapide</b><small>Avant ' + c.speedBonusWithin +
+          ' secondes</small></span><span class="jk-cost">+' + c.speedBonusPoints + ' pt</span></div>' +
+        '<div class="hint" style="margin-top:10px">La prime ne s\'applique pas au choix multiple : ' +
+          'savoir vite rapporte plus que deviner vite.</div>' +
         '<button class="btn go" id="next">C\'est parti !</button>' +
       '</div>';
     document.getElementById('info').onclick = openRules;
@@ -1546,8 +1586,6 @@
       autoSave();
       view = 'pause'; render();
     };
-    var buy = document.getElementById('buy');
-    if (buy) buy.onclick = function () { if (E.buyTime(game).ok) sfx.buy(); render(); };
     var input = document.getElementById('free');
     var form = document.getElementById('answer-form');
     if (form) form.onsubmit = function (e) { e.preventDefault(); submitFree(); };

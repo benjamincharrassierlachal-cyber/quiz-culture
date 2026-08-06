@@ -17,8 +17,10 @@
     pointsFree: 2,
     pointsMC: 1,
     timerSeconds: 30,
-    timeBuySeconds: 15,
-    timeBuyCost: 1,
+    speedBonusPoints: 1,        // prime de rapidité, réservée à la réponse libre
+    speedBonusWithin: 10,       // accordée si l'on répond avant la 11ème seconde
+    speedBonusFromLevel: 3,     // mode BAC : à partir du CM1
+    speedBonusFromQuestion: 15, // mode détente : à partir de la 15ème question
     mcOptions: 5,
     forceMCAfterFreeWrong: 1, // une réponse libre fausse ⇒ QCM imposé sur la suivante
     resetScope: 'level',      // une erreur de QCM renvoie au début de la classe
@@ -294,6 +296,29 @@
     return state.mode === 'bac' && n > 0 && state.freeWrongStreak >= n;
   }
 
+  /** La prime de rapidité est-elle ouverte à ce stade de la partie ?
+   *  Détente : à partir de la 15ème question. BAC : à partir du CM1. */
+  function speedOpen(state) {
+    if (!state) return false;
+    if (state.mode === 'detente') {
+      return (state.index + 1) >= state.config.speedBonusFromQuestion;
+    }
+    return state.levelIndex >= state.config.speedBonusFromLevel;
+  }
+
+  /** Secondes écoulées sur la question en cours. */
+  function elapsedOnQuestion(state) {
+    var budget = state.budget || state.config.timerSeconds;
+    return Math.max(0, budget - state.timeLeft);
+  }
+
+  /** Points de rapidité gagnés sur cette réponse — 0 si trop lent ou pas encore ouverte. */
+  function speedBonus(state) {
+    if (!speedOpen(state)) return 0;
+    return elapsedOnQuestion(state) <= state.config.speedBonusWithin
+      ? state.config.speedBonusPoints : 0;
+  }
+
   /** Ajoute au compteur de temps ce que la question vient de coûter. */
   function tickSpent(state) {
     var used = (state.budget || state.config.timerSeconds) - state.timeLeft;
@@ -474,20 +499,27 @@
     if (state.finished) return { ok: false, reason: 'finished' };
     if (mustUseMC(state)) return { ok: false, reason: 'mcForced' };
     var q = state.current;
+    var prime = speedBonus(state);          // mesuré avant que le chrono ne soit réarmé
     tickSpent(state);
     var correct = checkFree(q, input);
-    var res = { mode: 'free', correct: correct, question: q, given: input, points: 0, lost: 0 };
+    var res = { mode: 'free', correct: correct, question: q, given: input, points: 0, lost: 0, speed: 0 };
 
     if (state.mode === 'detente') {
-      if (correct) { award(state, state.config.pointsFree); res.points = state.config.pointsFree; state.correctCount++; }
+      if (correct) {
+        award(state, state.config.pointsFree + prime);
+        res.points = state.config.pointsFree + prime;
+        res.speed = prime;
+        state.correctCount++;
+      }
       res.event = relaxNext(state);
       state.log.push(res);
       return res;
     }
 
     if (correct) {
-      award(state, state.config.pointsFree);
-      res.points = state.config.pointsFree;
+      award(state, state.config.pointsFree + prime);
+      res.points = state.config.pointsFree + prime;
+      res.speed = prime;
       res.event = advance(state);
       res.bonus = state.bonus;
     } else {
@@ -591,16 +623,6 @@
     }
     state.log.push({ mode: 'joker', kind: kind, correct: false, points: 0, lost: res.cost });
     return res;
-  }
-
-  /** Sacrifier 1 point pour +15 s (les deux modes). */
-  function buyTime(state) {
-    if (state.finished) return { ok: false, reason: 'finished' };
-    if (state.score < state.config.timeBuyCost) return { ok: false, reason: 'noPoints' };
-    penalize(state, state.config.timeBuyCost);
-    state.timeLeft += state.config.timeBuySeconds;
-    state.budget += state.config.timeBuySeconds;
-    return { ok: true, timeLeft: state.timeLeft, score: state.score };
   }
 
   /** Le timer arrive à zéro. */
@@ -752,6 +774,8 @@
     bank.levels.forEach(function (lv, i) {
       var n = bank.subjects.filter(function (s) { return pools[lv + '|' + s]; }).length;
       total += n * CONFIG.pointsFree;
+      // à partir du CM1, chaque réponse libre rapide vaut un point de plus
+      if (i >= CONFIG.speedBonusFromLevel) total += n * CONFIG.speedBonusPoints;
       if (i < CONFIG.bonusLifeFromLevel) total += CONFIG.perfectBonusPoints;
     });
     return total;
@@ -761,6 +785,8 @@
     CONFIG: CONFIG,
     normalize: normalize,
     levenshtein: levenshtein,
+    speedBonus: speedBonus,
+    speedOpen: speedOpen,
     toRational: toRational,
     sameValue: sameValue,
     toNumber: toNumber,
@@ -770,7 +796,6 @@
     nextQuestion: nextQuestion,
     answerFree: answerFree,
     answerMC: answerMC,
-    buyTime: buyTime,
     penalizePause: penalizePause,
     useJoker: useJoker,
     canUseJoker: canUseJoker,
