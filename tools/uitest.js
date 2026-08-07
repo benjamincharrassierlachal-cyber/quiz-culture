@@ -436,6 +436,29 @@ function runRestart() {
 }
 
 
+// ------------------------------------------------------------------ page des défis
+function runDefis() {
+  store = { 'quizculture.mute': '1', 'quizculture.pseudo': 'Testeur' };
+  var ui = boot(true);
+  ui.click('start');
+  if (!/id="m-defi"/.test(lastHtml.app)) return { ok: false, reason: 'pas de bouton Défi sur l\'accueil' };
+  if (!ui.click('m-defi')) return { ok: false, reason: 'bouton Défi inactif' };
+  if (!/Défier un joueur/.test(lastHtml.app)) return { ok: false, reason: 'la page des défis ne s\'affiche pas' };
+  if (!/Relever un défi/.test(lastHtml.app)) return { ok: false, reason: 'entrée « relever » absente' };
+
+  if (!ui.click('d-lancer')) return { ok: false, reason: 'bouton « défier un joueur » inactif' };
+  if (!/Qui veux-tu défier/.test(lastHtml.app)) return { ok: false, reason: 'le choix de l\'adversaire ne s\'affiche pas' };
+  if (!/abandonner compte comme une défaite/i.test(lastHtml.app)) {
+    return { ok: false, reason: 'la règle de l\'abandon n\'est pas annoncée' };
+  }
+  if (!ui.click('back')) return { ok: false, reason: 'retour impossible depuis le choix' };
+  if (!/Défier un joueur/.test(lastHtml.app)) return { ok: false, reason: 'le retour ne ramène pas aux défis' };
+  if (!ui.click('menu')) return { ok: false, reason: 'retour au menu impossible' };
+  if (!/Choisis ton mode/.test(lastHtml.app)) return { ok: false, reason: 'le menu ne revient pas' };
+  return { ok: true, end: 'accueil → défis → choix de l\'adversaire → retour, sans réseau' };
+}
+
+
 var sr;
 try { sr = runSaveResume(); } catch (e) { sr = { ok: false, reason: 'EXCEPTION : ' + e.message }; }
 if (sr.ok) console.log('  ok   Pause, sauvegarde et reprise : ' + sr.end);
@@ -445,6 +468,11 @@ var rs;
 try { rs = runRestart(); } catch (e) { rs = { ok: false, reason: 'EXCEPTION : ' + e.message }; }
 if (rs.ok) console.log('  ok   Recommencer depuis la pause : ' + rs.end);
 else { fails++; console.log('  FAIL Recommencer depuis la pause : ' + rs.reason); }
+
+var df;
+try { df = runDefis(); } catch (e) { df = { ok: false, reason: 'EXCEPTION : ' + e.message }; }
+if (df.ok) console.log('  ok   Page des défis : ' + df.end);
+else { fails++; console.log('  FAIL Page des défis : ' + df.reason); }
 
 console.log(fails ? '\n' + fails + ' parcours en échec' : '\nTous les parcours aboutissent.');
 process.exit(fails ? 1 : 0);

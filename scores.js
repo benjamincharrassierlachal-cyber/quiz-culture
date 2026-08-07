@@ -148,6 +148,60 @@
     return t.slice(0, 2) + new Array(t.length - 2).join('*') + t.slice(-1);
   }
 
+
+  // ------------------------------------------------------------------ défis (mode détente)
+  /* Un défi oppose deux joueurs sur la même liste de questions. C'est la graine du tirage
+   * aléatoire qui garantit cette égalité : à graine identique, le moteur compose la même
+   * file. L'historique des questions vues doit donc être ignoré pendant un défi, sinon les
+   * deux files divergeraient — chacun n'ayant pas vu les mêmes questions. */
+  function defiGraine() {
+    try {
+      var buf = new Uint32Array(1);
+      (self.crypto || window.crypto).getRandomValues(buf);
+      return buf[0] % 2147483647;
+    } catch (e) { return Math.floor(Math.random() * 2147483647); }
+  }
+
+  /** Qui l'emporte ? Le score, puis le temps à score égal — comme au classement. */
+  function defiGagne(monScore, mesSecondes, sonScore, sesSecondes) {
+    if (monScore !== sonScore) return monScore > sonScore;
+    return (mesSecondes || 0) < (sesSecondes || 0);
+  }
+
+  /** Dépose un défi : ma partie est déjà jouée, mon score part avec. */
+  function defiLancer(toPseudo, toMasque, score, seconds, seed, abandon) {
+    return rpc('defi_lancer', {
+      p_from_tag: getTag(), p_from_pseudo: getPseudo() || 'Anonyme',
+      p_to_pseudo: toPseudo, p_to_masque: toMasque,
+      p_score: Math.round(score || 0), p_seconds: Math.round(seconds || 0),
+      p_seed: seed, p_abandon: !!abandon
+    });
+  }
+
+  /** Ce qui m'attend : défis reçus et résultats non consultés. */
+  function defiBoite() {
+    return rpc('defi_boite', { p_tag: getTag() }).then(function (rows) { return rows || []; });
+  }
+
+  function defiRepondre(id, accepte, score, seconds, abandon) {
+    return rpc('defi_repondre', {
+      p_id: id, p_tag: getTag(), p_accepte: !!accepte,
+      p_score: score === undefined || score === null ? null : Math.round(score),
+      p_seconds: seconds === undefined || seconds === null ? null : Math.round(seconds),
+      p_abandon: !!abandon
+    });
+  }
+
+  function defiVu(id) { return rpc('defi_vu', { p_id: id, p_tag: getTag() }); }
+
+  function defiBilan() {
+    return rpc('defi_bilan', { p_tag: getTag() }).then(function (r) {
+      var b = (r && r[0]) || r || {};
+      return { gagnes: b.gagnes || 0, perdus: b.perdus || 0,
+               refuses: b.refuses || 0, attente: b.attente || 0 };
+    });
+  }
+
   /** Appel d'une fonction Supabase (RPC). Renvoie le message du serveur en cas de refus. */
   function rpc(name, args) {
     var c = conf();
@@ -447,6 +501,13 @@
     pseudoValid: pseudoValid,
     getPseudo: getPseudo,
     setPseudo: setPseudo,
+    defiLancer: defiLancer,
+    defiBoite: defiBoite,
+    defiRepondre: defiRepondre,
+    defiVu: defiVu,
+    defiBilan: defiBilan,
+    defiGraine: defiGraine,
+    defiGagne: defiGagne,
     getTag: getTag,
     maskTag: maskTag,
     accounts: accounts,
