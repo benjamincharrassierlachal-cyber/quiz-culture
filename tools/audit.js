@@ -17,14 +17,16 @@ function auditBank(set, label, groupKey) {
     var key = q.prompt.toLowerCase().replace(/\s+/g, ' ').trim();   // brut : × et + comptent
     if (prompts[key]) warn(label + ' : énoncé en doublon ' + q.id + ' ≡ ' + prompts[key]); else prompts[key] = q.id;
     if (q.distractors.length !== 4) warn(label + ' : 4 distracteurs attendus ' + q.id);
-    if (new Set(q.distractors.map(E.normalize)).size !== 4) warn(label + ' : distracteurs en doublon ' + q.id);
+    // sur une formule, les symboles font toute la différence : on compare comme le moteur
+    var norme = q.strict ? E.normalizeStrict : E.normalize;
+    if (new Set(q.distractors.map(norme)).size !== 4) warn(label + ' : distracteurs en doublon ' + q.id);
     if (!E.checkFree(q, q.answer)) warn(label + ' : réponse canonique refusée ' + q.id);
     q.accepted.forEach(function (a) { if (!E.checkFree(q, a)) warn(label + ' : variante refusée ' + q.id + ' (' + a + ')'); });
     q.distractors.forEach(function (d) { if (E.checkFree(q, d)) warn(label + ' : distracteur accepté ' + q.id + ' (' + d + ')'); });
     if (q.prompt.length < 12) warn(label + ' : énoncé très court ' + q.id);
     var g = groupKey(q);
     groups[g] = (groups[g] || 0) + 1;
-    var ak = g + '|' + E.normalize(q.answer);
+    var ak = g + '|' + norme(q.answer);
     if (answers[ak]) warn(label + ' : même réponse deux fois dans ' + g + ' (' + q.id + ' ≡ ' + answers[ak] + ')');
     else answers[ak] = q.id;
   });

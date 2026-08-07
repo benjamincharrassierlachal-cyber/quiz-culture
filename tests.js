@@ -54,9 +54,14 @@ ok(!E.checkFree(qChaton, 'chiot'), 'mauvaise réponse refusée');
 ok(!E.checkFree(qChaton, ''), 'réponse vide refusée');
 var qChev = findQ('ce1-fr-002');
 ok(!E.checkFree(qChev, 'chevaus'), 'orthographe exigée sur une question de pluriel');
-var qEau = findQ('3e-sci-004');
+// question synthétique : ce test porte sur le moteur, il ne doit pas dépendre d'un id de la banque
+var qEau = { answer: 'H2O', accepted: ['H2O', 'h2o'], distractors: ['HO2', 'CO2', 'O2', 'H2'], strict: true };
 ok(E.checkFree(qEau, 'h2o'), 'formule chimique acceptée en minuscules');
 ok(!E.checkFree(qEau, 'HO2'), 'formule voisine refusée');
+ok(E.checkFree({ answer: '2x² + 5x − 12', accepted: ['2x^2 + 5x - 12'], distractors: [], strict: true },
+  '2x2+5x-12'), 'formule mathématique : exposant et espaces indifférents');
+ok(!E.checkFree({ answer: '2x² + 5x − 12', accepted: ['2x² + 5x − 12'], distractors: [], strict: true },
+  '2x² − 5x − 12'), 'un signe qui change rend la formule fausse');
 
 // ---------------------------------------------------------------- structure BAC
 section('Mode BAC : matières par classe, Sciences dès la 6ème');
@@ -437,7 +442,8 @@ section('Banques de questions');
   set.b.questions.forEach(function (x) {
     if (ids[x.id]) bad.push('id en doublon ' + x.id); else ids[x.id] = 1;
     if (x.distractors.length !== 4) bad.push('distracteurs ≠ 4 : ' + x.id);
-    if (new Set(x.distractors.map(E.normalize)).size !== 4) bad.push('distracteurs en doublon : ' + x.id);
+    var norme = x.strict ? E.normalizeStrict : E.normalize;   // sur une formule, les symboles comptent
+    if (new Set(x.distractors.map(norme)).size !== 4) bad.push('distracteurs en doublon : ' + x.id);
     if (!E.checkFree(x, x.answer)) bad.push('réponse canonique refusée : ' + x.id);
     x.accepted.forEach(function (a) { if (!E.checkFree(x, a)) bad.push('variante refusée : ' + x.id); });
     x.distractors.forEach(function (dd) { if (E.checkFree(x, dd)) bad.push('distracteur accepté : ' + x.id); });
@@ -488,6 +494,22 @@ while (E.progress(d).question < E.CONFIG.speedBonusFromQuestion && g3++ < 60) go
 ok(E.speedOpen(d), 'détente : ouverte à la 15ème question');
 d.timeLeft = 30;
 eq(good(d, 'free').speed, 1, 'détente : réponse rapide primée');
+
+
+// ---------------------------------------------------------------- énumérations inversées
+var qLoi = {
+  accepted: ["l'Église et l'État", 'Église et État'],
+  distractors: ["l'école et la famille", 'la justice et la police', "l'armée et la nation", 'le roi et le peuple']
+};
+["l'Église et l'État", "l'État et l'Église", 'etat et eglise', 'Eglise et Etat',
+ "les Églises et l'État", "l'État et les Églises"
+].forEach(function (a) {
+  ok(E.checkFree(qLoi, a), 'énumération dans un ordre ou dans l\'autre : ' + a);
+});
+qLoi.distractors.forEach(function (d) {
+  ok(!E.checkFree(qLoi, d), 'le leurre reste refusé : ' + d);
+});
+ok(!E.checkFree(qLoi, "l'État et l'école"), 'un seul membre juste ne suffit pas');
 
 
 // ---------------------------------------------------------------- écritures équivalentes

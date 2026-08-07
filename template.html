@@ -896,11 +896,11 @@
   /* Historique des questions vues, conservé entre les parties (anti-répétition).
    * Un tiroir par mode : les deux banques n'ont ni la même taille ni le même rythme, et
    * les mélanger faisait tronquer l'historique du BAC par les parties de détente.
-   * Le plafond laisse toujours de quoi recycler : 1 200 mémorisées sur 1 608 questions
+   * Le plafond laisse toujours de quoi recycler : 2 000 mémorisées sur 2 753 questions
    * en BAC, 700 sur 1 000 en détente. Passé ce seuil, les plus anciennes redeviennent
    * disponibles — le joueur ne peut donc jamais se retrouver à court. */
   var SEEN_KEY = { bac: 'quizculture.seen', detente: 'quizculture.seen.detente' };
-  var SEEN_MAX = { bac: 1200, detente: 700 };
+  var SEEN_MAX = { bac: 2000, detente: 700 };
 
   function seenIds(mode) {
     try { return JSON.parse(localStorage.getItem(SEEN_KEY[mode] || SEEN_KEY.bac)) || []; }

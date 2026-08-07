@@ -101,7 +101,7 @@
       "id": "det-cg-006",
       "theme": "Culture générale",
       "difficulty": 1,
-      "prompt": "Quel astre éclaire la Terre pendant la nuit ?",
+      "prompt": "Quel satellite naturel de la Terre est souvent visible la nuit ?",
       "answer": "la Lune",
       "accepted": [
         "lune",
@@ -111,14 +111,14 @@
         "le Soleil",
         "Mars",
         "Vénus",
-        "une comète"
+        "Phobos"
       ]
     },
     {
       "id": "det-cg-007",
       "theme": "Culture générale",
       "difficulty": 1,
-      "prompt": "Combien de couleurs compte un arc-en-ciel ?",
+      "prompt": "Combien de couleurs distingue-t-on traditionnellement dans un arc-en-ciel ?",
       "answer": "7",
       "accepted": [
         "7",
@@ -136,11 +136,12 @@
       "id": "det-cg-008",
       "theme": "Culture générale",
       "difficulty": 1,
-      "prompt": "Quel liquide représente environ 60 % du corps humain ?",
+      "prompt": "Quelle substance représente environ 60 % du corps humain adulte ?",
       "answer": "l'eau",
       "accepted": [
         "eau",
-        "l eau"
+        "l eau",
+        "l'eau"
       ],
       "distractors": [
         "le sang",
@@ -190,7 +191,8 @@
       "answer": "l'argent",
       "accepted": [
         "argent",
-        "l argent"
+        "l argent",
+        "l'argent"
       ],
       "distractors": [
         "le cuivre",
@@ -203,7 +205,7 @@
       "id": "det-cg-012",
       "theme": "Culture générale",
       "difficulty": 2,
-      "prompt": "Combien de minutes met la lumière du Soleil pour atteindre la Terre ?",
+      "prompt": "Environ combien de minutes la lumière du Soleil met-elle pour atteindre la Terre ?",
       "answer": "8",
       "accepted": [
         "8",
@@ -239,7 +241,7 @@
       "id": "det-cg-014",
       "theme": "Culture générale",
       "difficulty": 2,
-      "prompt": "Quel pays compte le plus de fuseaux horaires ?",
+      "prompt": "Quel pays compte le plus de fuseaux horaires grâce à ses territoires ultramarins ?",
       "answer": "la France",
       "accepted": [
         "france",
@@ -260,7 +262,9 @@
       "answer": "la chauve-souris",
       "accepted": [
         "chauve souris",
-        "la chauve souris"
+        "la chauve souris",
+        "chauve-souris",
+        "la chauve-souris"
       ],
       "distractors": [
         "l'écureuil volant",
@@ -276,7 +280,8 @@
       "prompt": "Quelle est la planète la plus chaude du système solaire ?",
       "answer": "Vénus",
       "accepted": [
-        "venus"
+        "venus",
+        "vénus"
       ],
       "distractors": [
         "Mercure",
@@ -290,7 +295,7 @@
       "theme": "Culture générale",
       "difficulty": 3,
       "prompt": "Quelle est la seule mer du monde sans aucune côte ?",
-      "answer": "la mer des Sargasses",
+      "answer": "mer des Sargasses",
       "accepted": [
         "mer des sargasses",
         "la mer des sargasses",
@@ -328,7 +333,11 @@
       "answer": "l'étain",
       "accepted": [
         "etain",
-        "l etain"
+        "l etain",
+        "étain",
+        "l étain",
+        "l'etain",
+        "l'étain"
       ],
       "distractors": [
         "le sodium",
@@ -362,7 +371,11 @@
       "answer": "l'étrier",
       "accepted": [
         "etrier",
-        "l etrier"
+        "l etrier",
+        "étrier",
+        "l étrier",
+        "l'etrier",
+        "l'étrier"
       ],
       "distractors": [
         "le marteau",
@@ -393,10 +406,12 @@
       "id": "det-cg-023",
       "theme": "Culture générale",
       "difficulty": 3,
-      "prompt": "Combien de cordes compte une harpe de concert ?",
+      "prompt": "Combien de cordes compte généralement une harpe à pédales de concert standard ?",
       "answer": "47",
       "accepted": [
-        "47"
+        "47",
+        "quarante-sept",
+        "quarante sept"
       ],
       "distractors": [
         "36",
@@ -414,7 +429,11 @@
       "answer": "l'hydrogène",
       "accepted": [
         "hydrogene",
-        "l hydrogene"
+        "l hydrogene",
+        "hydrogène",
+        "l hydrogène",
+        "l'hydrogene",
+        "l'hydrogène"
       ],
       "distractors": [
         "l'hélium",
@@ -494,17 +513,17 @@
       "id": "det-cin-005",
       "theme": "Cinéma",
       "difficulty": 1,
-      "prompt": "Dans quel film un garçon est-il oublié seul à la maison pendant Noël ?",
-      "answer": "Maman, j'ai raté l'avion",
+      "prompt": "Comment s'appelle le garçon oublié chez lui dans « Maman, j'ai raté l'avion » ?",
+      "answer": "Kevin McCallister",
       "accepted": [
-        "maman j ai rate l avion",
-        "home alone"
+        "kevin mccallister",
+        "kevin"
       ],
       "distractors": [
-        "Le Grinch",
-        "Elfe",
-        "Un fauteuil pour deux",
-        "Le Pôle Express"
+        "Macaulay Culkin",
+        "Buzz McCallister",
+        "Richie Rich",
+        "Dennis Mitchell"
       ]
     },
     {
@@ -581,7 +600,8 @@
       "answer": "Jean-Pierre Jeunet",
       "accepted": [
         "jeunet",
-        "jean pierre jeunet"
+        "jean pierre jeunet",
+        "Jean-Pierre Jeunet"
       ],
       "distractors": [
         "Luc Besson",
@@ -594,16 +614,16 @@
       "id": "det-cin-011",
       "theme": "Cinéma",
       "difficulty": 2,
-      "prompt": "Quel film de James Cameron a longtemps détenu le record des recettes mondiales ?",
+      "prompt": "Quel film de James Cameron se déroule principalement sur la lune Pandora ?",
       "answer": "Avatar",
       "accepted": [
         "avatar"
       ],
       "distractors": [
         "Titanic",
-        "Avengers: Endgame",
-        "Star Wars VII",
-        "Jurassic World"
+        "Abyss",
+        "Terminator",
+        "Aliens"
       ]
     },
     {
@@ -678,17 +698,17 @@
       "id": "det-cin-016",
       "theme": "Cinéma",
       "difficulty": 2,
-      "prompt": "Dans quel film Robin Williams incarne-t-il un professeur de lettres inspirant ?",
-      "answer": "Le Cercle des poètes disparus",
+      "prompt": "Qui incarne le professeur John Keating dans « Le Cercle des poètes disparus » ?",
+      "answer": "Robin Williams",
       "accepted": [
-        "le cercle des poetes disparus",
-        "cercle des poetes disparus"
+        "robin williams",
+        "williams"
       ],
       "distractors": [
-        "Will Hunting",
-        "Jack",
-        "Madame Doubtfire",
-        "Le Club des empereurs"
+        "Tom Hanks",
+        "Dustin Hoffman",
+        "Kevin Kline",
+        "Billy Crystal"
       ]
     },
     {
@@ -699,7 +719,8 @@
       "answer": "Andreï Tarkovski",
       "accepted": [
         "tarkovski",
-        "andrei tarkovski"
+        "andrei tarkovski",
+        "Andreï Tarkovski"
       ],
       "distractors": [
         "Sergueï Eisenstein",
@@ -712,18 +733,18 @@
       "id": "det-cin-018",
       "theme": "Cinéma",
       "difficulty": 3,
-      "prompt": "Quel film est considéré comme le premier long métrage parlant ?",
-      "answer": "Le Chanteur de jazz",
+      "prompt": "Quel film de 1927 est célèbre pour avoir popularisé le cinéma parlant ?",
+      "answer": "The Jazz Singer",
       "accepted": [
-        "le chanteur de jazz",
-        "chanteur de jazz",
-        "the jazz singer"
+        "the jazz singer",
+        "jazz singer",
+        "le chanteur de jazz"
       ],
       "distractors": [
-        "Naissance d'une nation",
         "Metropolis",
         "Le Kid",
-        "Les Lumières de la ville"
+        "Les Lumières de la ville",
+        "Nosferatu"
       ]
     },
     {
@@ -770,7 +791,10 @@
       "answer": "La Vie d'Adèle",
       "accepted": [
         "la vie d adele",
-        "vie d adele"
+        "vie d adele",
+        "La Vie d Adèle",
+        "La Vie d'Adele",
+        "La Vie d'Adèle"
       ],
       "distractors": [
         "Entre les murs",
@@ -783,7 +807,7 @@
       "id": "det-cin-022",
       "theme": "Cinéma",
       "difficulty": 3,
-      "prompt": "Quelle actrice détient le record de nominations aux Oscars ?",
+      "prompt": "Quelle actrice a cumulé 21 nominations aux Oscars entre 1979 et 2018 ?",
       "answer": "Meryl Streep",
       "accepted": [
         "meryl streep",
@@ -791,8 +815,8 @@
       ],
       "distractors": [
         "Katharine Hepburn",
-        "Bette Davis",
         "Cate Blanchett",
+        "Bette Davis",
         "Judi Dench"
       ]
     },
@@ -804,7 +828,8 @@
       "answer": "Jean-Luc Godard",
       "accepted": [
         "godard",
-        "jean luc godard"
+        "jean luc godard",
+        "Jean-Luc Godard"
       ],
       "distractors": [
         "François Truffaut",
@@ -821,7 +846,8 @@
       "answer": "Daniel Day-Lewis",
       "accepted": [
         "daniel day lewis",
-        "day lewis"
+        "day lewis",
+        "daniel day-lewis"
       ],
       "distractors": [
         "Jack Nicholson",
@@ -834,7 +860,7 @@
       "id": "det-spo-001",
       "theme": "Sport",
       "difficulty": 1,
-      "prompt": "Combien de joueurs de champ compte une équipe de football sur le terrain ?",
+      "prompt": "Combien de joueurs compte une équipe de football sur le terrain, gardien compris ?",
       "answer": "11",
       "accepted": [
         "11",
@@ -874,7 +900,8 @@
       "accepted": [
         "90",
         "90 minutes",
-        "quatre-vingt-dix"
+        "quatre-vingt-dix",
+        "quatre vingt dix"
       ],
       "distractors": [
         "60",
@@ -977,11 +1004,13 @@
       "id": "det-spo-009",
       "theme": "Sport",
       "difficulty": 2,
-      "prompt": "Quel pays a remporté le plus de Coupes du monde de football ?",
+      "prompt": "Quelle sélection masculine a remporté cinq Coupes du monde de football entre 1958 et 2002 ?",
       "answer": "le Brésil",
       "accepted": [
         "bresil",
-        "le bresil"
+        "le bresil",
+        "Brésil",
+        "le Brésil"
       ],
       "distractors": [
         "l'Allemagne",
@@ -998,7 +1027,8 @@
       "answer": "18",
       "accepted": [
         "18",
-        "dix-huit"
+        "dix-huit",
+        "dix huit"
       ],
       "distractors": [
         "9",
@@ -1158,17 +1188,20 @@
       "id": "det-spo-019",
       "theme": "Sport",
       "difficulty": 3,
-      "prompt": "Quel est le record du monde du 100 mètres masculin, en secondes ?",
-      "answer": "9,58",
+      "prompt": "Quel temps Usain Bolt a-t-il réalisé sur 100 m lors de son record mondial de 2009 ?",
+      "answer": "9,58 s",
       "accepted": [
         "9,58",
-        "9.58"
+        "9.58",
+        "9,58 s",
+        "9.58 s",
+        "9,58 secondes"
       ],
       "distractors": [
-        "9,69",
-        "9,85",
-        "10,49",
-        "9,72"
+        "9,69 s",
+        "9,85 s",
+        "10,49 s",
+        "9,72 s"
       ],
       "numeric": true
     },
@@ -1180,7 +1213,11 @@
       "answer": "l'Écosse",
       "accepted": [
         "ecosse",
-        "l ecosse"
+        "l ecosse",
+        "Écosse",
+        "l écosse",
+        "l'Ecosse",
+        "l'Écosse"
       ],
       "distractors": [
         "le Canada",
@@ -1214,7 +1251,13 @@
       "answer": "la Nouvelle-Zélande",
       "accepted": [
         "nouvelle zelande",
-        "la nouvelle zelande"
+        "la nouvelle zelande",
+        "Nouvelle Zélande",
+        "Nouvelle-Zelande",
+        "nouvelle-zélande",
+        "la Nouvelle Zélande",
+        "la nouvelle-zelande",
+        "la Nouvelle-Zélande"
       ],
       "distractors": [
         "l'Australie",
@@ -1227,7 +1270,7 @@
       "id": "det-spo-023",
       "theme": "Sport",
       "difficulty": 3,
-      "prompt": "Quel nageur détient le record de médailles olympiques ?",
+      "prompt": "Quel nageur a remporté 28 médailles olympiques au cours de sa carrière ?",
       "answer": "Michael Phelps",
       "accepted": [
         "michael phelps",
@@ -1237,14 +1280,14 @@
         "Mark Spitz",
         "Ian Thorpe",
         "Caeleb Dressel",
-        "Alain Bernard"
+        "Ryan Lochte"
       ]
     },
     {
       "id": "det-spo-024",
       "theme": "Sport",
       "difficulty": 3,
-      "prompt": "Quel joueur détient le record de titres à Roland-Garros ?",
+      "prompt": "Quel joueur a remporté 14 titres en simple à Roland-Garros ?",
       "answer": "Rafael Nadal",
       "accepted": [
         "nadal",
@@ -1252,10 +1295,10 @@
         "rafa nadal"
       ],
       "distractors": [
-        "Roger Federer",
         "Novak Djokovic",
         "Björn Borg",
-        "Pete Sampras"
+        "Roger Federer",
+        "Carlos Alcaraz"
       ]
     },
     {
@@ -1280,17 +1323,17 @@
       "id": "det-mus-002",
       "theme": "Musique",
       "difficulty": 1,
-      "prompt": "Quel instrument possède des touches blanches et noires ?",
+      "prompt": "Quel instrument standard possède 88 touches blanches et noires ?",
       "answer": "le piano",
       "accepted": [
         "piano",
         "le piano"
       ],
       "distractors": [
-        "l'orgue de Barbarie",
+        "le clavecin",
         "l'accordéon",
-        "la harpe",
-        "le xylophone"
+        "l'orgue",
+        "le synthétiseur"
       ]
     },
     {
@@ -1314,17 +1357,17 @@
       "id": "det-mus-004",
       "theme": "Musique",
       "difficulty": 1,
-      "prompt": "De quel instrument joue-t-on avec un archet ?",
+      "prompt": "Quel instrument à cordes aigu se joue généralement sous le menton avec un archet ?",
       "answer": "le violon",
       "accepted": [
         "violon",
         "le violon"
       ],
       "distractors": [
-        "la flûte",
-        "la trompette",
-        "la batterie",
-        "la guitare"
+        "l'alto",
+        "le violoncelle",
+        "la contrebasse",
+        "la harpe"
       ]
     },
     {
@@ -1348,18 +1391,17 @@
       "id": "det-mus-006",
       "theme": "Musique",
       "difficulty": 1,
-      "prompt": "Quel instrument frappe-t-on avec des baguettes ?",
+      "prompt": "Quel ensemble de percussions comprend notamment caisse claire, grosse caisse et cymbales ?",
       "answer": "la batterie",
       "accepted": [
         "batterie",
-        "la batterie",
-        "tambour"
+        "la batterie"
       ],
       "distractors": [
-        "le piano",
-        "la contrebasse",
-        "la clarinette",
-        "le violoncelle"
+        "le xylophone",
+        "le vibraphone",
+        "les timbales",
+        "le marimba"
       ]
     },
     {
@@ -1400,10 +1442,12 @@
       "id": "det-mus-009",
       "theme": "Musique",
       "difficulty": 2,
-      "prompt": "Combien de touches compte un piano de concert ?",
+      "prompt": "Combien de touches compte un piano standard moderne ?",
       "answer": "88",
       "accepted": [
-        "88"
+        "88",
+        "quatre-vingt-huit",
+        "quatre vingt huit"
       ],
       "distractors": [
         "76",
@@ -1454,7 +1498,9 @@
       "answer": "la Jamaïque",
       "accepted": [
         "jamaique",
-        "la jamaique"
+        "la jamaique",
+        "jamaïque",
+        "la Jamaïque"
       ],
       "distractors": [
         "Cuba",
@@ -1537,10 +1583,12 @@
       "id": "det-mus-017",
       "theme": "Musique",
       "difficulty": 3,
-      "prompt": "Combien de symphonies Mozart a-t-il composées ?",
+      "prompt": "Combien de symphonies numérotées compte traditionnellement le catalogue de Mozart ?",
       "answer": "41",
       "accepted": [
-        "41"
+        "41",
+        "quarante et une",
+        "quarante-et-une"
       ],
       "distractors": [
         "9",
@@ -1574,7 +1622,8 @@
       "prompt": "Dans quelle ville se déroule l'opéra « Carmen » de Bizet ?",
       "answer": "Séville",
       "accepted": [
-        "seville"
+        "seville",
+        "Séville"
       ],
       "distractors": [
         "Madrid",
@@ -1587,7 +1636,7 @@
       "id": "det-mus-020",
       "theme": "Musique",
       "difficulty": 3,
-      "prompt": "Combien de cordes compte une contrebasse d'orchestre ?",
+      "prompt": "Combien de cordes possède généralement une contrebasse standard d'orchestre ?",
       "answer": "4",
       "accepted": [
         "4",
@@ -1622,7 +1671,7 @@
       "id": "det-mus-022",
       "theme": "Musique",
       "difficulty": 3,
-      "prompt": "Quel album de Michael Jackson est le plus vendu de l'histoire ?",
+      "prompt": "Quel album de Michael Jackson, sorti en 1982, contient notamment « Billie Jean » et « Beat It » ?",
       "answer": "Thriller",
       "accepted": [
         "thriller"
@@ -1676,7 +1725,8 @@
       "answer": "28",
       "accepted": [
         "28",
-        "vingt-huit"
+        "vingt-huit",
+        "vingt huit"
       ],
       "distractors": [
         "29",
@@ -1746,7 +1796,8 @@
       "accepted": [
         "oiseau",
         "l oiseau",
-        "les oiseaux"
+        "les oiseaux",
+        "l'oiseau"
       ],
       "distractors": [
         "le serpent",
@@ -1849,7 +1900,11 @@
       "accepted": [
         "arctique",
         "l ocean arctique",
-        "ocean arctique"
+        "ocean arctique",
+        "océan arctique",
+        "l océan Arctique",
+        "l'ocean arctique",
+        "l'océan arctique"
       ],
       "distractors": [
         "l'océan Indien",
@@ -1866,7 +1921,8 @@
       "answer": "l'arachnophobie",
       "accepted": [
         "arachnophobie",
-        "l arachnophobie"
+        "l arachnophobie",
+        "l'arachnophobie"
       ],
       "distractors": [
         "l'agoraphobie",
@@ -2015,18 +2071,19 @@
       "id": "det-cg-045",
       "theme": "Culture générale",
       "difficulty": 3,
-      "prompt": "Quel est le plus long mur du monde ?",
-      "answer": "la Grande Muraille de Chine",
+      "prompt": "Quel ensemble fortifié chinois dépasse 20 000 km en comptant ses différentes sections ?",
+      "answer": "Grande Muraille",
       "accepted": [
         "grande muraille",
-        "la grande muraille de chine",
-        "muraille de chine"
+        "la grande muraille",
+        "grande muraille de chine",
+        "la grande muraille de chine"
       ],
       "distractors": [
-        "le mur d'Hadrien",
-        "le mur de Berlin",
-        "le limes romain",
-        "le mur des Lamentations"
+        "mur d'Hadrien",
+        "mur de Berlin",
+        "mur des Lamentations",
+        "Kremlin"
       ]
     },
     {
@@ -2037,7 +2094,9 @@
       "answer": "le Génie",
       "accepted": [
         "genie",
-        "le genie"
+        "le genie",
+        "Génie",
+        "le génie"
       ],
       "distractors": [
         "Jafar",
@@ -2103,7 +2162,8 @@
       "answer": "Winnie l'ourson",
       "accepted": [
         "winnie",
-        "winnie l ourson"
+        "winnie l ourson",
+        "winnie l'ourson"
       ],
       "distractors": [
         "Baloo",
@@ -2255,7 +2315,8 @@
       "answer": "Les Évadés",
       "accepted": [
         "les evades",
-        "the shawshank redemption"
+        "the shawshank redemption",
+        "les évadés"
       ],
       "distractors": [
         "La Ligne verte",
@@ -2289,7 +2350,8 @@
       "answer": "Sergueï Eisenstein",
       "accepted": [
         "eisenstein",
-        "serguei eisenstein"
+        "serguei eisenstein",
+        "Sergueï Eisenstein"
       ],
       "distractors": [
         "Dziga Vertov",
@@ -2373,17 +2435,19 @@
       "id": "det-cin-045",
       "theme": "Cinéma",
       "difficulty": 3,
-      "prompt": "Quel film muet français de 1902 montre un voyage vers la Lune ?",
-      "answer": "Le Voyage dans la Lune",
+      "prompt": "Qui a réalisé le film français de 1902 « Le Voyage dans la Lune » ?",
+      "answer": "Georges Méliès",
       "accepted": [
-        "le voyage dans la lune",
-        "voyage dans la lune"
+        "georges melies",
+        "méliès",
+        "melies",
+        "georges méliès"
       ],
       "distractors": [
-        "L'Arroseur arrosé",
-        "Le Ballon rouge",
-        "L'Arrivée d'un train",
-        "La Sortie de l'usine"
+        "Louis Lumière",
+        "Abel Gance",
+        "René Clair",
+        "Jean Renoir"
       ]
     },
     {
@@ -2425,11 +2489,12 @@
       "id": "det-spo-027",
       "theme": "Sport",
       "difficulty": 1,
-      "prompt": "Combien de minutes dure un round de boxe professionnelle ?",
+      "prompt": "Combien de minutes dure un round de boxe professionnelle masculine ?",
       "answer": "3",
       "accepted": [
         "3",
-        "trois"
+        "trois",
+        "3 minutes"
       ],
       "distractors": [
         "2",
@@ -2477,17 +2542,17 @@
       "id": "det-spo-030",
       "theme": "Sport",
       "difficulty": 1,
-      "prompt": "Combien de couloirs compte un bassin olympique de natation ?",
-      "answer": "8",
+      "prompt": "Combien de couloirs compte un bassin olympique moderne de compétition ?",
+      "answer": "10",
       "accepted": [
-        "8",
-        "huit"
+        "10",
+        "dix"
       ],
       "distractors": [
+        "8",
         "6",
-        "10",
-        "4",
-        "12"
+        "12",
+        "9"
       ],
       "numeric": true
     },
@@ -2518,7 +2583,8 @@
       "accepted": [
         "argent",
         "l argent",
-        "argente"
+        "argente",
+        "l'argent"
       ],
       "distractors": [
         "l'or",
@@ -2724,18 +2790,18 @@
       "id": "det-spo-044",
       "theme": "Sport",
       "difficulty": 3,
-      "prompt": "Quel club a remporté le plus de Ligues des champions de football ?",
-      "answer": "le Real Madrid",
+      "prompt": "Quel club avait remporté 15 Coupes d'Europe/Champions League à l'issue de la saison 2025-2026 ?",
+      "answer": "Real Madrid",
       "accepted": [
         "real madrid",
         "le real madrid",
         "real"
       ],
       "distractors": [
-        "le Milan AC",
-        "le FC Barcelone",
-        "le Bayern Munich",
-        "Liverpool"
+        "AC Milan",
+        "Liverpool",
+        "Bayern Munich",
+        "FC Barcelone"
       ]
     },
     {
@@ -2747,7 +2813,13 @@
       "accepted": [
         "etats unis",
         "les etats unis",
-        "usa"
+        "usa",
+        "Etats-Unis",
+        "États Unis",
+        "états-unis",
+        "les Etats-Unis",
+        "les états unis",
+        "les États-Unis"
       ],
       "distractors": [
         "le Japon",
@@ -2765,7 +2837,9 @@
       "accepted": [
         "chef d orchestre",
         "le chef d orchestre",
-        "chef"
+        "chef",
+        "chef d'orchestre",
+        "le chef d'orchestre"
       ],
       "distractors": [
         "le soliste",
@@ -2953,7 +3027,10 @@
       "accepted": [
         "nouvelle orleans",
         "la nouvelle orleans",
-        "new orleans"
+        "new orleans",
+        "la nouvelle orléans",
+        "La Nouvelle-Orleans",
+        "La Nouvelle-Orléans"
       ],
       "distractors": [
         "Chicago",
@@ -2988,7 +3065,9 @@
       "accepted": [
         "synthetiseur",
         "le synthetiseur",
-        "synthe"
+        "synthe",
+        "synthétiseur",
+        "le synthétiseur"
       ],
       "distractors": [
         "l'orgue Hammond",
@@ -3005,7 +3084,8 @@
       "answer": "Frédéric Chopin",
       "accepted": [
         "chopin",
-        "frederic chopin"
+        "frederic chopin",
+        "frédéric chopin"
       ],
       "distractors": [
         "Franz Liszt",
@@ -3068,16 +3148,16 @@
       "id": "det-mus-043",
       "theme": "Musique",
       "difficulty": 3,
-      "prompt": "Quelle chanson des Beatles est la plus reprise de l'histoire ?",
+      "prompt": "Quelle chanson des Beatles porte un titre anglais signifiant « hier » ?",
       "answer": "Yesterday",
       "accepted": [
         "yesterday"
       ],
       "distractors": [
-        "Hey Jude",
-        "Let It Be",
+        "Tomorrow Never Knows",
         "Help!",
-        "Something"
+        "Something",
+        "Because"
       ]
     },
     {
@@ -3105,7 +3185,8 @@
       "answer": "l'orgue",
       "accepted": [
         "orgue",
-        "l orgue"
+        "l orgue",
+        "l'orgue"
       ],
       "distractors": [
         "le clavecin",
@@ -3137,7 +3218,8 @@
       "answer": "l'Italie",
       "accepted": [
         "italie",
-        "l'italie"
+        "l'italie",
+        "l Italie"
       ],
       "distractors": [
         "l'Espagne",
@@ -3154,7 +3236,8 @@
       "answer": "l'oignon",
       "accepted": [
         "oignon",
-        "l'oignon"
+        "l'oignon",
+        "l oignon"
       ],
       "distractors": [
         "la carotte",
@@ -3171,7 +3254,9 @@
       "answer": "le bœuf",
       "accepted": [
         "boeuf",
-        "le boeuf"
+        "le boeuf",
+        "bœuf",
+        "le bœuf"
       ],
       "distractors": [
         "l'agneau",
@@ -3202,11 +3287,17 @@
     {
       "difficulty": 1,
       "prompt": "Comment appelle-t-on un œuf cuit trois minutes dans l'eau bouillante, encore coulant ?",
-      "answer": "un œuf à la coque",
+      "answer": "œuf à coque",
       "accepted": [
-        "a la coque",
         "oeuf a la coque",
-        "un oeuf a la coque"
+        "un oeuf a la coque",
+        "œuf à la coque",
+        "un œuf à la coque",
+        "oeuf a coque",
+        "œuf à coque",
+        "œuf a coque",
+        "œuf a la coque",
+        "un œuf a la coque"
       ],
       "distractors": [
         "un œuf dur",
@@ -3223,7 +3314,8 @@
       "answer": "l'avocat",
       "accepted": [
         "avocat",
-        "l'avocat"
+        "l'avocat",
+        "l avocat"
       ],
       "distractors": [
         "la tomate",
@@ -3240,7 +3332,9 @@
       "answer": "le café",
       "accepted": [
         "cafe",
-        "le cafe"
+        "le cafe",
+        "café",
+        "le café"
       ],
       "distractors": [
         "le thé",
@@ -3270,12 +3364,11 @@
     },
     {
       "difficulty": 1,
-      "prompt": "Quel plat japonais associe riz vinaigré et poisson cru ?",
+      "prompt": "Quel mets japonais repose sur du riz vinaigré, souvent accompagné de poisson ou de légumes ?",
       "answer": "le sushi",
       "accepted": [
         "sushi",
-        "le sushi",
-        "sushis"
+        "le sushi"
       ],
       "distractors": [
         "le ramen",
@@ -3288,17 +3381,18 @@
     },
     {
       "difficulty": 1,
-      "prompt": "Quelle épice rouge et douce colore le poulet basquaise ?",
-      "answer": "le paprika",
+      "prompt": "Quel piment du Pays basque parfume traditionnellement le poulet basquaise ?",
+      "answer": "piment d'Espelette",
       "accepted": [
-        "paprika",
-        "le paprika"
+        "piment d espelette",
+        "piment d'espelette",
+        "espelette"
       ],
       "distractors": [
-        "le curcuma",
-        "le cumin",
-        "la cannelle",
-        "le poivre"
+        "paprika fumé",
+        "piment de Cayenne",
+        "poivre noir",
+        "safran"
       ],
       "id": "det-gas-011",
       "theme": "Gastronomie"
@@ -3620,7 +3714,9 @@
       "answer": "le déjeuner",
       "accepted": [
         "dejeuner",
-        "le dejeuner"
+        "le dejeuner",
+        "déjeuner",
+        "le déjeuner"
       ],
       "distractors": [
         "le dîner",
@@ -3782,7 +3878,10 @@
       "accepted": [
         "jus d'orange",
         "le jus d'orange",
-        "un jus d'orange"
+        "un jus d'orange",
+        "jus d orange",
+        "le jus d orange",
+        "un jus d orange"
       ],
       "distractors": [
         "la limonade",
@@ -3801,7 +3900,13 @@
         "etats-unis",
         "les etats-unis",
         "usa",
-        "amerique"
+        "amerique",
+        "Etats Unis",
+        "États Unis",
+        "états-unis",
+        "les Etats Unis",
+        "les états unis",
+        "les États-Unis"
       ],
       "distractors": [
         "l'Allemagne",
@@ -3837,7 +3942,9 @@
       "accepted": [
         "buche",
         "la buche",
-        "buche de noel"
+        "buche de noel",
+        "bûche",
+        "la bûche"
       ],
       "distractors": [
         "le sablé",
@@ -3889,7 +3996,9 @@
       "answer": "la béchamel",
       "accepted": [
         "bechamel",
-        "la bechamel"
+        "la bechamel",
+        "béchamel",
+        "la béchamel"
       ],
       "distractors": [
         "la hollandaise",
@@ -3955,10 +4064,12 @@
     {
       "difficulty": 2,
       "prompt": "Quelle pâte utilise-t-on pour les choux et les éclairs ?",
-      "answer": "la pâte à choux",
+      "answer": "pâte à choux",
       "accepted": [
         "pate a choux",
-        "la pate a choux"
+        "la pate a choux",
+        "pâte à choux",
+        "la pâte à choux"
       ],
       "distractors": [
         "la pâte sablée",
@@ -3971,15 +4082,17 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quel pays est le premier producteur mondial de café ?",
+      "prompt": "Selon les estimations USDA 2025-2026, quel pays est le premier producteur mondial de café ?",
       "answer": "le Brésil",
       "accepted": [
         "bresil",
-        "le bresil"
+        "le bresil",
+        "brésil",
+        "le brésil"
       ],
       "distractors": [
-        "la Colombie",
         "le Viêt Nam",
+        "la Colombie",
         "l'Éthiopie",
         "l'Indonésie"
       ],
@@ -3988,18 +4101,16 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Que veut dire « al dente » pour des pâtes ?",
-      "answer": "fermes sous la dent",
+      "prompt": "Quel terme italien décrit des pâtes encore légèrement fermes sous la dent ?",
+      "answer": "al dente",
       "accepted": [
-        "fermes sous la dent",
-        "ferme sous la dent",
-        "encore fermes"
+        "al dente"
       ],
       "distractors": [
-        "très cuites",
-        "sans sel",
-        "servies froides",
-        "cuites au four"
+        "al forno",
+        "alla panna",
+        "ben cotte",
+        "al fresco"
       ],
       "id": "det-gas-051",
       "theme": "Gastronomie"
@@ -4115,7 +4226,8 @@
       "answer": "Modène",
       "accepted": [
         "modene",
-        "modena"
+        "modena",
+        "Modène"
       ],
       "distractors": [
         "Vérone",
@@ -4128,36 +4240,42 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quel est le principal ingrédient du tarama ?",
-      "answer": "les œufs de cabillaud",
+      "prompt": "Quel type d'œufs constitue la base du tarama ?",
+      "answer": "œufs de poisson",
       "accepted": [
-        "oeufs de cabillaud",
-        "les oeufs de cabillaud",
         "oeufs de poisson",
-        "oeufs de morue"
+        "œufs de poisson",
+        "oeufs de cabillaud",
+        "œufs de cabillaud",
+        "oeufs de carpe",
+        "œufs de carpe"
       ],
       "distractors": [
-        "le saumon fumé",
-        "le crabe",
-        "la crevette",
-        "le thon"
+        "œufs de poule",
+        "œufs de caille",
+        "œufs d'escargot",
+        "œufs de tortue"
       ],
       "id": "det-gas-059",
       "theme": "Gastronomie"
     },
     {
       "difficulty": 2,
-      "prompt": "À quelle température, en degrés, sert-on idéalement un vin rouge de garde ?",
-      "answer": "16",
+      "prompt": "Entre quelles températures sert-on généralement un vin rouge de garde ?",
+      "answer": "16-18 °C",
       "accepted": [
-        "16",
-        "seize"
+        "16-18",
+        "16 18",
+        "16-18 °c",
+        "16 à 18",
+        "16 a 18",
+        "16 18 °C"
       ],
       "distractors": [
-        "8",
-        "12",
-        "22",
-        "25"
+        "4-6 °C",
+        "8-10 °C",
+        "22-24 °C",
+        "30-32 °C"
       ],
       "numeric": true,
       "id": "det-gas-060",
@@ -4218,17 +4336,17 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quel pays a inventé la tempura ?",
+      "prompt": "Dans quel pays la tempura s'est-elle développée comme spécialité culinaire ?",
       "answer": "le Japon",
       "accepted": [
         "japon",
         "le japon"
       ],
       "distractors": [
+        "le Portugal",
         "la Chine",
         "la Corée",
-        "la Thaïlande",
-        "le Portugal"
+        "la Thaïlande"
       ],
       "id": "det-gas-064",
       "theme": "Gastronomie"
@@ -4239,7 +4357,9 @@
       "answer": "le consommé",
       "accepted": [
         "consomme",
-        "le consomme"
+        "le consomme",
+        "consommé",
+        "le consommé"
       ],
       "distractors": [
         "le velouté",
@@ -4257,7 +4377,8 @@
       "accepted": [
         "paris-brest",
         "le paris-brest",
-        "paris brest"
+        "paris brest",
+        "le paris brest"
       ],
       "distractors": [
         "le saint-honoré",
@@ -4294,7 +4415,11 @@
       "accepted": [
         "estremadure",
         "l'estremadure",
-        "extremadure"
+        "extremadure",
+        "Estrémadure",
+        "l estremadure",
+        "l Estrémadure",
+        "l'estrémadure"
       ],
       "distractors": [
         "la Catalogne",
@@ -4341,18 +4466,21 @@
     },
     {
       "difficulty": 2,
-      "prompt": "De quelle famille de plantes la vanille est-elle issue ?",
-      "answer": "l'orchidée",
+      "prompt": "À quelle famille botanique appartient la vanille ?",
+      "answer": "les Orchidacées",
       "accepted": [
-        "orchidee",
-        "l'orchidee",
-        "les orchidees"
+        "orchidacees",
+        "les orchidacees",
+        "orchidacées",
+        "les orchidacées",
+        "orchidees",
+        "orchidées"
       ],
       "distractors": [
-        "le palmier",
-        "le poivrier",
-        "le cacaoyer",
-        "le bananier"
+        "les Rosacées",
+        "les Fabacées",
+        "les Poacées",
+        "les Rutacées"
       ],
       "id": "det-gas-071",
       "theme": "Gastronomie"
@@ -4360,7 +4488,7 @@
     {
       "difficulty": 2,
       "prompt": "Quelle expression désigne les ingrédients préparés et rangés avant le service ?",
-      "answer": "la mise en place",
+      "answer": "mise en place",
       "accepted": [
         "mise en place",
         "la mise en place"
@@ -4487,7 +4615,9 @@
       "answer": "le saké",
       "accepted": [
         "sake",
-        "le sake"
+        "le sake",
+        "saké",
+        "le saké"
       ],
       "distractors": [
         "le soju",
@@ -4517,19 +4647,18 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quel type de cuisson se fait sous vide dans un bain d'eau à température contrôlée ?",
-      "answer": "la cuisson basse température",
+      "prompt": "Comment appelle-t-on la cuisson d'un aliment emballé sous vide dans un bain à température contrôlée ?",
+      "answer": "sous-vide",
       "accepted": [
-        "basse temperature",
-        "cuisson basse temperature",
-        "la cuisson basse temperature",
-        "sous vide"
+        "sous vide",
+        "sous-vide",
+        "cuisson sous vide"
       ],
       "distractors": [
-        "le pochage",
-        "la nage",
-        "le confisage",
-        "l'étuvée"
+        "braisage",
+        "pochage",
+        "rôtissage",
+        "friture"
       ],
       "id": "det-gas-081",
       "theme": "Gastronomie"
@@ -4553,18 +4682,19 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quelle viande compose traditionnellement le tartare de bœuf servi cru ?",
-      "answer": "le filet",
+      "prompt": "Comment appelle-t-on une préparation de bœuf cru finement haché et assaisonné ?",
+      "answer": "tartare",
       "accepted": [
-        "filet",
-        "le filet",
-        "filet de boeuf"
+        "tartare",
+        "tartare de boeuf",
+        "tartare de bœuf",
+        "steak tartare"
       ],
       "distractors": [
-        "le paleron",
-        "la joue",
-        "le collier",
-        "le jarret"
+        "carpaccio",
+        "tataki",
+        "roast-beef",
+        "pastrami"
       ],
       "id": "det-gas-083",
       "theme": "Gastronomie"
@@ -4588,7 +4718,7 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quel cépage unique compose un champagne « blanc de blancs » ?",
+      "prompt": "Quel cépage est le plus souvent utilisé seul pour élaborer un champagne « blanc de blancs » ?",
       "answer": "le chardonnay",
       "accepted": [
         "chardonnay",
@@ -4606,11 +4736,13 @@
     {
       "difficulty": 3,
       "prompt": "Quelle réaction chimique donne aux aliments grillés leur couleur brune et leurs arômes ?",
-      "answer": "la réaction de Maillard",
+      "answer": "réaction de Maillard",
       "accepted": [
-        "maillard",
         "reaction de maillard",
-        "la reaction de maillard"
+        "la reaction de maillard",
+        "réaction de Maillard",
+        "la réaction de Maillard",
+        "maillard"
       ],
       "distractors": [
         "la caramélisation",
@@ -4626,7 +4758,8 @@
       "prompt": "Quel physico-chimiste français a fondé la gastronomie moléculaire avec Nicholas Kurti ?",
       "answer": "Hervé This",
       "accepted": [
-        "herve this"
+        "herve this",
+        "hervé this"
       ],
       "distractors": [
         "Raymond Blanc",
@@ -4675,7 +4808,7 @@
     {
       "difficulty": 3,
       "prompt": "Comment appelle-t-on la seconde fermentation en bouteille du champagne ?",
-      "answer": "la prise de mousse",
+      "answer": "prise de mousse",
       "accepted": [
         "prise de mousse",
         "la prise de mousse"
@@ -4697,7 +4830,10 @@
         "agar-agar",
         "agar agar",
         "l'agar agar",
-        "agar"
+        "agar",
+        "l agar agar",
+        "l agar-agar",
+        "l'agar-agar"
       ],
       "distractors": [
         "la pectine",
@@ -4715,7 +4851,9 @@
       "accepted": [
         "saucisson brioche",
         "le saucisson brioche",
-        "saucisson en brioche"
+        "saucisson en brioche",
+        "saucisson brioché",
+        "le saucisson brioché"
       ],
       "distractors": [
         "le tablier de sapeur",
@@ -4749,7 +4887,8 @@
       "answer": "l'umami",
       "accepted": [
         "umami",
-        "l'umami"
+        "l'umami",
+        "l umami"
       ],
       "distractors": [
         "le kokumi",
@@ -4785,7 +4924,8 @@
       "accepted": [
         "faux-filet",
         "le faux-filet",
-        "faux filet"
+        "faux filet",
+        "le faux filet"
       ],
       "distractors": [
         "le paleron",
@@ -4803,7 +4943,11 @@
       "accepted": [
         "opera",
         "l'opera",
-        "gateau opera"
+        "gateau opera",
+        "opéra",
+        "l opera",
+        "l opéra",
+        "l'opéra"
       ],
       "distractors": [
         "le succès",
@@ -4870,12 +5014,12 @@
     {
       "difficulty": 3,
       "prompt": "Quel plat bourguignon associe œufs pochés et sauce au vin rouge ?",
-      "answer": "les œufs en meurette",
+      "answer": "œufs en meurette",
       "accepted": [
         "oeufs en meurette",
         "les oeufs en meurette",
-        "meurette",
-        "en meurette"
+        "œufs en meurette",
+        "les œufs en meurette"
       ],
       "distractors": [
         "les œufs mimosa",
@@ -4904,17 +5048,17 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quels ingrédients composent la paella valenciana traditionnelle avec le poulet ?",
+      "prompt": "Quelle autre viande accompagne traditionnellement le poulet dans la paella valenciana ?",
       "answer": "le lapin",
       "accepted": [
         "lapin",
         "le lapin"
       ],
       "distractors": [
-        "le chorizo",
-        "le poulpe",
-        "les moules",
-        "le porc"
+        "le porc",
+        "l'agneau",
+        "le canard",
+        "le veau"
       ],
       "id": "det-gas-110",
       "theme": "Gastronomie"
@@ -4939,11 +5083,10 @@
     {
       "difficulty": 3,
       "prompt": "Quelle matière grasse remplace traditionnellement le beurre dans la cuisine du Sud-Ouest ?",
-      "answer": "la graisse de canard",
+      "answer": "graisse de canard",
       "accepted": [
         "graisse de canard",
-        "la graisse de canard",
-        "graisse d'oie"
+        "la graisse de canard"
       ],
       "distractors": [
         "l'huile d'olive",
@@ -4973,7 +5116,7 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quel fruit sert à préparer le chutney indien le plus répandu ?",
+      "prompt": "Quel fruit est couramment utilisé pour préparer un chutney servi avec des plats indiens ?",
       "answer": "la mangue",
       "accepted": [
         "mangue",
@@ -5028,7 +5171,8 @@
       "answer": "Antonin Carême",
       "accepted": [
         "antonin careme",
-        "careme"
+        "careme",
+        "Antonin Carême"
       ],
       "distractors": [
         "Auguste Escoffier",
@@ -5045,7 +5189,9 @@
       "answer": "la présure",
       "accepted": [
         "presure",
-        "la presure"
+        "la presure",
+        "présure",
+        "la présure"
       ],
       "distractors": [
         "la pepsine",
@@ -5058,10 +5204,11 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quel pays est le premier producteur mondial de vin ?",
+      "prompt": "Selon l'OIV, quel pays a été le premier producteur mondial de vin en 2025 ?",
       "answer": "l'Italie",
       "accepted": [
         "italie",
+        "l italie",
         "l'italie"
       ],
       "distractors": [
@@ -5149,7 +5296,9 @@
       "answer": "le câprier",
       "accepted": [
         "caprier",
-        "le caprier"
+        "le caprier",
+        "câprier",
+        "le câprier"
       ],
       "distractors": [
         "l'olivier",
@@ -5185,7 +5334,9 @@
       "accepted": [
         "aop",
         "l'aop",
-        "appellation d'origine protegee"
+        "appellation d'origine protegee",
+        "l AOP",
+        "appellation d origine protegee"
       ],
       "distractors": [
         "le Label rouge",
@@ -5215,7 +5366,7 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quel vin italien parfume le tiramisu dans sa recette traditionnelle ?",
+      "prompt": "Quel vin fortifié italien est parfois utilisé pour parfumer le tiramisu ?",
       "answer": "le marsala",
       "accepted": [
         "marsala",
@@ -5232,18 +5383,20 @@
     },
     {
       "difficulty": 3,
-      "prompt": "De quelle plante la tequila est-elle distillée ?",
-      "answer": "l'agave",
+      "prompt": "De quelle plante provient le distillat utilisé pour produire la tequila ?",
+      "answer": "agave bleu",
       "accepted": [
         "agave",
-        "l'agave",
-        "agave bleue"
+        "l agave",
+        "agave bleu",
+        "l agave bleu",
+        "l'agave bleu"
       ],
       "distractors": [
-        "la canne à sucre",
-        "le maïs",
-        "le cactus",
-        "le maguey rouge"
+        "canne à sucre",
+        "cactus nopal",
+        "yucca",
+        "aloès"
       ],
       "id": "det-gas-136",
       "theme": "Gastronomie"
@@ -5306,7 +5459,8 @@
       "accepted": [
         "leonard de vinci",
         "de vinci",
-        "vinci"
+        "vinci",
+        "Léonard de Vinci"
       ],
       "distractors": [
         "Michel-Ange",
@@ -5359,7 +5513,8 @@
       "accepted": [
         "rowling",
         "jk rowling",
-        "j k rowling"
+        "j k rowling",
+        "j. k. rowling"
       ],
       "distractors": [
         "Agatha Christie",
@@ -5377,7 +5532,10 @@
       "accepted": [
         "saint-exupery",
         "saint exupery",
-        "antoine de saint-exupery"
+        "antoine de saint-exupery",
+        "saint exupéry",
+        "Saint-Exupéry",
+        "antoine de saint exupery"
       ],
       "distractors": [
         "Jules Verne",
@@ -5390,7 +5548,7 @@
     },
     {
       "difficulty": 1,
-      "prompt": "Quel peintre néerlandais s'est coupé une oreille ?",
+      "prompt": "Quel peintre néerlandais s'est mutilé une partie de l'oreille en 1888 ?",
       "answer": "Van Gogh",
       "accepted": [
         "van gogh",
@@ -5408,11 +5566,12 @@
     {
       "difficulty": 1,
       "prompt": "Quelle statue grecque sans bras est exposée au Louvre ?",
-      "answer": "la Vénus de Milo",
+      "answer": "Vénus de Milo",
       "accepted": [
         "venus de milo",
         "la venus de milo",
-        "venus"
+        "vénus de milo",
+        "la vénus de milo"
       ],
       "distractors": [
         "la Victoire de Samothrace",
@@ -5544,11 +5703,11 @@
     },
     {
       "difficulty": 1,
-      "prompt": "Quel ingénieur a conçu la tour Eiffel ?",
+      "prompt": "Quel ingénieur français a donné son nom à la tour construite pour l'Exposition universelle de 1889 ?",
       "answer": "Gustave Eiffel",
       "accepted": [
-        "eiffel",
-        "gustave eiffel"
+        "gustave eiffel",
+        "eiffel"
       ],
       "distractors": [
         "Le Corbusier",
@@ -5582,7 +5741,9 @@
       "answer": "la poésie",
       "accepted": [
         "poesie",
-        "la poesie"
+        "la poesie",
+        "poésie",
+        "la poésie"
       ],
       "distractors": [
         "le roman",
@@ -5596,11 +5757,12 @@
     {
       "difficulty": 1,
       "prompt": "Comment appelle-t-on un texte écrit pour être joué sur scène ?",
-      "answer": "une pièce de théâtre",
+      "answer": "pièce de théâtre",
       "accepted": [
         "piece de theatre",
         "une piece de theatre",
-        "piece"
+        "pièce de théâtre",
+        "une pièce de théâtre"
       ],
       "distractors": [
         "un roman",
@@ -5719,7 +5881,13 @@
       "accepted": [
         "orsay",
         "le musee d'orsay",
-        "musee d'orsay"
+        "musee d'orsay",
+        "musee d Orsay",
+        "musée d Orsay",
+        "musée d'orsay",
+        "le musee d Orsay",
+        "le musée d Orsay",
+        "le musée d'orsay"
       ],
       "distractors": [
         "le Louvre",
@@ -5754,7 +5922,8 @@
       "answer": "Robinson Crusoé",
       "accepted": [
         "robinson crusoe",
-        "robinson"
+        "robinson",
+        "robinson crusoé"
       ],
       "distractors": [
         "L'Île au trésor",
@@ -5786,11 +5955,10 @@
     {
       "difficulty": 1,
       "prompt": "Quel conte met en scène une fillette, sa grand-mère et un loup ?",
-      "answer": "Le Petit Chaperon rouge",
+      "answer": "Petit Chaperon rouge",
       "accepted": [
-        "le petit chaperon rouge",
         "petit chaperon rouge",
-        "chaperon rouge"
+        "le petit chaperon rouge"
       ],
       "distractors": [
         "Hansel et Gretel",
@@ -5806,7 +5974,8 @@
       "prompt": "Qui a écrit « L'Odyssée » ?",
       "answer": "Homère",
       "accepted": [
-        "homere"
+        "homere",
+        "Homère"
       ],
       "distractors": [
         "Virgile",
@@ -5857,7 +6026,11 @@
       "answer": "l'opéra",
       "accepted": [
         "opera",
-        "l'opera"
+        "l'opera",
+        "opéra",
+        "l opera",
+        "l opéra",
+        "l'opéra"
       ],
       "distractors": [
         "le ballet",
@@ -5955,35 +6128,34 @@
     },
     {
       "difficulty": 1,
-      "prompt": "Comment appelle-t-on les panneaux de verre coloré des églises ?",
-      "answer": "le vitrail",
+      "prompt": "Comment appelle-t-on un panneau de verre coloré, souvent présent dans les églises ?",
+      "answer": "un vitrail",
       "accepted": [
         "vitrail",
-        "le vitrail",
-        "vitraux"
+        "un vitrail"
       ],
       "distractors": [
-        "la mosaïque",
-        "la fresque",
-        "le bas-relief",
-        "la tapisserie"
+        "une fresque",
+        "une mosaïque",
+        "une rosace",
+        "une icône"
       ],
       "id": "det-art-039",
       "theme": "Art et littérature"
     },
     {
       "difficulty": 1,
-      "prompt": "Quel roman suit une fillette tombée dans un terrier de lapin ?",
-      "answer": "Alice au pays des merveilles",
+      "prompt": "Comment s'appelle l'héroïne qui tombe dans un terrier de lapin dans le roman de Lewis Carroll ?",
+      "answer": "Alice",
       "accepted": [
-        "alice au pays des merveilles",
-        "alice"
+        "alice",
+        "alice liddell"
       ],
       "distractors": [
-        "Peter Pan",
-        "Le Magicien d'Oz",
-        "Pinocchio",
-        "Charlie et la chocolaterie"
+        "Dorothy",
+        "Wendy",
+        "Mathilda",
+        "Heidi"
       ],
       "id": "det-art-040",
       "theme": "Art et littérature"
@@ -5994,7 +6166,8 @@
       "answer": "Dumas père",
       "accepted": [
         "dumas pere",
-        "alexandre dumas pere"
+        "alexandre dumas pere",
+        "dumas père"
       ],
       "distractors": [
         "Victor Hugo",
@@ -6012,7 +6185,9 @@
       "accepted": [
         "bande dessinee",
         "la bande dessinee",
-        "bd"
+        "bd",
+        "bande dessinée",
+        "la bande dessinée"
       ],
       "distractors": [
         "l'illustration",
@@ -6046,7 +6221,8 @@
       "answer": "l'impressionnisme",
       "accepted": [
         "impressionnisme",
-        "l'impressionnisme"
+        "l'impressionnisme",
+        "l impressionnisme"
       ],
       "distractors": [
         "le fauvisme",
@@ -6097,7 +6273,8 @@
       "answer": "Tolstoï",
       "accepted": [
         "tolstoi",
-        "leon tolstoi"
+        "leon tolstoi",
+        "Tolstoï"
       ],
       "distractors": [
         "Dostoïevski",
@@ -6114,7 +6291,8 @@
       "answer": "Dalí",
       "accepted": [
         "dali",
-        "salvador dali"
+        "salvador dali",
+        "Dalí"
       ],
       "distractors": [
         "Miró",
@@ -6248,7 +6426,8 @@
       "prompt": "Quel dramaturge français a écrit « Le Malade imaginaire » ?",
       "answer": "Molière",
       "accepted": [
-        "moliere"
+        "moliere",
+        "molière"
       ],
       "distractors": [
         "Racine",
@@ -6316,7 +6495,9 @@
       "answer": "Céline",
       "accepted": [
         "celine",
-        "louis-ferdinand celine"
+        "louis-ferdinand celine",
+        "céline",
+        "louis ferdinand celine"
       ],
       "distractors": [
         "Malraux",
@@ -6384,7 +6565,8 @@
       "answer": "Émile Zola",
       "accepted": [
         "zola",
-        "emile zola"
+        "emile zola",
+        "émile zola"
       ],
       "distractors": [
         "Guy de Maupassant",
@@ -6537,7 +6719,8 @@
       "answer": "Gaudí",
       "accepted": [
         "gaudi",
-        "antoni gaudi"
+        "antoni gaudi",
+        "Gaudí"
       ],
       "distractors": [
         "Calatrava",
@@ -6634,18 +6817,16 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quelle bibliothèque de l'Antiquité, en Égypte, fut détruite par le feu ?",
+      "prompt": "Dans quelle ville d'Égypte se trouvait la célèbre bibliothèque de l'Antiquité ?",
       "answer": "Alexandrie",
       "accepted": [
-        "alexandrie",
-        "la bibliotheque d'alexandrie",
-        "celle d'alexandrie"
+        "alexandrie"
       ],
       "distractors": [
-        "Pergame",
-        "Ninive",
-        "Éphèse",
-        "Antioche"
+        "Le Caire",
+        "Thèbes",
+        "Memphis",
+        "Louxor"
       ],
       "id": "det-art-079",
       "theme": "Art et littérature"
@@ -6656,7 +6837,8 @@
       "answer": "Vélasquez",
       "accepted": [
         "velasquez",
-        "diego velasquez"
+        "diego velasquez",
+        "Vélasquez"
       ],
       "distractors": [
         "Goya",
@@ -6703,10 +6885,11 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quel écrivain a écrit « Les Fables » avant La Fontaine, dans la Grèce antique ?",
+      "prompt": "À quel fabuliste grec antique sont traditionnellement attribuées de nombreuses fables ?",
       "answer": "Ésope",
       "accepted": [
-        "esope"
+        "esope",
+        "Ésope"
       ],
       "distractors": [
         "Phèdre",
@@ -6724,7 +6907,9 @@
       "accepted": [
         "eau-forte",
         "l'eau-forte",
-        "eau forte"
+        "eau forte",
+        "l eau-forte",
+        "l'eau forte"
       ],
       "distractors": [
         "la lithographie",
@@ -6758,7 +6943,8 @@
       "answer": "Géricault",
       "accepted": [
         "gericault",
-        "theodore gericault"
+        "theodore gericault",
+        "Géricault"
       ],
       "distractors": [
         "Delacroix",
@@ -6877,7 +7063,9 @@
       "answer": "la Comédie humaine",
       "accepted": [
         "la comedie humaine",
-        "comedie humaine"
+        "comedie humaine",
+        "comédie humaine",
+        "la comédie humaine"
       ],
       "distractors": [
         "Les Rougon-Macquart",
@@ -7095,17 +7283,20 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quel artiste a empaqueté le Pont-Neuf puis l'Arc de triomphe ?",
-      "answer": "Christo",
+      "prompt": "Quel duo artistique a empaqueté le Pont-Neuf et conçu le projet d'empaquetage de l'Arc de triomphe ?",
+      "answer": "Christo et Jeanne-Claude",
       "accepted": [
-        "christo",
-        "christo et jeanne-claude"
+        "christo et jeanne claude",
+        "christo et jeanne-claude",
+        "christo jeanne claude",
+        "jeanne claude et christo",
+        "jeanne-claude et christo"
       ],
       "distractors": [
-        "Buren",
-        "Koons",
-        "Banksy",
-        "Soulages"
+        "Gilbert et George",
+        "Pierre et Gilles",
+        "Dali et Gala",
+        "Warhol et Basquiat"
       ],
       "id": "det-art-106",
       "theme": "Art et littérature"
@@ -7133,7 +7324,8 @@
       "answer": "Dostoïevski",
       "accepted": [
         "dostoievski",
-        "fiodor dostoievski"
+        "fiodor dostoievski",
+        "Dostoïevski"
       ],
       "distractors": [
         "Tolstoï",
@@ -7150,7 +7342,11 @@
       "answer": "l'Art déco",
       "accepted": [
         "art deco",
-        "l'art deco"
+        "l'art deco",
+        "Art déco",
+        "l art deco",
+        "l art déco",
+        "l'Art déco"
       ],
       "distractors": [
         "l'Art nouveau",
@@ -7284,7 +7480,8 @@
       "prompt": "Quel dessinateur belge a créé Tintin ?",
       "answer": "Hergé",
       "accepted": [
-        "herge"
+        "herge",
+        "Hergé"
       ],
       "distractors": [
         "Franquin",
@@ -7315,10 +7512,11 @@
     {
       "difficulty": 3,
       "prompt": "Quel roman de George Orwell met en scène une révolte d'animaux ?",
-      "answer": "La Ferme des animaux",
+      "answer": "Ferme des animaux",
       "accepted": [
+        "ferme des animaux",
         "la ferme des animaux",
-        "ferme des animaux"
+        "animal farm"
       ],
       "distractors": [
         "Le Livre de la jungle",
@@ -7352,7 +7550,8 @@
       "answer": "Hervé Bazin",
       "accepted": [
         "bazin",
-        "herve bazin"
+        "herve bazin",
+        "Hervé Bazin"
       ],
       "distractors": [
         "Marcel Pagnol",
@@ -7369,7 +7568,8 @@
       "answer": "Millet",
       "accepted": [
         "millet",
-        "jean-francois millet"
+        "jean-francois millet",
+        "jean francois millet"
       ],
       "distractors": [
         "Corot",
@@ -7489,7 +7689,8 @@
       "accepted": [
         "napoleon",
         "napoleon bonaparte",
-        "napoleon ier"
+        "napoleon ier",
+        "napoléon"
       ],
       "distractors": [
         "Louis XVIII",
@@ -7506,7 +7707,8 @@
       "answer": "Jeanne d'Arc",
       "accepted": [
         "jeanne d'arc",
-        "jeanne darc"
+        "jeanne darc",
+        "Jeanne d Arc"
       ],
       "distractors": [
         "Aliénor d'Aquitaine",
@@ -7522,7 +7724,8 @@
       "prompt": "Quel chef gaulois s'est rendu à Jules César à Alésia ?",
       "answer": "Vercingétorix",
       "accepted": [
-        "vercingetorix"
+        "vercingetorix",
+        "vercingétorix"
       ],
       "distractors": [
         "Brennus",
@@ -7539,7 +7742,29 @@
       "answer": "Liberté, Égalité, Fraternité",
       "accepted": [
         "liberte egalite fraternite",
-        "liberte, egalite, fraternite"
+        "liberte, egalite, fraternite",
+        "egalite fraternite liberte",
+        "egalite liberte fraternite",
+        "Fraternite Egalite Liberte",
+        "fraternite liberte egalite",
+        "Fraternité Liberté Égalité",
+        "fraternité égalité liberté",
+        "liberte fraternite egalite",
+        "liberté fraternité égalité",
+        "Liberté Égalité Fraternité",
+        "égalité fraternité liberté",
+        "égalité liberté fraternité",
+        "egalite, fraternite, liberte",
+        "Egalite, Liberte, Fraternite",
+        "Fraternite, Egalite, Liberte",
+        "fraternite, liberte, egalite",
+        "Fraternité, Liberté, Égalité",
+        "fraternité, égalité, liberté",
+        "liberte, fraternite, egalite",
+        "Liberté, Fraternité, Égalité",
+        "liberté, égalité, fraternité",
+        "égalité, fraternité, liberté",
+        "égalité, liberté, fraternité"
       ],
       "distractors": [
         "Travail, Famille, Patrie",
@@ -7586,13 +7811,15 @@
     },
     {
       "difficulty": 1,
-      "prompt": "Quelle guerre a opposé la France et l'Allemagne de 1914 à 1918 ?",
-      "answer": "la Première Guerre mondiale",
+      "prompt": "Quelle guerre mondiale se déroule de 1914 à 1918 ?",
+      "answer": "Première Guerre mondiale",
       "accepted": [
         "premiere guerre mondiale",
         "la premiere guerre mondiale",
-        "14-18",
-        "grande guerre"
+        "première guerre mondiale",
+        "la première guerre mondiale",
+        "1ere guerre mondiale",
+        "1ère guerre mondiale"
       ],
       "distractors": [
         "la Seconde Guerre mondiale",
@@ -7762,7 +7989,8 @@
       "accepted": [
         "notre-dame",
         "notre dame",
-        "notre-dame de paris"
+        "notre-dame de paris",
+        "notre dame de paris"
       ],
       "distractors": [
         "la Sainte-Chapelle",
@@ -7797,7 +8025,8 @@
       "accepted": [
         "petain",
         "philippe petain",
-        "le marechal petain"
+        "le marechal petain",
+        "pétain"
       ],
       "distractors": [
         "Foch",
@@ -7849,7 +8078,8 @@
       "accepted": [
         "francois ier",
         "francois 1er",
-        "francois premier"
+        "francois premier",
+        "François Ier"
       ],
       "distractors": [
         "Louis XII",
@@ -7912,17 +8142,21 @@
     },
     {
       "difficulty": 1,
-      "prompt": "Quel est le régime politique de la France aujourd'hui ?",
-      "answer": "la République",
+      "prompt": "Quel régime politique français a été fondé en 1958 ?",
+      "answer": "Ve République",
       "accepted": [
-        "republique",
-        "la republique"
+        "ve republique",
+        "5e republique",
+        "cinquieme republique",
+        "Ve République",
+        "5ème République",
+        "5eme republique"
       ],
       "distractors": [
-        "la monarchie",
-        "l'empire",
-        "la principauté",
-        "la fédération"
+        "IVe République",
+        "Troisième République",
+        "Second Empire",
+        "monarchie de Juillet"
       ],
       "id": "det-hfr-029",
       "theme": "Histoire de France"
@@ -7935,7 +8169,8 @@
         "xviiie",
         "le xviiie",
         "18e",
-        "dix-huitieme"
+        "dix-huitieme",
+        "dix huitieme"
       ],
       "distractors": [
         "le XVIe",
@@ -8088,7 +8323,8 @@
       "answer": "l'Arc de triomphe",
       "accepted": [
         "arc de triomphe",
-        "l'arc de triomphe"
+        "l'arc de triomphe",
+        "l arc de triomphe"
       ],
       "distractors": [
         "la colonne Vendôme",
@@ -8106,7 +8342,9 @@
       "accepted": [
         "revolution",
         "la revolution",
-        "la revolution francaise"
+        "la revolution francaise",
+        "Révolution",
+        "la révolution"
       ],
       "distractors": [
         "la Restauration",
@@ -8152,11 +8390,11 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quelle bataille de 732 a marqué l'arrêt de l'avancée arabe en Gaule ?",
+      "prompt": "Quelle bataille de 732 oppose Charles Martel à une armée omeyyade en Gaule ?",
       "answer": "Poitiers",
       "accepted": [
         "poitiers",
-        "la bataille de poitiers"
+        "bataille de poitiers"
       ],
       "distractors": [
         "Tours-sur-Marne",
@@ -8169,11 +8407,13 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quel traité a mis fin à la Première Guerre mondiale en 1919 ?",
-      "answer": "le traité de Versailles",
+      "prompt": "Quel traité de 1919 règle la paix entre l'Allemagne et les principales puissances alliées ?",
+      "answer": "traité de Versailles",
       "accepted": [
         "traite de versailles",
         "le traite de versailles",
+        "traité de versailles",
+        "le traité de versailles",
         "versailles"
       ],
       "distractors": [
@@ -8225,7 +8465,9 @@
       "answer": "les Mérovingiens",
       "accepted": [
         "merovingiens",
-        "les merovingiens"
+        "les merovingiens",
+        "Mérovingiens",
+        "les mérovingiens"
       ],
       "distractors": [
         "les Carolingiens",
@@ -8238,18 +8480,18 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quelle guerre a opposé la France à l'Angleterre pendant plus d'un siècle au Moyen Âge ?",
-      "answer": "la guerre de Cent Ans",
+      "prompt": "Comment appelle-t-on le long conflit franco-anglais commencé en 1337 et achevé en 1453 ?",
+      "answer": "Cent Ans",
       "accepted": [
+        "cent ans",
         "guerre de cent ans",
-        "la guerre de cent ans",
-        "cent ans"
+        "la guerre de cent ans"
       ],
       "distractors": [
-        "la guerre de Trente Ans",
-        "la guerre des Deux-Roses",
-        "la guerre de Succession",
-        "les croisades"
+        "Trente Ans",
+        "Sept Ans",
+        "Deux-Roses",
+        "Succession d'Espagne"
       ],
       "id": "det-hfr-048",
       "theme": "Histoire de France"
@@ -8261,7 +8503,9 @@
       "accepted": [
         "napoleon iii",
         "napoleon 3",
-        "louis-napoleon bonaparte"
+        "louis-napoleon bonaparte",
+        "Napoléon III",
+        "louis napoleon bonaparte"
       ],
       "distractors": [
         "Louis-Philippe",
@@ -8278,7 +8522,11 @@
       "answer": "l'abolition des privilèges",
       "accepted": [
         "abolition des privileges",
-        "l'abolition des privileges"
+        "l'abolition des privileges",
+        "abolition des privilèges",
+        "l abolition des privileges",
+        "l abolition des privilèges",
+        "l'abolition des privilèges"
       ],
       "distractors": [
         "la mort du roi",
@@ -8329,7 +8577,34 @@
       "accepted": [
         "l'eglise et l'etat",
         "eglise et etat",
-        "les eglises et l'etat"
+        "les eglises et l'etat",
+        "Etat et Eglise",
+        "Église et État",
+        "État et Église",
+        "Eglise et l Etat",
+        "Eglise et l'Etat",
+        "Etat et l Eglise",
+        "Etat et l'Eglise",
+        "l Eglise et Etat",
+        "l Etat et Eglise",
+        "l Église et État",
+        "l état et église",
+        "l'Eglise et Etat",
+        "l'etat et eglise",
+        "l'église et état",
+        "l'État et Église",
+        "église et l état",
+        "Église et l'État",
+        "état et l église",
+        "État et l'Église",
+        "l Eglise et l Etat",
+        "l etat et l eglise",
+        "l église et l état",
+        "l état et l église",
+        "l'Etat et l'Eglise",
+        "l'église et l'état",
+        "l'État et l'Église",
+        "les eglises et l etat"
       ],
       "distractors": [
         "l'école et la famille",
@@ -8363,7 +8638,10 @@
       "answer": "Aliénor d'Aquitaine",
       "accepted": [
         "alienor d'aquitaine",
-        "alienor"
+        "alienor",
+        "Alienor d Aquitaine",
+        "Aliénor d Aquitaine",
+        "aliénor d'aquitaine"
       ],
       "distractors": [
         "Blanche de Castille",
@@ -8448,7 +8726,14 @@
       "accepted": [
         "saint-barthelemy",
         "la saint-barthelemy",
-        "la nuit de la saint-barthelemy"
+        "la nuit de la saint-barthelemy",
+        "saint barthelemy",
+        "Saint Barthélemy",
+        "Saint-Barthélemy",
+        "la Saint Barthelemy",
+        "la Saint Barthélemy",
+        "la Saint-Barthélemy",
+        "la nuit de la saint barthelemy"
       ],
       "distractors": [
         "la journée des Dupes",
@@ -8465,7 +8750,11 @@
       "answer": "l'Algérie",
       "accepted": [
         "algerie",
-        "l'algerie"
+        "l'algerie",
+        "Algérie",
+        "l algerie",
+        "l Algérie",
+        "l'algérie"
       ],
       "distractors": [
         "le Maroc",
@@ -8517,7 +8806,8 @@
       "answer": "François Mitterrand",
       "accepted": [
         "mitterrand",
-        "francois mitterrand"
+        "francois mitterrand",
+        "François Mitterrand"
       ],
       "distractors": [
         "Valéry Giscard d'Estaing",
@@ -8535,7 +8825,9 @@
       "accepted": [
         "guerre franco-prussienne",
         "la guerre franco-prussienne",
-        "guerre de 1870"
+        "guerre de 1870",
+        "guerre franco prussienne",
+        "la guerre franco prussienne"
       ],
       "distractors": [
         "la guerre de Crimée",
@@ -8552,7 +8844,8 @@
       "answer": "Rousseau",
       "accepted": [
         "rousseau",
-        "jean-jacques rousseau"
+        "jean-jacques rousseau",
+        "jean jacques rousseau"
       ],
       "distractors": [
         "Voltaire",
@@ -8616,34 +8909,39 @@
     {
       "difficulty": 2,
       "prompt": "Quel roi a fait révoquer l'édit de Nantes en 1685 ?",
-      "answer": "le Roi-Soleil",
+      "answer": "Louis XIV",
       "accepted": [
-        "le roi-soleil",
+        "louis xiv",
+        "louis 14",
+        "louis quatorze",
         "roi soleil",
-        "louis quatorze"
+        "roi-soleil"
       ],
       "distractors": [
         "Louis XIII",
-        "Henri III",
-        "Louis XVI",
-        "Charles IX"
+        "Louis XV",
+        "Henri IV",
+        "François Ier"
       ],
       "id": "det-hfr-070",
       "theme": "Histoire de France"
     },
     {
       "difficulty": 2,
-      "prompt": "Quel empereur a vendu la Louisiane aux États-Unis en 1803 ?",
-      "answer": "Bonaparte",
+      "prompt": "Quel dirigeant français a vendu la Louisiane aux États-Unis en 1803 ?",
+      "answer": "Napoléon Bonaparte",
       "accepted": [
+        "napoleon bonaparte",
+        "napoleon",
         "bonaparte",
-        "napoleon bonaparte"
+        "Napoléon Bonaparte",
+        "Napoléon"
       ],
       "distractors": [
-        "Louis XV",
         "Louis XVI",
-        "Talleyrand",
-        "le Directoire"
+        "Louis XVIII",
+        "Charles X",
+        "Napoléon III"
       ],
       "id": "det-hfr-071",
       "theme": "Histoire de France"
@@ -8654,7 +8952,9 @@
       "answer": "les États généraux",
       "accepted": [
         "etats generaux",
-        "les etats generaux"
+        "les etats generaux",
+        "états généraux",
+        "les États généraux"
       ],
       "distractors": [
         "la Convention",
@@ -8689,7 +8989,8 @@
       "answer": "Catherine de Médicis",
       "accepted": [
         "catherine de medicis",
-        "catherine de medici"
+        "catherine de medici",
+        "catherine de médicis"
       ],
       "distractors": [
         "Marie de Médicis",
@@ -8725,7 +9026,8 @@
       "accepted": [
         "mont-saint-michel",
         "le mont-saint-michel",
-        "mont saint michel"
+        "mont saint michel",
+        "le mont saint michel"
       ],
       "distractors": [
         "Jumièges",
@@ -8777,7 +9079,8 @@
       "accepted": [
         "la commune",
         "commune de paris",
-        "la commune de paris"
+        "la commune de paris",
+        "commune"
       ],
       "distractors": [
         "les Trois Glorieuses",
@@ -8808,11 +9111,16 @@
     {
       "difficulty": 2,
       "prompt": "Quelle expédition militaire française commence par la prise d'Alger en 1830 ?",
-      "answer": "la conquête de l'Algérie",
+      "answer": "conquête de l'Algérie",
       "accepted": [
-        "conquete de l'algerie",
+        "conquete de l algerie",
+        "la conquete de l algerie",
+        "conquête de l'Algérie",
+        "la conquête de l'Algérie",
+        "conquete de l'Algerie",
+        "conquête de l Algérie",
         "la conquete de l'algerie",
-        "la colonisation de l'algerie"
+        "la conquête de l Algérie"
       ],
       "distractors": [
         "la campagne d'Égypte",
@@ -8842,18 +9150,19 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quel homme politique a incarné la France libre à Londres avec les Forces françaises libres ?",
-      "answer": "le général Leclerc",
+      "prompt": "Quel général commande la 2e DB qui participe à la Libération de Paris en 1944 ?",
+      "answer": "Leclerc",
       "accepted": [
         "leclerc",
-        "le general leclerc",
+        "general leclerc",
+        "général leclerc",
         "philippe leclerc"
       ],
       "distractors": [
-        "Jean-Baptiste Lattre",
-        "Alphonse Juin",
-        "Maurice Thorez",
-        "Pierre Mendès France"
+        "de Gaulle",
+        "Juin",
+        "Giraud",
+        "de Lattre"
       ],
       "id": "det-hfr-083",
       "theme": "Histoire de France"
@@ -8861,10 +9170,13 @@
     {
       "difficulty": 2,
       "prompt": "Quel traité de 1957 a créé la Communauté économique européenne ?",
-      "answer": "le traité de Rome",
+      "answer": "traité de Rome",
       "accepted": [
         "traite de rome",
-        "le traite de rome"
+        "le traite de rome",
+        "traité de Rome",
+        "le traité de Rome",
+        "rome"
       ],
       "distractors": [
         "le traité de Maastricht",
@@ -8882,7 +9194,8 @@
       "accepted": [
         "francois ier",
         "francois 1er",
-        "francois premier"
+        "francois premier",
+        "François Ier"
       ],
       "distractors": [
         "Henri II",
@@ -8899,7 +9212,8 @@
       "answer": "Colbert",
       "accepted": [
         "colbert",
-        "jean-baptiste colbert"
+        "jean-baptiste colbert",
+        "jean baptiste colbert"
       ],
       "distractors": [
         "Louvois",
@@ -8963,19 +9277,22 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Que rendent obligatoires les lois de Jules Ferry en 1881 et 1882 ?",
-      "answer": "l'école",
+      "prompt": "Quel enseignement les lois Ferry rendent-elles gratuit, laïque et obligatoire au début des années 1880 ?",
+      "answer": "école primaire",
       "accepted": [
-        "l'ecole",
-        "ecole",
-        "l'ecole obligatoire",
-        "l'instruction"
+        "ecole primaire",
+        "l ecole primaire",
+        "école primaire",
+        "l'école primaire",
+        "enseignement primaire",
+        "l école primaire",
+        "l'ecole primaire"
       ],
       "distractors": [
-        "le service militaire",
-        "le vote",
-        "le mariage civil",
-        "l'état civil"
+        "lycée",
+        "université",
+        "école maternelle",
+        "enseignement supérieur"
       ],
       "id": "det-hfr-090",
       "theme": "Histoire de France"
@@ -8986,7 +9303,8 @@
       "answer": "Marat",
       "accepted": [
         "marat",
-        "jean-paul marat"
+        "jean-paul marat",
+        "jean paul marat"
       ],
       "distractors": [
         "Danton",
@@ -9004,7 +9322,14 @@
       "accepted": [
         "campagne d'egypte",
         "la campagne d'egypte",
-        "expedition d'egypte"
+        "expedition d'egypte",
+        "campagne d egypte",
+        "campagne d égypte",
+        "campagne d'égypte",
+        "expedition d egypte",
+        "la campagne d Egypte",
+        "la campagne d égypte",
+        "la campagne d'Égypte"
       ],
       "distractors": [
         "la campagne d'Italie",
@@ -9056,7 +9381,11 @@
       "accepted": [
         "villers-cotterets",
         "l'ordonnance de villers-cotterets",
-        "villers cotterets"
+        "villers cotterets",
+        "villers cotterêts",
+        "villers-cotterêts",
+        "l ordonnance de villers-cotterets",
+        "l'ordonnance de villers cotterets"
       ],
       "distractors": [
         "l'édit de Moulins",
@@ -9090,7 +9419,8 @@
       "answer": "André Malraux",
       "accepted": [
         "malraux",
-        "andre malraux"
+        "andre malraux",
+        "andré malraux"
       ],
       "distractors": [
         "Jean Cocteau",
@@ -9108,7 +9438,13 @@
       "accepted": [
         "ile d'elbe",
         "l'ile d'elbe",
-        "elbe"
+        "elbe",
+        "ile d elbe",
+        "île d elbe",
+        "île d'elbe",
+        "l ile d Elbe",
+        "l île d elbe",
+        "l'île d'Elbe"
       ],
       "distractors": [
         "Sainte-Hélène",
@@ -9144,7 +9480,15 @@
       "accepted": [
         "coup d'etat",
         "le coup d'etat",
-        "le coup d'etat de louis-napoleon"
+        "le coup d'etat de louis-napoleon",
+        "coup d Etat",
+        "coup d état",
+        "coup d'état",
+        "le coup d etat",
+        "le coup d état",
+        "le coup d'État",
+        "le coup d etat de louis-napoleon",
+        "le coup d'etat de louis napoleon"
       ],
       "distractors": [
         "une révolution",
@@ -9258,7 +9602,7 @@
     {
       "difficulty": 3,
       "prompt": "Quel canal du XVIIe siècle relie la Garonne à la Méditerranée ?",
-      "answer": "le canal du Midi",
+      "answer": "canal du Midi",
       "accepted": [
         "canal du midi",
         "le canal du midi"
@@ -9279,7 +9623,8 @@
       "accepted": [
         "la convention",
         "convention nationale",
-        "la convention nationale"
+        "la convention nationale",
+        "Convention"
       ],
       "distractors": [
         "la Constituante",
@@ -9297,7 +9642,9 @@
       "accepted": [
         "troisieme republique",
         "la troisieme republique",
-        "iiie republique"
+        "iiie republique",
+        "Troisième République",
+        "la Troisième République"
       ],
       "distractors": [
         "la Restauration",
@@ -9315,7 +9662,13 @@
       "accepted": [
         "accords d'evian",
         "les accords d'evian",
-        "evian"
+        "evian",
+        "accords d evian",
+        "accords d Évian",
+        "accords d'Évian",
+        "les accords d evian",
+        "les accords d évian",
+        "les accords d'Évian"
       ],
       "distractors": [
         "les accords de Genève",
@@ -9349,7 +9702,8 @@
       "answer": "Charles le Téméraire",
       "accepted": [
         "charles le temeraire",
-        "le temeraire"
+        "le temeraire",
+        "charles le téméraire"
       ],
       "distractors": [
         "Philippe le Hardi",
@@ -9379,10 +9733,11 @@
     {
       "difficulty": 3,
       "prompt": "Quelle broderie raconte la conquête de l'Angleterre en soixante-dix mètres ?",
-      "answer": "la tapisserie de Bayeux",
+      "answer": "tapisserie de Bayeux",
       "accepted": [
         "tapisserie de bayeux",
-        "la tapisserie de bayeux"
+        "la tapisserie de bayeux",
+        "broderie de bayeux"
       ],
       "distractors": [
         "la tenture de l'Apocalypse",
@@ -9412,37 +9767,37 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quel serment les députés du tiers état ont-ils prêté le 20 juin 1789 ?",
-      "answer": "le serment du Jeu de paume",
+      "prompt": "Quel lieu donne son nom au serment prêté par les députés du tiers état le 20 juin 1789 ?",
+      "answer": "Jeu de paume",
       "accepted": [
-        "serment du jeu de paume",
-        "le serment du jeu de paume",
-        "jeu de paume"
+        "jeu de paume",
+        "le jeu de paume",
+        "serment du jeu de paume"
       ],
       "distractors": [
-        "le serment de Strasbourg",
-        "le serment du Grütli",
-        "le serment des Horaces",
-        "le serment de fidélité"
+        "Champ-de-Mars",
+        "Palais-Royal",
+        "Tuileries",
+        "Hôtel de Ville"
       ],
       "id": "det-hfr-116",
       "theme": "Histoire de France"
     },
     {
       "difficulty": 3,
-      "prompt": "Quelle loi de 1975 porte le nom de Simone Veil ?",
-      "answer": "la loi sur l'avortement",
+      "prompt": "Quel sujet est au cœur de la loi Veil de 1975 ?",
+      "answer": "l'avortement",
       "accepted": [
-        "loi sur l'avortement",
-        "la loi sur l'avortement",
-        "l'ivg",
-        "loi ivg"
+        "avortement",
+        "l avortement",
+        "l'avortement",
+        "ivg"
       ],
       "distractors": [
-        "la loi sur le divorce",
-        "la loi sur la contraception",
-        "la loi sur la parité",
-        "la loi sur la laïcité"
+        "le divorce",
+        "la peine de mort",
+        "la contraception",
+        "le mariage civil"
       ],
       "id": "det-hfr-117",
       "theme": "Histoire de France"
@@ -9466,18 +9821,19 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quelle place parisienne a vu tomber la tête de Louis XVI ?",
-      "answer": "la place de la Concorde",
+      "prompt": "Comment s'appelle aujourd'hui la place parisienne où Louis XVI fut guillotiné en 1793 ?",
+      "answer": "la Concorde",
       "accepted": [
+        "concorde",
+        "la concorde",
         "place de la concorde",
-        "la place de la concorde",
-        "place de la revolution"
+        "la place de la concorde"
       ],
       "distractors": [
-        "la place de Grève",
-        "la place Vendôme",
-        "la place de la Bastille",
-        "la place des Vosges"
+        "la Bastille",
+        "la Nation",
+        "la République",
+        "les Vosges"
       ],
       "id": "det-hfr-119",
       "theme": "Histoire de France"
@@ -9503,7 +9859,7 @@
     {
       "difficulty": 3,
       "prompt": "Quel événement social de mai 1968 a réuni syndicats et gouvernement ?",
-      "answer": "les accords de Grenelle",
+      "answer": "accords de Grenelle",
       "accepted": [
         "accords de grenelle",
         "les accords de grenelle",
@@ -9555,17 +9911,18 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quel roi wisigoth ou franc a rédigé la loi salique, invoquée pour écarter les femmes du trône ?",
+      "prompt": "Quel roi franc est associé à la première mise par écrit de la loi salique au début du VIe siècle ?",
       "answer": "Clovis",
       "accepted": [
         "clovis",
-        "clovis ier"
+        "clovis ier",
+        "clovis 1er"
       ],
       "distractors": [
-        "Dagobert",
-        "Childéric",
-        "Alaric",
-        "Gontran"
+        "Charlemagne",
+        "Hugues Capet",
+        "Philippe Auguste",
+        "Louis IX"
       ],
       "id": "det-hfr-124",
       "theme": "Histoire de France"
@@ -9693,10 +10050,10 @@
     {
       "difficulty": 1,
       "prompt": "Quelle série espagnole raconte un braquage de la Maison de la Monnaie ?",
-      "answer": "La Casa de Papel",
+      "answer": "Casa de Papel",
       "accepted": [
-        "la casa de papel",
-        "casa de papel"
+        "casa de papel",
+        "la casa de papel"
       ],
       "distractors": [
         "Elite",
@@ -9713,7 +10070,8 @@
       "answer": "Columbo",
       "accepted": [
         "columbo",
-        "l'inspecteur columbo"
+        "l'inspecteur columbo",
+        "l inspecteur columbo"
       ],
       "distractors": [
         "Derrick",
@@ -9730,7 +10088,8 @@
       "answer": "Grey's Anatomy",
       "accepted": [
         "grey's anatomy",
-        "greys anatomy"
+        "greys anatomy",
+        "Grey s Anatomy"
       ],
       "distractors": [
         "Dr House",
@@ -9896,17 +10255,17 @@
     },
     {
       "difficulty": 1,
-      "prompt": "Quelle série quotidienne française se déroule au quartier du Mistral ?",
-      "answer": "Plus belle la vie",
+      "prompt": "Quel bar fictif est au cœur du quartier du Mistral dans « Plus belle la vie » ?",
+      "answer": "Le Mistral",
       "accepted": [
-        "plus belle la vie",
-        "pbla"
+        "mistral",
+        "le mistral"
       ],
       "distractors": [
-        "Demain nous appartient",
-        "Un si grand soleil",
-        "Ici tout commence",
-        "Sous le soleil"
+        "Central Perk",
+        "Le Select",
+        "Chez Jo",
+        "Le Spoon"
       ],
       "id": "det-ser-019",
       "theme": "Séries télé"
@@ -9946,16 +10305,17 @@
     },
     {
       "difficulty": 1,
-      "prompt": "Quelle série suit quatre amies new-yorkaises dont Carrie Bradshaw ?",
-      "answer": "Sex and the City",
+      "prompt": "Quel personnage de « Sex and the City » écrit une chronique sur les relations amoureuses ?",
+      "answer": "Carrie Bradshaw",
       "accepted": [
-        "sex and the city"
+        "carrie bradshaw",
+        "carrie"
       ],
       "distractors": [
-        "Girls",
-        "Desperate Housewives",
-        "Ally McBeal",
-        "Emily in Paris"
+        "Samantha Jones",
+        "Miranda Hobbes",
+        "Charlotte York",
+        "Rachel Green"
       ],
       "id": "det-ser-022",
       "theme": "Séries télé"
@@ -9966,8 +10326,8 @@
       "answer": "Mulder et Scully",
       "accepted": [
         "mulder et scully",
-        "mulder",
-        "scully"
+        "fox mulder et dana scully",
+        "Scully et Mulder"
       ],
       "distractors": [
         "Cooper et Truman",
@@ -9980,7 +10340,7 @@
     },
     {
       "difficulty": 1,
-      "prompt": "Quelle plateforme a produit « Stranger Things » et « La Casa de Papel » ?",
+      "prompt": "Quelle plateforme diffuse « Stranger Things » et a contribué au succès mondial de « La Casa de Papel » ?",
       "answer": "Netflix",
       "accepted": [
         "netflix"
@@ -10062,17 +10422,17 @@
     },
     {
       "difficulty": 1,
-      "prompt": "Quelle série se déroule dans une prison pour femmes du nom de Litchfield ?",
-      "answer": "Orange Is the New Black",
+      "prompt": "Dans quelle prison fictive se déroule « Orange Is the New Black » ?",
+      "answer": "Litchfield",
       "accepted": [
-        "orange is the new black",
-        "oitnb"
+        "litchfield",
+        "litchfield penitentiary"
       ],
       "distractors": [
+        "Fox River",
+        "Oz",
         "Wentworth",
-        "Vis a vis",
-        "Prison Break",
-        "Bad Girls"
+        "Shawshank"
       ],
       "id": "det-ser-029",
       "theme": "Séries télé"
@@ -10130,34 +10490,35 @@
     },
     {
       "difficulty": 1,
-      "prompt": "Quelle série française suit des agents clandestins de la DGSE ?",
-      "answer": "Le Bureau des légendes",
+      "prompt": "Qui a créé la série française « Le Bureau des légendes » ?",
+      "answer": "Éric Rochant",
       "accepted": [
-        "le bureau des legendes",
-        "bureau des legendes"
+        "eric rochant",
+        "éric rochant",
+        "rochant"
       ],
       "distractors": [
-        "Le Bureau",
-        "Les Espions",
-        "Au service de la France",
-        "Braquo"
+        "Alexandre Astier",
+        "Olivier Marchal",
+        "Éric Toledano",
+        "Jean-Xavier de Lestrade"
       ],
       "id": "det-ser-033",
       "theme": "Séries télé"
     },
     {
       "difficulty": 1,
-      "prompt": "Dans quelle sitcom Ted raconte-t-il à ses enfants comment il a rencontré leur mère ?",
-      "answer": "How I Met Your Mother",
+      "prompt": "Quel personnage raconte à ses enfants comment il a rencontré leur mère dans « How I Met Your Mother » ?",
+      "answer": "Ted Mosby",
       "accepted": [
-        "how i met your mother",
-        "himym"
+        "ted mosby",
+        "ted"
       ],
       "distractors": [
-        "The Big Bang Theory",
-        "New Girl",
-        "Modern Family",
-        "Scrubs"
+        "Barney Stinson",
+        "Marshall Eriksen",
+        "Robin Scherbatsky",
+        "Lily Aldrin"
       ],
       "id": "det-ser-034",
       "theme": "Séries télé"
@@ -10503,7 +10864,9 @@
       "accepted": [
         "la servante ecarlate",
         "servante ecarlate",
-        "the handmaid's tale"
+        "the handmaid's tale",
+        "the handmaid s tale",
+        "La Servante écarlate"
       ],
       "distractors": [
         "The Man in the High Castle",
@@ -10549,34 +10912,34 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quelle sitcom réunit quatre scientifiques et leur voisine serveuse ?",
-      "answer": "The Big Bang Theory",
+      "prompt": "Quel physicien théoricien partage un appartement avec Leonard dans « The Big Bang Theory » ?",
+      "answer": "Sheldon Cooper",
       "accepted": [
-        "the big bang theory",
-        "big bang theory"
+        "sheldon cooper",
+        "sheldon"
       ],
       "distractors": [
-        "Young Sheldon",
-        "Community",
-        "IT Crowd",
-        "Silicon Valley"
+        "Howard Wolowitz",
+        "Raj Koothrappali",
+        "Stuart Bloom",
+        "Barry Kripke"
       ],
       "id": "det-ser-058",
       "theme": "Séries télé"
     },
     {
       "difficulty": 2,
-      "prompt": "Quelle série suit l'ascension d'une jeune prodige des échecs ?",
-      "answer": "Le Jeu de la dame",
+      "prompt": "Comment s'appelle la jeune prodige des échecs dans « Le Jeu de la dame » ?",
+      "answer": "Beth Harmon",
       "accepted": [
-        "le jeu de la dame",
-        "the queen's gambit"
+        "beth harmon",
+        "beth"
       ],
       "distractors": [
-        "Unorthodox",
-        "Maniac",
-        "Godless",
-        "Self Made"
+        "Alma Wheatley",
+        "Jolene",
+        "Cleo",
+        "Benny Watts"
       ],
       "id": "det-ser-059",
       "theme": "Séries télé"
@@ -10729,16 +11092,17 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quelle série préquelle raconte la guerre civile des Targaryen ?",
-      "answer": "House of the Dragon",
+      "prompt": "Quelle famille est au centre de « House of the Dragon » ?",
+      "answer": "les Targaryen",
       "accepted": [
-        "house of the dragon"
+        "targaryen",
+        "les targaryen"
       ],
       "distractors": [
-        "The Rings of Power",
-        "The Witcher",
-        "Shogun",
-        "The Last Kingdom"
+        "les Stark",
+        "les Lannister",
+        "les Baratheon",
+        "les Tyrell"
       ],
       "id": "det-ser-069",
       "theme": "Séries télé"
@@ -10977,17 +11341,19 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quelle série met en scène le capitaine Jean-Luc Picard à bord de l'Enterprise ?",
-      "answer": "Star Trek",
+      "prompt": "Quelle série « Star Trek » met principalement en scène le capitaine Jean-Luc Picard à bord de l'Enterprise-D ?",
+      "answer": "Next Generation",
       "accepted": [
-        "star trek",
-        "star trek la nouvelle generation"
+        "next generation",
+        "the next generation",
+        "star trek the next generation",
+        "tng"
       ],
       "distractors": [
-        "Battlestar Galactica",
-        "Stargate",
-        "Babylon 5",
-        "Firefly"
+        "Deep Space Nine",
+        "Voyager",
+        "Enterprise",
+        "Discovery"
       ],
       "id": "det-ser-084",
       "theme": "Séries télé"
@@ -11063,17 +11429,17 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quelle série danoise suit l'inspectrice Sarah Lund et son pull en laine ?",
-      "answer": "The Killing",
+      "prompt": "Quelle série danoise originale suit l'inspectrice Sarah Lund ?",
+      "answer": "Forbrydelsen",
       "accepted": [
-        "the killing",
-        "forbrydelsen"
+        "forbrydelsen",
+        "the killing"
       ],
       "distractors": [
-        "The Bridge",
-        "Trapped",
-        "Occupied",
-        "Rita"
+        "Borgen",
+        "Riget",
+        "Bron/Broen",
+        "Bedrag"
       ],
       "id": "det-ser-089",
       "theme": "Séries télé"
@@ -11148,7 +11514,8 @@
       "answer": "For All Mankind",
       "accepted": [
         "for all mankind",
-        "pour toute l'humanite"
+        "pour toute l'humanite",
+        "pour toute l humanite"
       ],
       "distractors": [
         "The Right Stuff",
@@ -11556,7 +11923,8 @@
       "accepted": [
         "melfi",
         "le docteur melfi",
-        "jennifer melfi"
+        "jennifer melfi",
+        "docteur melfi"
       ],
       "distractors": [
         "Carmela",
@@ -11569,23 +11937,24 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quelle série raconte la naissance de l'informatique personnelle au Texas dans les années 1980 ?",
-      "answer": "Halt and Catch Fire",
+      "prompt": "Quel acteur incarne Joe MacMillan dans « Halt and Catch Fire » ?",
+      "answer": "Lee Pace",
       "accepted": [
-        "halt and catch fire"
+        "lee pace",
+        "pace"
       ],
       "distractors": [
-        "Silicon Valley",
-        "Mr. Robot",
-        "The IT Crowd",
-        "Devs"
+        "Scoot McNairy",
+        "Mackenzie Davis",
+        "Toby Huss",
+        "Kerry Bishé"
       ],
       "id": "det-ser-120",
       "theme": "Séries télé"
     },
     {
       "difficulty": 3,
-      "prompt": "Quelle série suit une famille de éleveurs défendant leur ranch du Montana ?",
+      "prompt": "Quelle série suit une famille d'éleveurs défendant son ranch du Montana ?",
       "answer": "Yellowstone",
       "accepted": [
         "yellowstone"
@@ -11739,7 +12108,11 @@
       "answer": "l'éléphant",
       "accepted": [
         "elephant",
-        "l'elephant"
+        "l'elephant",
+        "éléphant",
+        "l elephant",
+        "l éléphant",
+        "l'éléphant"
       ],
       "distractors": [
         "le rhinocéros",
@@ -11791,7 +12164,11 @@
       "answer": "l'araignée",
       "accepted": [
         "araignee",
-        "l'araignee"
+        "l'araignee",
+        "araignée",
+        "l araignee",
+        "l araignée",
+        "l'araignée"
       ],
       "distractors": [
         "la fourmi",
@@ -11809,7 +12186,8 @@
       "accepted": [
         "everest",
         "l'everest",
-        "mont everest"
+        "mont everest",
+        "l Everest"
       ],
       "distractors": [
         "le mont Blanc",
@@ -11861,7 +12239,9 @@
       "answer": "le guépard",
       "accepted": [
         "guepard",
-        "le guepard"
+        "le guepard",
+        "guépard",
+        "le guépard"
       ],
       "distractors": [
         "le lévrier",
@@ -11969,7 +12349,9 @@
         "sphere",
         "une sphere",
         "ronde",
-        "rond"
+        "rond",
+        "sphère",
+        "une sphère"
       ],
       "distractors": [
         "un cube",
@@ -12020,7 +12402,9 @@
       "answer": "le thermomètre",
       "accepted": [
         "thermometre",
-        "le thermometre"
+        "le thermometre",
+        "thermomètre",
+        "le thermomètre"
       ],
       "distractors": [
         "le baromètre",
@@ -12041,7 +12425,8 @@
         "glacé",
         "glacial",
         "frais",
-        "froide"
+        "froide",
+        "glace"
       ],
       "distractors": [
         "tiède",
@@ -12093,7 +12478,9 @@
       "answer": "la Méditerranée",
       "accepted": [
         "mediterranee",
-        "la mediterranee"
+        "la mediterranee",
+        "méditerranée",
+        "la méditerranée"
       ],
       "distractors": [
         "la mer du Nord",
@@ -12110,7 +12497,8 @@
       "answer": "l'or",
       "accepted": [
         "or",
-        "l'or"
+        "l'or",
+        "l or"
       ],
       "distractors": [
         "le cuivre",
@@ -12158,12 +12546,11 @@
     {
       "difficulty": 2,
       "prompt": "Quel gaz les plantes absorbent-elles pour la photosynthèse ?",
-      "answer": "le dioxyde de carbone",
+      "answer": "dioxyde de carbone",
       "accepted": [
         "dioxyde de carbone",
         "le dioxyde de carbone",
-        "co2",
-        "gaz carbonique"
+        "co2"
       ],
       "distractors": [
         "l'oxygène",
@@ -12180,7 +12567,8 @@
       "answer": "88",
       "accepted": [
         "88",
-        "quatre-vingt-huit"
+        "quatre-vingt-huit",
+        "quatre vingt huit"
       ],
       "distractors": [
         "61",
@@ -12249,7 +12637,8 @@
       "answer": "32",
       "accepted": [
         "32",
-        "trente-deux"
+        "trente-deux",
+        "trente deux"
       ],
       "distractors": [
         "28",
@@ -12279,18 +12668,17 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quel phénomène provoque les marées ?",
-      "answer": "l'attraction de la Lune",
+      "prompt": "Quel astre exerce l'influence principale sur les marées terrestres ?",
+      "answer": "la Lune",
       "accepted": [
-        "attraction de la lune",
-        "l'attraction de la lune",
+        "lune",
         "la lune"
       ],
       "distractors": [
-        "le vent",
-        "la rotation des courants",
-        "la pression atmosphérique",
-        "les séismes"
+        "le Soleil",
+        "Mars",
+        "Jupiter",
+        "Vénus"
       ],
       "id": "det-cg-081",
       "theme": "Culture générale"
@@ -12319,7 +12707,14 @@
       "accepted": [
         "elephant d'afrique",
         "l'elephant d'afrique",
-        "l'elephant"
+        "l'elephant",
+        "l elephant",
+        "elephant d afrique",
+        "éléphant d Afrique",
+        "éléphant d'afrique",
+        "l elephant d Afrique",
+        "l éléphant d Afrique",
+        "l'éléphant d'Afrique"
       ],
       "distractors": [
         "le gorille",
@@ -12336,7 +12731,9 @@
       "answer": "les Pyrénées",
       "accepted": [
         "pyrenees",
-        "les pyrenees"
+        "les pyrenees",
+        "pyrénées",
+        "les Pyrénées"
       ],
       "distractors": [
         "les Alpes",
@@ -12405,7 +12802,9 @@
       "answer": "le Pérou",
       "accepted": [
         "perou",
-        "le perou"
+        "le perou",
+        "Pérou",
+        "le Pérou"
       ],
       "distractors": [
         "la Bolivie",
@@ -12422,7 +12821,9 @@
       "answer": "le fémur",
       "accepted": [
         "femur",
-        "le femur"
+        "le femur",
+        "fémur",
+        "le fémur"
       ],
       "distractors": [
         "le tibia",
@@ -12475,7 +12876,11 @@
       "accepted": [
         "elephant de savane",
         "l'elephant de savane",
-        "elephant"
+        "elephant",
+        "éléphant de savane",
+        "l elephant de savane",
+        "l éléphant de savane",
+        "l'éléphant de savane"
       ],
       "distractors": [
         "le rhinocéros blanc",
@@ -12492,7 +12897,8 @@
       "answer": "l'astronomie",
       "accepted": [
         "astronomie",
-        "l'astronomie"
+        "l'astronomie",
+        "l astronomie"
       ],
       "distractors": [
         "l'astrologie",
@@ -12511,7 +12917,8 @@
         "chinois",
         "le chinois",
         "mandarin",
-        "le chinois mandarin"
+        "le chinois mandarin",
+        "chinois mandarin"
       ],
       "distractors": [
         "l'anglais",
@@ -12562,7 +12969,8 @@
       "answer": "l'Italie",
       "accepted": [
         "italie",
-        "l'italie"
+        "l'italie",
+        "l Italie"
       ],
       "distractors": [
         "la Grèce",
@@ -12626,17 +13034,18 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quelle est la seule espèce de mammifère qui pond des œufs et vit en Australie ?",
+      "prompt": "Quel mammifère australien semi-aquatique à bec de canard pond des œufs ?",
       "answer": "l'ornithorynque",
       "accepted": [
         "ornithorynque",
+        "l ornithorynque",
         "l'ornithorynque"
       ],
       "distractors": [
-        "le koala",
+        "l'échidné",
         "le wombat",
-        "l'échidné à queue courte",
-        "l'opossum"
+        "le koala",
+        "le castor"
       ],
       "id": "det-cg-101",
       "theme": "Culture générale"
@@ -12664,7 +13073,8 @@
       "answer": "Mendeleïev",
       "accepted": [
         "mendeleiev",
-        "dmitri mendeleiev"
+        "dmitri mendeleiev",
+        "mendeleïev"
       ],
       "distractors": [
         "Lavoisier",
@@ -12693,28 +13103,29 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quel courant marin chaud réchauffe les côtes de l'Europe de l'Ouest ?",
-      "answer": "le Gulf Stream",
+      "prompt": "Quel courant océanique chaud longe la côte est de l'Amérique du Nord avant de traverser l'Atlantique ?",
+      "answer": "Gulf Stream",
       "accepted": [
         "gulf stream",
         "le gulf stream"
       ],
       "distractors": [
-        "le Kuroshio",
-        "le courant de Humboldt",
-        "le courant du Labrador",
-        "le courant des Canaries"
+        "courant de Humboldt",
+        "courant des Canaries",
+        "Kuroshio",
+        "courant du Labrador"
       ],
       "id": "det-cg-105",
       "theme": "Culture générale"
     },
     {
       "difficulty": 3,
-      "prompt": "Combien de vertèbres compte la colonne vertébrale d'un adulte, sacrum et coccyx compris ?",
+      "prompt": "Environ combien de vertèbres compte la colonne vertébrale humaine, sacrum et coccyx compris ?",
       "answer": "33",
       "accepted": [
         "33",
-        "trente-trois"
+        "trente-trois",
+        "trente trois"
       ],
       "distractors": [
         "24",
@@ -12745,25 +13156,25 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quel est le plus profond point connu des océans ?",
-      "answer": "la fosse des Mariannes",
+      "prompt": "Quelle fosse océanique abrite le point connu le plus profond des océans ?",
+      "answer": "fosse des Mariannes",
       "accepted": [
         "fosse des mariannes",
         "la fosse des mariannes",
         "mariannes"
       ],
       "distractors": [
-        "la fosse des Tonga",
-        "la fosse de Java",
-        "la fosse des Kouriles",
-        "la fosse de Porto Rico"
+        "fosse des Tonga",
+        "fosse du Japon",
+        "fosse de Java",
+        "fosse des Kouriles"
       ],
       "id": "det-cg-108",
       "theme": "Culture générale"
     },
     {
       "difficulty": 3,
-      "prompt": "Quelle est la seule ville au monde à s'étendre sur deux continents ?",
+      "prompt": "Quelle grande ville turque s'étend de part et d'autre du Bosphore, en Europe et en Asie ?",
       "answer": "Istanbul",
       "accepted": [
         "istanbul"
@@ -12783,7 +13194,8 @@
       "answer": "l'azote",
       "accepted": [
         "azote",
-        "l'azote"
+        "l'azote",
+        "l azote"
       ],
       "distractors": [
         "l'oxygène",
@@ -12796,34 +13208,39 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quel pays possède le plus grand nombre d'îles au monde ?",
+      "prompt": "Quel pays abrite l'archipel de Stockholm ?",
       "answer": "la Suède",
       "accepted": [
         "suede",
-        "la suede"
+        "la suede",
+        "suède",
+        "la suède"
       ],
       "distractors": [
-        "l'Indonésie",
-        "les Philippines",
         "la Norvège",
-        "le Canada"
+        "la Finlande",
+        "le Danemark",
+        "l'Islande"
       ],
       "id": "det-cg-111",
       "theme": "Culture générale"
     },
     {
       "difficulty": 3,
-      "prompt": "Quelle est l'unité de mesure de l'intensité sonore ?",
+      "prompt": "Quelle unité exprime couramment le niveau sonore ?",
       "answer": "le décibel",
       "accepted": [
         "decibel",
-        "le decibel"
+        "le decibel",
+        "décibel",
+        "le décibel",
+        "db"
       ],
       "distractors": [
+        "le watt",
         "le hertz",
-        "le lumen",
         "le pascal",
-        "le newton"
+        "le joule"
       ],
       "id": "det-cg-112",
       "theme": "Culture générale"
@@ -12868,7 +13285,11 @@
       "accepted": [
         "ocean indien",
         "l'ocean indien",
-        "indien"
+        "indien",
+        "océan Indien",
+        "l ocean Indien",
+        "l océan Indien",
+        "l'océan Indien"
       ],
       "distractors": [
         "le Pacifique",
@@ -12882,11 +13303,13 @@
     {
       "difficulty": 3,
       "prompt": "Quel est le nom du plus grand récif corallien du monde ?",
-      "answer": "la Grande Barrière",
+      "answer": "Grande Barrière",
       "accepted": [
         "grande barriere",
         "la grande barriere",
-        "grande barriere de corail"
+        "grande barriere de corail",
+        "grande barrière",
+        "great barrier reef"
       ],
       "distractors": [
         "le récif de Belize",
@@ -12939,7 +13362,9 @@
       "accepted": [
         "mer d'aral",
         "la mer d'aral",
-        "aral"
+        "aral",
+        "mer d aral",
+        "la mer d aral"
       ],
       "distractors": [
         "la mer Caspienne",
@@ -12986,18 +13411,19 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quel organe du corps humain contient le plus de neurones après le cerveau ?",
-      "answer": "l'intestin",
+      "prompt": "Quel système nerveux contrôle en grande partie le tube digestif ?",
+      "answer": "système nerveux entérique",
       "accepted": [
-        "intestin",
-        "l'intestin",
-        "les intestins"
+        "systeme nerveux enterique",
+        "système nerveux entérique",
+        "systeme enterique",
+        "système entérique"
       ],
       "distractors": [
-        "le cœur",
-        "le foie",
-        "la moelle épinière",
-        "les poumons"
+        "système limbique",
+        "système pyramidal",
+        "nerf optique",
+        "système vestibulaire"
       ],
       "id": "det-cg-122",
       "theme": "Culture générale"
@@ -13038,18 +13464,18 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quelle échelle mesure la magnitude des séismes depuis 1935 ?",
-      "answer": "l'échelle de Richter",
+      "prompt": "Quelle échelle historique, introduite en 1935, est associée à la magnitude des séismes ?",
+      "answer": "échelle de Richter",
       "accepted": [
         "echelle de richter",
-        "l'echelle de richter",
+        "échelle de richter",
         "richter"
       ],
       "distractors": [
-        "l'échelle de Mercalli",
-        "l'échelle de Beaufort",
-        "l'échelle de Mohs",
-        "l'échelle de Kelvin"
+        "échelle de Beaufort",
+        "échelle de Mohs",
+        "échelle de Mercalli",
+        "échelle Celsius"
       ],
       "id": "det-cg-125",
       "theme": "Culture générale"
@@ -13106,17 +13532,17 @@
     },
     {
       "difficulty": 1,
-      "prompt": "Dans quel film d'animation une petite fille se perd dans un monde d'esprits japonais ?",
-      "answer": "Le Voyage de Chihiro",
+      "prompt": "Qui a réalisé le film d'animation « Le Voyage de Chihiro » ?",
+      "answer": "Hayao Miyazaki",
       "accepted": [
-        "le voyage de chihiro",
-        "chihiro"
+        "hayao miyazaki",
+        "miyazaki"
       ],
       "distractors": [
-        "Princesse Mononoké",
-        "Ponyo",
-        "Le Château ambulant",
-        "Kiki la petite sorcière"
+        "Isao Takahata",
+        "Satoshi Kon",
+        "Mamoru Hosoda",
+        "Makoto Shinkai"
       ],
       "id": "det-cin-049",
       "theme": "Cinéma"
@@ -13245,7 +13671,11 @@
       "answer": "l'âne",
       "accepted": [
         "ane",
-        "l'ane"
+        "l'ane",
+        "âne",
+        "l ane",
+        "l âne",
+        "l'âne"
       ],
       "distractors": [
         "le chat botté",
@@ -13291,18 +13721,16 @@
     },
     {
       "difficulty": 1,
-      "prompt": "Quel film d'animation met en scène des Minions jaunes ?",
-      "answer": "Moi, moche et méchant",
+      "prompt": "Comment s'appelle le super-vilain devenu père adoptif dans « Moi, moche et méchant » ?",
+      "answer": "Gru",
       "accepted": [
-        "moi moche et mechant",
-        "moi, moche et mechant",
-        "les minions"
+        "gru"
       ],
       "distractors": [
-        "Madagascar",
-        "Kung Fu Panda",
-        "Les Croods",
-        "Hôtel Transylvanie"
+        "Vector",
+        "Dr Nefario",
+        "Kevin",
+        "Otto"
       ],
       "id": "det-cin-060",
       "theme": "Cinéma"
@@ -13398,7 +13826,9 @@
       "accepted": [
         "realisateur",
         "le realisateur",
-        "metteur en scene"
+        "metteur en scene",
+        "réalisateur",
+        "le réalisateur"
       ],
       "distractors": [
         "le producteur",
@@ -13464,7 +13894,8 @@
       "prompt": "Quel film raconte l'histoire d'un chien fidèle nommé Belle et de son ami Sébastien ?",
       "answer": "Belle et Sébastien",
       "accepted": [
-        "belle et sebastien"
+        "belle et sebastien",
+        "Belle et Sébastien"
       ],
       "distractors": [
         "Rex",
@@ -13529,18 +13960,17 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quel film de 1975 a rendu les baignades en mer angoissantes ?",
-      "answer": "Les Dents de la mer",
+      "prompt": "Qui a écrit et produit la saga de films « Taxi » ?",
+      "answer": "Luc Besson",
       "accepted": [
-        "les dents de la mer",
-        "dents de la mer",
-        "jaws"
+        "besson",
+        "luc besson"
       ],
       "distractors": [
-        "Piranha",
-        "Abyss",
-        "Open Water",
-        "Le Grand Bleu"
+        "Gérard Pirès",
+        "Claude Zidi",
+        "Olivier Marchal",
+        "Alexandre Aja"
       ],
       "id": "det-cin-074",
       "theme": "Cinéma"
@@ -13619,7 +14049,9 @@
       "answer": "la Palme d'or",
       "accepted": [
         "palme d'or",
-        "la palme d'or"
+        "la palme d'or",
+        "Palme d or",
+        "la palme d or"
       ],
       "distractors": [
         "l'Ours d'or",
@@ -13636,7 +14068,8 @@
       "answer": "Gérard Depardieu",
       "accepted": [
         "depardieu",
-        "gerard depardieu"
+        "gerard depardieu",
+        "Gérard Depardieu"
       ],
       "distractors": [
         "Jean Reno",
@@ -13683,18 +14116,17 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quelle comédie française met en scène un directeur de La Poste muté dans le Nord ?",
-      "answer": "Bienvenue chez les Ch'tis",
+      "prompt": "Quel acteur incarne Philippe Abrams dans « Bienvenue chez les Ch'tis » ?",
+      "answer": "Kad Merad",
       "accepted": [
-        "bienvenue chez les ch'tis",
-        "les ch'tis",
-        "bienvenue chez les chtis"
+        "kad merad",
+        "merad"
       ],
       "distractors": [
-        "Le Dîner de cons",
-        "La Chèvre",
-        "Les Visiteurs",
-        "Camping"
+        "Dany Boon",
+        "Franck Dubosc",
+        "Gad Elmaleh",
+        "Benoît Poelvoorde"
       ],
       "id": "det-cin-083",
       "theme": "Cinéma"
@@ -13736,17 +14168,17 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quel film de Spielberg suit un industriel allemand sauvant des Juifs pendant la guerre ?",
-      "answer": "La Liste de Schindler",
+      "prompt": "Quel réalisateur a signé « Titanic » puis « Avatar » ?",
+      "answer": "James Cameron",
       "accepted": [
-        "la liste de schindler",
-        "liste de schindler"
+        "cameron",
+        "james cameron"
       ],
       "distractors": [
-        "Le Pianiste",
-        "La vie est belle",
-        "Il faut sauver le soldat Ryan",
-        "Le Choix de Sophie"
+        "Ridley Scott",
+        "Michael Bay",
+        "Roland Emmerich",
+        "Zack Snyder"
       ],
       "id": "det-cin-086",
       "theme": "Cinéma"
@@ -13770,35 +14202,36 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quel film de Kubrick met en scène l'ordinateur HAL 9000 ?",
-      "answer": "2001, l'Odyssée de l'espace",
+      "prompt": "Comment s'appelle l'ordinateur de bord dans « 2001, l'Odyssée de l'espace » ?",
+      "answer": "HAL 9000",
       "accepted": [
-        "2001 l'odyssee de l'espace",
-        "2001",
-        "l'odyssee de l'espace"
+        "hal 9000",
+        "hal"
       ],
       "distractors": [
-        "Solaris",
-        "Interstellar",
-        "Alien",
-        "Silent Running"
+        "TARS",
+        "WOPR",
+        "GERTY",
+        "MOTHER"
       ],
       "id": "det-cin-088",
       "theme": "Cinéma"
     },
     {
       "difficulty": 2,
-      "prompt": "Quel comique français a créé le personnage du gendarme de Saint-Tropez ?",
+      "prompt": "Quel acteur incarne le gendarme Cruchot dans la série des « Gendarmes » ?",
       "answer": "Louis de Funès",
       "accepted": [
         "louis de funes",
-        "de funes"
+        "louis de funès",
+        "de funes",
+        "de funès"
       ],
       "distractors": [
         "Bourvil",
         "Fernandel",
         "Jean Gabin",
-        "Coluche"
+        "Lino Ventura"
       ],
       "id": "det-cin-089",
       "theme": "Cinéma"
@@ -13811,7 +14244,9 @@
         "e.t.",
         "et",
         "e t",
-        "e.t. l'extra-terrestre"
+        "e.t. l'extra-terrestre",
+        "e.t. l extra-terrestre",
+        "e.t. l'extra terrestre"
       ],
       "distractors": [
         "Rencontres du troisième type",
@@ -13881,7 +14316,9 @@
       "accepted": [
         "la-haut",
         "la haut",
-        "up"
+        "up",
+        "là haut",
+        "Là-haut"
       ],
       "distractors": [
         "Le Château dans le ciel",
@@ -13894,17 +14331,17 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quelle trilogie de Peter Jackson a été tournée en Nouvelle-Zélande ?",
-      "answer": "Le Seigneur des anneaux",
+      "prompt": "Qui a réalisé la trilogie cinématographique du « Seigneur des anneaux » ?",
+      "answer": "Peter Jackson",
       "accepted": [
-        "le seigneur des anneaux",
-        "seigneur des anneaux"
+        "peter jackson",
+        "jackson"
       ],
       "distractors": [
-        "Narnia",
-        "Harry Potter",
-        "Le Hobbit seul",
-        "Willow"
+        "George Miller",
+        "Ridley Scott",
+        "James Cameron",
+        "Sam Raimi"
       ],
       "id": "det-cin-095",
       "theme": "Cinéma"
@@ -13928,18 +14365,16 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quel film d'animation met en scène le royaume d'Arendelle ?",
-      "answer": "La Reine des neiges",
+      "prompt": "Comment s'appelle la reine d'Arendelle dans « La Reine des neiges » ?",
+      "answer": "Elsa",
       "accepted": [
-        "la reine des neiges",
-        "reine des neiges",
-        "frozen"
+        "elsa"
       ],
       "distractors": [
-        "Raiponce",
-        "Vaiana",
-        "Rebelle",
-        "Encanto"
+        "Anna",
+        "Ariel",
+        "Merida",
+        "Vaiana"
       ],
       "id": "det-cin-097",
       "theme": "Cinéma"
@@ -14098,12 +14533,13 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quel technique d'animation image par image utilise des figurines articulées ?",
+      "prompt": "Quelle technique d'animation image par image utilise des figurines articulées ?",
       "answer": "la stop-motion",
       "accepted": [
-        "stop-motion",
+        "stop motion",
         "la stop motion",
-        "animation en volume"
+        "stop-motion",
+        "la stop-motion"
       ],
       "distractors": [
         "la rotoscopie",
@@ -14116,17 +14552,17 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quel film de Jacques Tati met en scène Monsieur Hulot en vacances ?",
-      "answer": "Les Vacances de Monsieur Hulot",
+      "prompt": "Quel personnage de Jacques Tati est au centre des « Vacances de Monsieur Hulot » ?",
+      "answer": "Monsieur Hulot",
       "accepted": [
-        "les vacances de monsieur hulot",
-        "vacances de monsieur hulot"
+        "monsieur hulot",
+        "hulot"
       ],
       "distractors": [
-        "Playtime",
-        "Mon Oncle",
-        "Trafic",
-        "Jour de fête"
+        "Monsieur Verdoux",
+        "Monsieur Hire",
+        "Monsieur Klein",
+        "Monsieur Smith"
       ],
       "id": "det-cin-108",
       "theme": "Cinéma"
@@ -14150,17 +14586,17 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quel festival décerne l'Ours d'or ?",
-      "answer": "Berlin",
+      "prompt": "Quel festival de cinéma décerne l'Ours d'or ?",
+      "answer": "la Berlinale",
       "accepted": [
-        "berlin",
+        "berlinale",
         "la berlinale",
-        "berlinale"
+        "festival de berlin"
       ],
       "distractors": [
+        "Cannes",
         "Venise",
         "Locarno",
-        "Toronto",
         "Sundance"
       ],
       "id": "det-cin-110",
@@ -14188,7 +14624,8 @@
       "prompt": "Quel film de Hitchcock se déroule presque entièrement depuis une fenêtre ?",
       "answer": "Fenêtre sur cour",
       "accepted": [
-        "fenetre sur cour"
+        "fenetre sur cour",
+        "fenêtre sur cour"
       ],
       "distractors": [
         "Psychose",
@@ -14253,17 +14690,17 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quel film italien de 1948 suit un père et son fils cherchant un vélo volé ?",
-      "answer": "Le Voleur de bicyclette",
+      "prompt": "Qui a réalisé le film italien de 1948 « Le Voleur de bicyclette » ?",
+      "answer": "Vittorio De Sica",
       "accepted": [
-        "le voleur de bicyclette",
-        "voleur de bicyclette"
+        "vittorio de sica",
+        "de sica"
       ],
       "distractors": [
-        "Rome, ville ouverte",
-        "La Strada",
-        "Riz amer",
-        "Umberto D."
+        "Roberto Rossellini",
+        "Federico Fellini",
+        "Luchino Visconti",
+        "Michelangelo Antonioni"
       ],
       "id": "det-cin-116",
       "theme": "Cinéma"
@@ -14340,7 +14777,7 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quel film de 1927 est considéré comme le premier grand film de science-fiction allemand ?",
+      "prompt": "Quel film de Fritz Lang sorti en 1927 se déroule dans une cité futuriste ?",
       "answer": "Metropolis",
       "accepted": [
         "metropolis"
@@ -14360,7 +14797,8 @@
       "answer": "Pedro Almodóvar",
       "accepted": [
         "almodovar",
-        "pedro almodovar"
+        "pedro almodovar",
+        "pedro almodóvar"
       ],
       "distractors": [
         "Luis Buñuel",
@@ -14411,7 +14849,8 @@
       "answer": "Princesse Mononoké",
       "accepted": [
         "princesse mononoke",
-        "mononoke"
+        "mononoke",
+        "princesse mononoké"
       ],
       "distractors": [
         "Le Château ambulant",
@@ -14429,7 +14868,9 @@
       "accepted": [
         "basket-ball",
         "le basket-ball",
-        "basketball"
+        "basketball",
+        "basket ball",
+        "le basket ball"
       ],
       "distractors": [
         "le handball",
@@ -14532,7 +14973,8 @@
       "answer": "45",
       "accepted": [
         "45",
-        "quarante-cinq"
+        "quarante-cinq",
+        "quarante cinq"
       ],
       "distractors": [
         "30",
@@ -14566,7 +15008,7 @@
     {
       "difficulty": 1,
       "prompt": "Quelle course cycliste française se déroule chaque été en trois semaines ?",
-      "answer": "le Tour de France",
+      "answer": "Tour de France",
       "accepted": [
         "tour de france",
         "le tour de france"
@@ -14588,7 +15030,10 @@
         "saut d'obstacles",
         "le saut d'obstacles",
         "jumping",
-        "l'obstacle"
+        "l'obstacle",
+        "l obstacle",
+        "saut d obstacles",
+        "le saut d obstacles"
       ],
       "distractors": [
         "le dressage",
@@ -14605,7 +15050,8 @@
       "answer": "l'arbitre",
       "accepted": [
         "arbitre",
-        "l'arbitre"
+        "l'arbitre",
+        "l arbitre"
       ],
       "distractors": [
         "le capitaine",
@@ -14623,7 +15069,8 @@
       "accepted": [
         "or",
         "l'or",
-        "en or"
+        "en or",
+        "l or"
       ],
       "distractors": [
         "l'argent",
@@ -14655,12 +15102,10 @@
     {
       "difficulty": 1,
       "prompt": "Quel sport se joue avec un palet sur la glace ?",
-      "answer": "le hockey sur glace",
+      "answer": "hockey sur glace",
       "accepted": [
         "hockey sur glace",
-        "le hockey sur glace",
-        "hockey",
-        "le hockey"
+        "le hockey sur glace"
       ],
       "distractors": [
         "le curling",
@@ -14674,12 +15119,12 @@
     {
       "difficulty": 1,
       "prompt": "Quel sport de raquette se joue sur une table ?",
-      "answer": "le tennis de table",
+      "answer": "tennis de table",
       "accepted": [
         "tennis de table",
         "le tennis de table",
-        "ping-pong",
-        "le ping-pong"
+        "ping pong",
+        "ping-pong"
       ],
       "distractors": [
         "le squash",
@@ -14715,7 +15160,8 @@
       "accepted": [
         "water-polo",
         "le water-polo",
-        "water polo"
+        "water polo",
+        "le water polo"
       ],
       "distractors": [
         "la natation synchronisée",
@@ -14764,11 +15210,11 @@
     {
       "difficulty": 1,
       "prompt": "Quelle compétition réunit les meilleures nations de football tous les quatre ans ?",
-      "answer": "la Coupe du monde",
+      "answer": "Coupe du monde",
       "accepted": [
         "coupe du monde",
         "la coupe du monde",
-        "mondial"
+        "coupe du monde de football"
       ],
       "distractors": [
         "la Ligue des champions",
@@ -14870,18 +15316,17 @@
     },
     {
       "difficulty": 1,
-      "prompt": "Quelle discipline consiste à courir de longues distances sur route ?",
-      "answer": "la course à pied",
+      "prompt": "Quelle discipline d'athlétisme regroupe les courses longues comme le 5 000 m et le 10 000 m ?",
+      "answer": "course de fond",
       "accepted": [
-        "course a pied",
-        "la course a pied",
-        "le running"
+        "course de fond",
+        "fond"
       ],
       "distractors": [
-        "la marche athlétique",
-        "le saut en longueur",
-        "le cross-country sur piste",
-        "le trail de bloc"
+        "sprint",
+        "demi-fond",
+        "marche athlétique",
+        "steeple"
       ],
       "id": "det-spo-071",
       "theme": "Sport"
@@ -14889,11 +15334,11 @@
     {
       "difficulty": 1,
       "prompt": "Quel sport nautique utilise une planche et une voile ?",
-      "answer": "la planche à voile",
+      "answer": "planche à voile",
       "accepted": [
         "planche a voile",
         "la planche a voile",
-        "windsurf"
+        "planche à voile"
       ],
       "distractors": [
         "le surf",
@@ -14962,7 +15407,9 @@
       "answer": "le décathlon",
       "accepted": [
         "decathlon",
-        "le decathlon"
+        "le decathlon",
+        "décathlon",
+        "le décathlon"
       ],
       "distractors": [
         "l'heptathlon",
@@ -14996,7 +15443,8 @@
       "answer": "l'Angleterre",
       "accepted": [
         "angleterre",
-        "l'angleterre"
+        "l'angleterre",
+        "l Angleterre"
       ],
       "distractors": [
         "l'Écosse",
@@ -15009,10 +15457,11 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quel pays a inventé le handball moderne au début du XXe siècle ?",
+      "prompt": "Dans quel pays Karl Schelenz a-t-il contribué à codifier le handball moderne ?",
       "answer": "l'Allemagne",
       "accepted": [
         "allemagne",
+        "l allemagne",
         "l'allemagne"
       ],
       "distractors": [
@@ -15148,11 +15597,11 @@
     {
       "difficulty": 2,
       "prompt": "Quelle compétition européenne de clubs de football se dispute chaque saison ?",
-      "answer": "la Ligue des champions",
+      "answer": "Champions League",
       "accepted": [
+        "champions league",
         "ligue des champions",
-        "la ligue des champions",
-        "champions league"
+        "la ligue des champions"
       ],
       "distractors": [
         "la Ligue Europa",
@@ -15183,18 +15632,16 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quelle course automobile d'endurance se déroule chaque année dans la Sarthe ?",
-      "answer": "les 24 Heures du Mans",
+      "prompt": "Dans quelle ville se dispute la célèbre course automobile d'endurance de 24 heures ?",
+      "answer": "Le Mans",
       "accepted": [
-        "24 heures du mans",
-        "les 24 heures du mans",
         "le mans"
       ],
       "distractors": [
-        "le Grand Prix de Monaco",
-        "le rallye de Monte-Carlo",
-        "les 500 miles d'Indianapolis",
-        "le Bol d'or"
+        "Monaco",
+        "Le Castellet",
+        "Magny-Cours",
+        "Reims"
       ],
       "id": "det-spo-089",
       "theme": "Sport"
@@ -15205,7 +15652,8 @@
       "answer": "l'escrime",
       "accepted": [
         "escrime",
-        "l'escrime"
+        "l'escrime",
+        "l escrime"
       ],
       "distractors": [
         "le kendo",
@@ -15218,17 +15666,18 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quelle nation domine historiquement le cricket avec l'Angleterre ?",
+      "prompt": "Dans quel pays se dispute l'Indian Premier League de cricket ?",
       "answer": "l'Inde",
       "accepted": [
         "inde",
+        "l inde",
         "l'inde"
       ],
       "distractors": [
-        "le Japon",
-        "la Chine",
-        "les États-Unis",
-        "l'Allemagne"
+        "l'Angleterre",
+        "l'Australie",
+        "le Pakistan",
+        "l'Afrique du Sud"
       ],
       "id": "det-spo-091",
       "theme": "Sport"
@@ -15270,9 +15719,11 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quel trophée récompense le meilleur joueur de football de l'année ?",
-      "answer": "le Ballon d'or",
+      "prompt": "Quel trophée de France Football récompense chaque année une grande performance individuelle dans le football ?",
+      "answer": "Ballon d'or",
       "accepted": [
+        "ballon d or",
+        "le ballon d or",
         "ballon d'or",
         "le ballon d'or"
       ],
@@ -15342,7 +15793,13 @@
       "accepted": [
         "nouvelle-zelande",
         "la nouvelle-zelande",
-        "les all blacks"
+        "les all blacks",
+        "Nouvelle Zelande",
+        "Nouvelle Zélande",
+        "nouvelle-zélande",
+        "la nouvelle zelande",
+        "la Nouvelle Zélande",
+        "la nouvelle-zélande"
       ],
       "distractors": [
         "l'Australie",
@@ -15394,7 +15851,8 @@
       "answer": "l'heptathlon",
       "accepted": [
         "heptathlon",
-        "l'heptathlon"
+        "l'heptathlon",
+        "l heptathlon"
       ],
       "distractors": [
         "le décathlon",
@@ -15446,7 +15904,8 @@
       "answer": "l'Uruguay",
       "accepted": [
         "uruguay",
-        "l'uruguay"
+        "l'uruguay",
+        "l uruguay"
       ],
       "distractors": [
         "l'Argentine",
@@ -15477,17 +15936,17 @@
     },
     {
       "difficulty": 3,
-      "prompt": "Quel joueur de tennis détient le record de semaines au premier rang mondial chez les hommes ?",
+      "prompt": "Quel joueur a cumulé 428 semaines à la première place du classement ATP ?",
       "answer": "Novak Djokovic",
       "accepted": [
-        "djokovic",
-        "novak djokovic"
+        "novak djokovic",
+        "djokovic"
       ],
       "distractors": [
         "Roger Federer",
-        "Pete Sampras",
         "Rafael Nadal",
-        "Ivan Lendl"
+        "Pete Sampras",
+        "Jannik Sinner"
       ],
       "id": "det-spo-106",
       "theme": "Sport"
@@ -15549,7 +16008,8 @@
       "prompt": "Quel joueur brésilien a remporté trois Coupes du monde de football ?",
       "answer": "Pelé",
       "accepted": [
-        "pele"
+        "pele",
+        "Pelé"
       ],
       "distractors": [
         "Ronaldo",
@@ -15563,10 +16023,16 @@
     {
       "difficulty": 3,
       "prompt": "Quelle discipline olympique se dispute avec un arc à soixante-dix mètres de la cible ?",
-      "answer": "le tir à l'arc",
+      "answer": "tir à l'arc",
       "accepted": [
+        "tir a l arc",
+        "le tir a l arc",
+        "tir à l'arc",
+        "le tir à l'arc",
         "tir a l'arc",
-        "le tir a l'arc"
+        "tir à l arc",
+        "le tir a l'arc",
+        "le tir à l arc"
       ],
       "distractors": [
         "le tir sportif",
@@ -15583,7 +16049,8 @@
       "answer": "Aimé Jacquet",
       "accepted": [
         "aime jacquet",
-        "jacquet"
+        "jacquet",
+        "aimé jacquet"
       ],
       "distractors": [
         "Didier Deschamps",
@@ -15670,7 +16137,8 @@
       "answer": "Stéphane Peterhansel",
       "accepted": [
         "peterhansel",
-        "stephane peterhansel"
+        "stephane peterhansel",
+        "Stéphane Peterhansel"
       ],
       "distractors": [
         "Sébastien Loeb",
@@ -15707,7 +16175,10 @@
         "marseille",
         "l'olympique de marseille",
         "om",
-        "l'om"
+        "l'om",
+        "l om",
+        "Olympique de Marseille",
+        "l Olympique de Marseille"
       ],
       "distractors": [
         "le Paris Saint-Germain",
@@ -15810,7 +16281,8 @@
       "answer": "Jean-Claude Killy",
       "accepted": [
         "killy",
-        "jean-claude killy"
+        "jean-claude killy",
+        "jean claude killy"
       ],
       "distractors": [
         "Luc Alphand",
@@ -15896,7 +16368,9 @@
       "accepted": [
         "premiere piste",
         "la premiere piste",
-        "le premier titre"
+        "le premier titre",
+        "première piste",
+        "la première piste"
       ],
       "distractors": [
         "le bonus",
@@ -15929,7 +16403,11 @@
       "answer": "l'accordéon",
       "accepted": [
         "accordeon",
-        "l'accordeon"
+        "l'accordeon",
+        "accordéon",
+        "l accordeon",
+        "l accordéon",
+        "l'accordéon"
       ],
       "distractors": [
         "l'harmonica",
@@ -16030,7 +16508,7 @@
     },
     {
       "difficulty": 1,
-      "prompt": "Quel chanteur français a interprété « Formidable » ?",
+      "prompt": "Quel chanteur belge a interprété « Formidable » ?",
       "answer": "Stromae",
       "accepted": [
         "stromae"
@@ -16139,7 +16617,8 @@
       "answer": "Édith Piaf",
       "accepted": [
         "edith piaf",
-        "piaf"
+        "piaf",
+        "édith piaf"
       ],
       "distractors": [
         "Dalida",
@@ -16209,7 +16688,9 @@
       "answer": "un récital",
       "accepted": [
         "recital",
-        "un recital"
+        "un recital",
+        "récital",
+        "un récital"
       ],
       "distractors": [
         "un tour de chant collectif",
@@ -16227,7 +16708,9 @@
       "accepted": [
         "flute",
         "la flute",
-        "flute a bec"
+        "flute a bec",
+        "flûte",
+        "la flûte"
       ],
       "distractors": [
         "le pipeau électrique",
@@ -16240,17 +16723,17 @@
     },
     {
       "difficulty": 1,
-      "prompt": "Quelle fête de la musique a lieu chaque 21 juin en France ?",
-      "answer": "la Fête de la musique",
+      "prompt": "À quelle date a lieu la Fête de la musique en France ?",
+      "answer": "21 juin",
       "accepted": [
-        "fete de la musique",
-        "la fete de la musique"
+        "21 juin",
+        "le 21 juin"
       ],
       "distractors": [
-        "les Victoires de la musique",
-        "les Francofolies",
-        "le Printemps de Bourges",
-        "les Vieilles Charrues"
+        "14 juillet",
+        "1er mai",
+        "21 mars",
+        "31 décembre"
       ],
       "id": "det-mus-070",
       "theme": "Musique"
@@ -16331,7 +16814,9 @@
         "hip-hop",
         "le hip-hop",
         "rap",
-        "le rap"
+        "le rap",
+        "hip hop",
+        "le hip hop"
       ],
       "distractors": [
         "la house",
@@ -16378,7 +16863,7 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Combien de mouvements compte généralement une symphonie classique ?",
+      "prompt": "Combien de mouvements compte traditionnellement une symphonie classique ?",
       "answer": "4",
       "accepted": [
         "4",
@@ -16536,7 +17021,8 @@
       "answer": "Bach",
       "accepted": [
         "bach",
-        "jean-sebastien bach"
+        "jean-sebastien bach",
+        "jean sebastien bach"
       ],
       "distractors": [
         "Haendel",
@@ -16570,7 +17056,9 @@
       "answer": "la guitare électrique",
       "accepted": [
         "guitare electrique",
-        "la guitare electrique"
+        "la guitare electrique",
+        "guitare électrique",
+        "la guitare électrique"
       ],
       "distractors": [
         "la basse",
@@ -16587,7 +17075,8 @@
       "answer": "Céline Dion",
       "accepted": [
         "celine dion",
-        "dion"
+        "dion",
+        "céline dion"
       ],
       "distractors": [
         "Lara Fabian",
@@ -16604,7 +17093,9 @@
       "answer": "la portée",
       "accepted": [
         "portee",
-        "la portee"
+        "la portee",
+        "portée",
+        "la portée"
       ],
       "distractors": [
         "la partition",
@@ -16617,7 +17108,7 @@
     },
     {
       "difficulty": 2,
-      "prompt": "Quel style de danse et de musique est né à Cuba et se danse en couple sur huit temps ?",
+      "prompt": "Quel style de danse afro-caribéen se danse en couple et a été largement popularisé à New York ?",
       "answer": "la salsa",
       "accepted": [
         "salsa",
@@ -16625,9 +17116,9 @@
       ],
       "distractors": [
         "le tango",
-        "la rumba",
-        "le cha-cha-cha",
-        "le merengue"
+        "la samba",
+        "le flamenco",
+        "la rumba"
       ],
       "id": "det-mus-092",
       "theme": "Musique"
@@ -16722,7 +17213,8 @@
       "answer": "l'Argentine",
       "accepted": [
         "argentine",
-        "l'argentine"
+        "l'argentine",
+        "l Argentine"
       ],
       "distractors": [
         "l'Espagne",
@@ -16738,7 +17230,8 @@
       "prompt": "Quelle chanteuse américaine a marqué les années 2010 avec l'album « Lemonade » ?",
       "answer": "Beyoncé",
       "accepted": [
-        "beyonce"
+        "beyonce",
+        "beyoncé"
       ],
       "distractors": [
         "Rihanna",
@@ -16755,7 +17248,8 @@
       "answer": "Tchaïkovski",
       "accepted": [
         "tchaikovski",
-        "piotr tchaikovski"
+        "piotr tchaikovski",
+        "tchaïkovski"
       ],
       "distractors": [
         "Prokofiev",
@@ -16773,7 +17267,9 @@
       "accepted": [
         "theremine",
         "le theremine",
-        "theremin"
+        "theremin",
+        "thérémine",
+        "le thérémine"
       ],
       "distractors": [
         "les ondes Martenot",
@@ -16978,7 +17474,8 @@
       "answer": "Bartók",
       "accepted": [
         "bartok",
-        "bela bartok"
+        "bela bartok",
+        "Bartók"
       ],
       "distractors": [
         "Liszt",
@@ -17012,7 +17509,8 @@
       "answer": "l'octave",
       "accepted": [
         "octave",
-        "l'octave"
+        "l'octave",
+        "l octave"
       ],
       "distractors": [
         "la quinte",

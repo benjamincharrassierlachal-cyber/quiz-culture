@@ -56,6 +56,33 @@
       .trim();
   }
 
+  /* Normalisation des formules : contrairement à normalize(), elle CONSERVE les symboles.
+   * Pour « 2x² + 5x − 12 », le signe est toute la réponse : le retirer revenait à confondre
+   * l'énoncé juste avec son leurre. On ramène seulement les variantes typographiques d'un
+   * même symbole à une écriture unique — moins Unicode et tiret, × et x, ² et ^2. */
+  var EXPOSANTS = { '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4',
+    '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9', '⁻': '-' };
+
+  function normalizeStrict(s) {
+    if (s === null || s === undefined) return '';
+    var t = String(s).toLowerCase();
+    if (t.normalize) t = t.normalize('NFD').replace(/[̀-ͯ]/g, '');
+    t = t.replace(/[⁰¹²³⁴-⁹⁻]/g, function (c) {
+      return '^' + EXPOSANTS[c];
+    });
+    return t
+      .replace(/\^\^/g, '^')                       // deux exposants collés : 10⁻⁴ → 10^-4
+      .replace(/\^-\^/g, '^-')
+      .replace(/[−–—]/g, '-')       // moins Unicode, tirets longs
+      .replace(/[×⋅∗*]/g, 'x')      // × · ∗ * → x
+      .replace(/[÷∕]/g, '/')
+      .replace(/≤/g, '<=').replace(/≥/g, '>=')
+      .replace(/[’']/g, '')
+      .replace(/,(\d)/g, '.$1')                    // 7,2 → 7.2
+      .replace(/\s+/g, '')                         // les espaces ne portent aucun sens ici
+      .trim();
+  }
+
   /** Valeur d'une fraction, d'un pourcentage ou d'un décimal : « 2/10 », « 20 % » et « 0,2 »
    *  donnent tous 0.2. NaN si l'écriture n'est pas de cette forme. */
   function toRational(s) {
@@ -136,12 +163,29 @@
     return ok ? neg * total : NaN;
   }
 
+  /** Range les membres d'une énumération dans l'ordre alphabétique, chacun débarrassé de
+   *  son déterminant : « l'Église et l'État » et « l'État et l'Église » deviennent la même
+   *  chaîne. Sans cela, inverser deux termes coûtait une dizaine de fautes de frappe. */
+  function sortParts(s) {
+    var parts = String(s).split(/\s+(?:et|and)\s+/);
+    if (parts.length < 2) return s;
+    return parts
+      .map(function (p) {
+        return p.replace(/^(?:(?:le|la|les|l|un|une|des|de|du|d|au|aux|en|the|a)\s+)+/, '').trim();
+      })
+      .filter(Boolean)
+      .sort()
+      .join(' et ');
+  }
+
   function bestDistance(given, list) {
     var best = Infinity, bestLen = 0;
+    var givenSorted = sortParts(given);
     (list || []).forEach(function (t) {
       var target = normalize(t);
       if (!target) return;
-      var d = levenshtein(given, target);
+      // on retient la meilleure des deux lectures : ordre d'origine, ou membres rangés
+      var d = Math.min(levenshtein(given, target), levenshtein(givenSorted, sortParts(target)));
       if (d < best) { best = d; bestLen = target.length; }
     });
     return { d: best, len: bestLen };
@@ -149,6 +193,24 @@
 
   /** Une réponse libre est-elle acceptée ? (trois garde-fous, voir DESIGN §2) */
   function checkFree(question, input) {
+    /* Formules : comparaison symbole à symbole, aucune tolérance — un signe change tout.
+     * On sort ici, sans repasser par la comparaison souple : celle-ci efface justement
+     * les symboles et confondrait la bonne réponse avec son leurre. */
+    if (question.strict) {
+      var f = normalizeStrict(input);
+      if (!f) return false;
+      // le chapeau de l'exposant est introuvable sur un clavier de téléphone : « 2x2 » vaut « 2x² ».
+      // Les signes, eux, restent décisifs — c'est là toute la différence avec la comparaison souple.
+      var plat = function (x) { return x.replace(/\^/g, ''); };
+      var cibles = [question.answer].concat(question.accepted || []);
+      for (var s = 0; s < cibles.length; s++) {
+        var g = normalizeStrict(cibles[s]);
+        if (f === g || plat(f) === plat(g)) return true;
+        if (sameValue(input, cibles[s])) return true;   // 2/10 vaut toujours 1/5
+      }
+      return false;
+    }
+
     var given = normalize(input);
     if (!given) return false;
 
@@ -169,7 +231,7 @@
 
     var acc = bestDistance(given, question.accepted);
     if (acc.d === 0) return true;
-    if (question.strict || question.numeric) return false;
+    if (question.numeric) return false;
     if (acc.d > tolerance(acc.len)) return false;
     return acc.d < bestDistance(given, question.distractors).d;
   }
@@ -784,6 +846,7 @@
   return {
     CONFIG: CONFIG,
     normalize: normalize,
+    normalizeStrict: normalizeStrict,
     levenshtein: levenshtein,
     speedBonus: speedBonus,
     speedOpen: speedOpen,
