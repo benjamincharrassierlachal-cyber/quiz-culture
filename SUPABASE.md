@@ -303,20 +303,22 @@ language plpgsql security definer set search_path = public as $$
 begin
   perform defis_perimer();
   return query
-  select d.id, 'cible'::text, d.etat, d.seed,
-         d.from_pseudo,
-         left(d.from_tag, 2) || repeat('*', char_length(d.from_tag) - 3) || right(d.from_tag, 1),
-         d.to_score, d.from_score, d.to_seconds, d.from_seconds, d.created_at
-    from defis d
-   where d.to_tag = p_tag and (d.etat = 'en attente' or not d.vu_cible)
-  union all
-  select d.id, 'lanceur'::text, d.etat, d.seed,
-         d.to_pseudo,
-         left(d.to_tag, 2) || repeat('*', char_length(d.to_tag) - 3) || right(d.to_tag, 1),
-         d.from_score, d.to_score, d.from_seconds, d.to_seconds, d.created_at
-    from defis d
-   where d.from_tag = p_tag and d.etat <> 'en attente' and not d.vu_lanceur
-   order by 12 desc;
+  select * from (
+    select d.id, 'cible'::text as role, d.etat, d.seed,
+           d.from_pseudo,
+           left(d.from_tag, 2) || repeat('*', char_length(d.from_tag) - 3) || right(d.from_tag, 1),
+           d.to_score, d.from_score, d.to_seconds, d.from_seconds, d.created_at
+      from defis d
+     where d.to_tag = p_tag and (d.etat = 'en attente' or not d.vu_cible)
+    union all
+    select d.id, 'lanceur'::text, d.etat, d.seed,
+           d.to_pseudo,
+           left(d.to_tag, 2) || repeat('*', char_length(d.to_tag) - 3) || right(d.to_tag, 1),
+           d.from_score, d.to_score, d.from_seconds, d.to_seconds, d.created_at
+      from defis d
+     where d.from_tag = p_tag and d.etat <> 'en attente' and not d.vu_lanceur
+  ) t
+  order by t.created_at desc;
 end; $$;
 
 -- relever (p_accepte vrai, avec score) ou refuser

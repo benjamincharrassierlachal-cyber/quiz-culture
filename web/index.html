@@ -71735,7 +71735,7 @@
   "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbnVpZ2J0c3loZHpsaXBuZ29sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMTEyNTMsImV4cCI6MjEwMDg4NzI1M30.eEw1D1Nbdu7LPSGbXScZICuA2Pj4WGiLnOHC_o_pJ3M"
 }
 ;</script>
-<script>var BUILD = {"version":"735a583","date":"2026-08-07 16:22"};</script>
+<script>var BUILD = {"version":"3696653","date":"2026-08-08 07:13"};</script>
 <script>
 (function () {
   'use strict';
@@ -71757,6 +71757,7 @@
   var rankMeSeen = false;
   var defis = null;          // contenu de ma boîte à défis, rechargé à l'ouverture
   var defiChoix = null;      // adversaire en cours de sélection
+  var defiLu = 0;            // date de la dernière lecture de la boîte
   var defiFin = null;        // résultat à annoncer après une partie de défi    // une seule ancre de défilement, même si le pseudo apparaît plusieurs fois
 
   function muted() { return localStorage.getItem(MUTE_KEY) === '1'; }
@@ -72016,7 +72017,7 @@
 
   function draw() {
     if (view === 'title') return renderTitle();
-    if (view === 'modes') { if (defis === null) chargerDefis(function () { if (view === 'modes') draw(); }); return renderModes(); }
+    if (view === 'modes') return renderModes();
     if (view === 'pause') return renderPause();
     if (view === 'map') return renderMap();
     if (view === 'jokers') return renderJokersIntro();
@@ -72265,6 +72266,11 @@
   }
 
   function renderModes() {
+    // la pastille doit refléter l'état du serveur, sans le harceler : une lecture par demi-minute
+    if (Date.now() - defiLu > 30000) {
+      defiLu = Date.now();
+      chargerDefis(function () { if (view === 'modes') draw(); });
+    }
     var p = S.getPseudo(), tag = S.getTag();
     var bestBac = S.best('bac'), bestRelax = S.best('detente');
     app.innerHTML =
@@ -72757,14 +72763,21 @@
   }
   var defiBilan = null;
 
-  /** Recharge la boîte et le bilan, puis redessine. Silencieux en cas de panne réseau. */
+  var defiErreur = null;
+
+  /* Recharge la boîte et le bilan. Les deux appels sont séparés : réunis dans un Promise.all,
+   * l'échec de l'un masquait le résultat de l'autre — et surtout, une erreur silencieuse
+   * donnait une page vide impossible à diagnostiquer. */
   function chargerDefis(apres) {
-    if (!S.configured()) { defis = []; defiBilan = null; if (apres) apres(); return; }
-    Promise.all([S.defiBoite(), S.defiBilan()]).then(function (r) {
-      defis = r[0]; defiBilan = r[1];
-    }, function () {
-      defis = defis || []; 
-    }).then(function () { if (apres) apres(); else render(); });
+    if (!S.configured()) { defis = []; defiBilan = null; defiErreur = 'classement hors ligne';
+      if (apres) apres(); else render(); return; }
+    defiErreur = null;
+    var reste = 2;
+    var fini = function () { if (--reste === 0) { if (apres) apres(); else render(); } };
+    S.defiBoite().then(function (rows) { defis = rows; fini(); },
+      function (e) { defis = defis || []; defiErreur = 'boîte : ' + (e && e.message || e); fini(); });
+    S.defiBilan().then(function (b) { defiBilan = b; fini(); },
+      function (e) { defiErreur = (defiErreur ? defiErreur + ' · ' : '') + 'bilan : ' + (e && e.message || e); fini(); });
   }
 
   function openDefis() {
@@ -72803,13 +72816,18 @@
           '<tr><td>En attente de réponse</td><td class="s">' + b.attente + '</td></tr>' +
           '</table>' : '<p class="center muted">Chargement…</p>') +
 
+        (defiErreur ? '<div class="oops">Le serveur a répondu : ' + esc(defiErreur) + '</div>' : '') +
+        '<div class="hint center">Ton numéro : <b>' + esc(S.getTag()) + '</b> · ' +
+          (defis === null ? 'chargement…' : defis.length + ' élément(s) reçu(s)') +
+          ' <button class="chip" id="d-refresh">Actualiser</button></div>' +
         '<button class="btn ghost" id="menu">Menu</button>' +
       '</div>';
     document.getElementById('info').onclick = openRules;
+    document.getElementById('d-refresh').onclick = function () { defis = null; defiLu = 0; render(); chargerDefis(); };
     document.getElementById('d-lancer').onclick = function () { view = 'defiChoix'; render(); chargerAdversaires(); };
     var dr = document.getElementById('d-relever');
     if (recus.length) dr.onclick = function () { proposerDefi(recus[0]); };
-    document.getElementById('menu').onclick = function () { view = 'modes'; render(); };
+    document.getElementById('menu').onclick = function () { defiLu = 0; view = 'modes'; render(); };
     resultats.forEach(function (d) {
       var el = document.getElementById('vu-' + d.id);
       if (el) el.onclick = function () { S.defiVu(d.id).then(function () { chargerDefis(); }, function () { chargerDefis(); }); };
