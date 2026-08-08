@@ -261,9 +261,21 @@
   .chip.speed.on{background:#ffe89a; border-color:#e5be3d; color:#5c4600}
   .mode.defi .band{background:linear-gradient(120deg,#b8452f,#e0663f)}
   .mode.defi{position:relative}
-  .pastille{position:absolute; top:-7px; right:-7px; z-index:2; min-width:24px; height:24px;
-    border-radius:999px; background:#e0392f; color:#fff; font-weight:900; font-size:13px;
-    line-height:24px; text-align:center; border:3px solid var(--paper); padding:0 5px}
+  /* la tuile coupe ce qui dépasse (overflow:hidden pour arrondir la bannière) :
+     la pastille est donc posée à l'intérieur, dans la bannière elle-même */
+  .pastille{position:absolute; top:12px; right:14px; z-index:2; min-width:30px; height:30px;
+    border-radius:999px; background:#fff; color:#b8452f; font-weight:900; font-size:16px;
+    line-height:30px; text-align:center; padding:0 7px; box-shadow:0 2px 0 rgba(0,0,0,.25);
+    animation:pastillePop .5s ease-out both}
+  .pastille.verte{color:#1f7a45}
+  @keyframes pastillePop{from{transform:scale(0)}70%{transform:scale(1.25)}to{transform:scale(1)}}
+  .defi-titre{margin-bottom:6px}
+  .defi-titre.gagne{color:#1f9d55}
+  .defi-titre.perdu{color:#c0392b}
+  .defi-qui{display:flex; align-items:center; gap:12px; justify-content:center; margin:12px 0;
+    padding:10px 14px; border:3px solid var(--ink); border-radius:16px; background:#fff7d9;
+    text-align:left}
+  .avatar.big{width:46px; height:46px}
   .defi-res{display:flex; align-items:center; gap:10px; padding:9px 6px;
     border-bottom:2px dashed var(--pale); font-size:14px}
   .defi-res span:first-child{flex:1; min-width:0}
@@ -592,6 +604,7 @@
     if (view === 'defis') return renderDefis();
     if (view === 'defiChoix') return renderDefiChoix();
     if (view === 'defiFin') return renderDefiFin();
+    if (view === 'defiRecu') return renderDefiRecu();
     if (view === 'rules') return renderRules();
     if (view === 'diploma') return renderDiploma();
     if (view === 'endBac') return renderEndBac();
@@ -874,7 +887,9 @@
         '</button>' +
 
         '<button class="mode defi" id="m-defi">' +
-          (nDefis() ? '<span class="pastille">' + nDefis() + '</span>' : '') +
+          (nDefiResultats() ? '<span class="pastille verte"' +
+            (nDefiRecus() ? ' style="right:52px"' : '') + '>' + nDefiResultats() + '</span>' : '') +
+          (nDefiRecus() ? '<span class="pastille">' + nDefiRecus() + '</span>' : '') +
           '<span class="band"><span class="ico">' + icoDefi() + '</span>' +
             '<span class="ttl"><b>Défi</b><small>UN CONTRE UN · MÊMES QUESTIONS</small></span>' +
             '</span>' +
@@ -1319,7 +1334,16 @@
       '<path d="M19 3h2v2l-8.5 8.5"/></svg>';
   }
 
-  /** Nombre d'éléments à traiter : défis reçus + résultats non consultés. */
+  /* Deux compteurs distincts, deux couleurs : le rouge appelle une action — on te défie —
+   * le vert n'annonce qu'une nouvelle à lire. Confondus, le joueur ne sait pas s'il doit jouer. */
+  function nDefiRecus() {
+    return (defis || []).filter(function (d) {
+      return d.etat === 'en attente' && d.role === 'cible';
+    }).length;
+  }
+  function nDefiResultats() {
+    return (defis || []).filter(function (d) { return d.etat !== 'en attente'; }).length;
+  }
   function nDefis() { return defis ? defis.length : 0; }
 
   function bilanCourt() {
@@ -1393,7 +1417,7 @@
     document.getElementById('d-refresh').onclick = function () { defis = null; defiLu = 0; render(); chargerDefis(); };
     document.getElementById('d-lancer').onclick = function () { view = 'defiChoix'; render(); chargerAdversaires(); };
     var dr = document.getElementById('d-relever');
-    if (recus.length) dr.onclick = function () { proposerDefi(recus[0]); };
+    if (recus.length) dr.onclick = function () { view = 'defiRecu'; render(); };
     document.getElementById('menu').onclick = function () { defiLu = 0; view = 'modes'; render(); };
     resultats.forEach(function (d) {
       var el = document.getElementById('vu-' + d.id);
@@ -1484,26 +1508,37 @@
     startDefi({ role: 'lanceur', seed: S.defiGraine(), adversaire: adv.pseudo, masque: adv.masque });
   }
 
-  /** Proposition reçue : accepter lance la partie, refuser clôt le défi. */
-  function proposerDefi(d) {
-    fx.innerHTML =
-      '<div class="pop"><div class="sheet">' +
-        '<h2 class="center">Un défi !</h2>' +
-        '<p class="center"><b>' + esc(d.adversaire) + '</b> <span class="muted">#' +
-          esc(d.adversaire_masque) + '</span> te lance un défi en mode détente.</p>' +
-        '<div class="hint center">Tu joueras exactement les mêmes 30 questions que lui. ' +
-          'Tu ne découvriras son score qu\'à la fin.</div>' +
+  /** Page « on te défie » : un défi par écran, accepter ou refuser. */
+  function renderDefiRecu() {
+    var recus = (defis || []).filter(function (d) { return d.etat === 'en attente' && d.role === 'cible'; });
+    if (!recus.length) { view = 'defis'; return render(); }
+    var d = recus[0];
+    app.innerHTML =
+      '<div class="card center">' + infoBtn() +
+        '<h1>Tu es défié !</h1>' +
+        '<div class="defi-qui"><span class="avatar big"><svg width="34" height="40" viewBox="0 0 12 16">' +
+          sprite(1, 0) + '</svg></span>' +
+          '<div><b>' + esc(d.adversaire) + '</b> <span class="muted">#' + esc(d.adversaire_masque) + '</span>' +
+          '<br><span class="muted" style="font-size:13px">t\'a lancé un défi</span></div></div>' +
+        '<p class="muted">Tu joueras <b>exactement les mêmes 30 questions</b> que lui. ' +
+          'Son score ne te sera révélé qu\'à la fin.</p>' +
+        '<div class="hint">Ni pause salvatrice ni redémarrage : abandonner, c\'est perdre.</div>' +
         '<button class="btn go" id="d-ok">Accepter et jouer</button>' +
         '<button class="btn ghost" id="d-no">Refuser</button>' +
-      '</div></div>';
+        (recus.length > 1 ? '<div class="hint">' + (recus.length - 1) + ' autre(s) défi(s) après celui-ci.</div>' : '') +
+        '<button class="btn ghost" id="back">Retour</button>' +
+        '<div class="hint">Revenir en arrière ne décide de rien : le défi t\'attend 7 jours. ' +
+          'Refuser, en revanche, est définitif et apparaîtra dans ton bilan.</div>' +
+      '</div>';
+    document.getElementById('info').onclick = openRules;
+    document.getElementById('back').onclick = function () { view = 'defis'; render(); };
     document.getElementById('d-ok').onclick = function () {
-      fx.innerHTML = '';
       startDefi({ role: 'cible', id: d.id, seed: d.seed, adversaire: d.adversaire,
                   masque: d.adversaire_masque, sonScore: d.son_score, sesSecondes: d.ses_secondes });
     };
     document.getElementById('d-no').onclick = function () {
-      fx.innerHTML = '';
-      S.defiRepondre(d.id, false).then(function () { chargerDefis(); }, function () { chargerDefis(); });
+      var fin = function () { defis = null; defiLu = 0; view = 'defis'; render(); chargerDefis(); };
+      S.defiRepondre(d.id, false).then(fin, fin);
     };
   }
 
@@ -1523,7 +1558,8 @@
     var secondes = E.progress(game).spent;
     var fini = function () { view = 'defiFin'; render(); };
     if (d.role === 'lanceur') {
-      defiFin = { role: 'lanceur', abandon: abandon, adversaire: d.adversaire, score: score };
+      defiFin = { role: 'lanceur', abandon: abandon, adversaire: d.adversaire, masque: d.masque,
+                  score: score, secondes: secondes };
       S.defiLancer(d.adversaire, d.masque, score, secondes, d.seed, abandon)
         .then(fini, function (e) {
           defiFin.erreur = String(e && e.message || e);
@@ -1531,8 +1567,9 @@
         });
     } else {
       var gagne = !abandon && S.defiGagne(score, secondes, d.sonScore, d.sesSecondes);
-      defiFin = { role: 'cible', abandon: abandon, adversaire: d.adversaire,
-                  score: score, sonScore: d.sonScore, gagne: gagne };
+      defiFin = { role: 'cible', abandon: abandon, adversaire: d.adversaire, masque: d.masque,
+                  score: score, secondes: secondes, sonScore: d.sonScore,
+                  sesSecondes: d.sesSecondes, gagne: gagne };
       S.defiRepondre(d.id, true, score, secondes, abandon).then(fini, function (e) {
         defiFin.erreur = String(e && e.message || e);
         fini();
@@ -1544,31 +1581,64 @@
 
   function renderDefiFin() {
     var f = defiFin || {};
-    var titre, sous;
-    if (f.erreur) { titre = 'Résultat non enregistré'; sous = f.erreur; }
-    else if (f.role === 'lanceur') {
+    var adv = esc(f.adversaire || '') + ' <span class="muted">#' + esc(f.masque || '') + '</span>';
+    var corps, titre, cls = '';
+
+    if (f.erreur) {
+      titre = 'Résultat non enregistré';
+      corps = '<p class="muted">' + esc(f.erreur) + '</p>' +
+        '<div class="hint">Ton score n\'a pas pu partir. Vérifie ta connexion, le défi reste ouvert.</div>';
+    } else if (f.role === 'lanceur') {
       titre = f.abandon ? 'Défi abandonné' : 'Défi envoyé !';
-      sous = f.abandon
-        ? 'Un abandon compte comme une défaite. ' + esc(f.adversaire) + ' n\'en saura rien.'
-        : esc(f.adversaire) + ' doit maintenant battre tes <b>' + f.score + ' points</b>.';
+      corps = f.abandon
+        ? '<p class="muted">Un abandon compte comme une défaite. ' + adv + ' n\'en saura rien.</p>'
+        : '<p class="muted">' + adv + ' doit maintenant battre ton score.</p>' +
+          recapDefi(f.score, f.secondes, null, null, f.adversaire);
     } else if (f.abandon) {
-      titre = 'Défaite'; sous = 'Abandonner un défi, c\'est le perdre.';
+      titre = 'Défaite'; cls = 'perdu';
+      corps = '<p class="muted">Abandonner un défi, c\'est le perdre. ' + adv + ' l\'emporte.</p>';
     } else {
-      titre = f.gagne ? 'Victoire ! 🏆' : 'Défaite';
-      sous = 'Toi <b>' + f.score + '</b> · ' + esc(f.adversaire) + ' <b>' + f.sonScore + '</b>';
+      titre = f.gagne ? 'VICTOIRE 🏆' : 'DÉFAITE';
+      cls = f.gagne ? 'gagne' : 'perdu';
+      corps = '<p class="muted">' + (f.gagne ? 'Tu as battu ' : 'Tu t\'es fait battre par ') + adv + '.</p>' +
+        recapDefi(f.score, f.secondes, f.sonScore, f.sesSecondes, f.adversaire);
     }
+
     app.innerHTML =
-      '<div class="card center">' + infoBtn() +
-        '<h1>' + titre + '</h1>' +
-        '<p class="muted">' + sous + '</p>' +
+      '<div class="card center ' + cls + '">' + infoBtn() +
+        '<h1 class="defi-titre ' + cls + '">' + titre + '</h1>' +
+        corps +
         '<div class="hint">Les scores de défi ne comptent pas dans le classement.</div>' +
-        '<button class="btn go" id="next">Retour aux défis</button>' +
+        (f.adversaire && !f.erreur
+          ? '<button class="btn go" id="revanche">⚔ Prendre ma revanche</button>' : '') +
+        '<button class="btn ghost" id="next">Mes défis</button>' +
         '<button class="btn ghost" id="menu">Menu</button>' +
       '</div>';
     document.getElementById('info').onclick = openRules;
-    document.getElementById('next').onclick = function () { openDefis(); };
-    document.getElementById('menu').onclick = function () { view = 'modes'; chargerDefis(); };
+    var rv = document.getElementById('revanche');
+    if (rv) rv.onclick = function () {
+      startDefi({ role: 'lanceur', seed: S.defiGraine(),
+                  adversaire: f.adversaire, masque: f.masque });
+    };
+    document.getElementById('next').onclick = function () { defis = null; defiLu = 0; openDefis(); };
+    document.getElementById('menu').onclick = function () { defiLu = 0; view = 'modes'; render(); };
   }
+
+  /** Tableau des deux performances : score et temps, côte à côte. */
+  function recapDefi(monScore, mesSec, sonScore, sesSec, adversaire) {
+    var ligne = function (qui, sc, se, fort) {
+      return '<tr' + (fort ? ' class="me"' : '') + '><td>' + qui + '</td>' +
+        '<td class="s">' + sc + ' pts</td>' +
+        '<td class="s">' + clock(se || 0) + '</td></tr>';
+    };
+    return '<table class="rank" style="margin-top:12px">' +
+      ligne('Toi', monScore, mesSec, true) +
+      (sonScore === null || sonScore === undefined ? '' : ligne(esc(adversaire), sonScore, sesSec, false)) +
+      '</table>' +
+      (sonScore !== null && sonScore !== undefined && monScore === sonScore
+        ? '<div class="hint">Scores identiques : c\'est le temps qui départage.</div>' : '');
+  }
+
 
   /** Trois aides à 6 points, une fois chacune, à partir de la 6ème. */
   function jokerBar(p) {
