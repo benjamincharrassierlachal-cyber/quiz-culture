@@ -163,15 +163,29 @@
         transition:transform .06s, box-shadow .06s; animation:popIn .35s ease-out both}
   .mode:nth-of-type(2){animation-delay:.08s}
   .mode:active{transform:translate(3px,3px); box-shadow:2px 2px 0 var(--ink)}
-  .mode .band{display:flex; align-items:center; gap:12px; padding:14px 16px; color:#fff}
-  .mode.bac .band{background:linear-gradient(120deg,#2f6bff,#7aa2ff)}
-  .mode.relax .band{background:linear-gradient(120deg,#12a566,#5ddba0)}
+  /* La bannière porte l'illustration. Le voile sombre en bas n'est pas décoratif : sans lui,
+     le titre blanc disparaît sur un ciel clair. Le dégradé reste dessous, il s'affiche tant
+     que l'image n'est pas chargée — et si elle manque, rien ne casse. */
+  .mode .band{display:block; padding:14px 16px 16px; color:#fff;
+    min-height:112px; background-size:cover; background-position:center;
+    text-shadow:0 2px 6px rgba(0,0,0,.6)}
+  .mode .band .voile{position:absolute; left:0; right:0; top:0; bottom:0;
+    background:linear-gradient(rgba(0,0,0,0) 40%, rgba(10,8,20,.78)); pointer-events:none}
+  .mode.bac .band{background-image:url(img/bac.jpg), linear-gradient(120deg,#2f6bff,#7aa2ff)}
+  .mode.relax .band{background-image:url(img/detente.jpg), linear-gradient(120deg,#12a566,#5ddba0)}
+  .mode.defi .band{background-image:url(img/defi.jpg), linear-gradient(120deg,#b8452f,#e0663f)}
+  .mode .band{position:relative}
   .mode .ico{flex:0 0 46px; height:46px; border-radius:14px; background:rgba(255,255,255,.22);
              border:2px solid rgba(255,255,255,.7); display:flex; align-items:center; justify-content:center}
   .mode .ico svg{display:block}
-  .mode .ttl{flex:1}
-  .mode .ttl b{display:block; font-size:20px; line-height:1.1}
-  .mode .ttl small{font-size:12px; opacity:.9; font-weight:700; letter-spacing:.5px}
+  /* le titre est calé au centre exact de la bannière, le sous-titre reste en bas à gauche :
+     ils sont donc positionnés indépendamment l'un de l'autre, pas empilés */
+  .mode .ttl{position:static}
+  .mode .ttl b{position:absolute; left:0; right:0; top:0; bottom:0; z-index:1;
+    display:flex; align-items:center; justify-content:center;
+    font-size:27px; line-height:1.15; letter-spacing:-.3px; padding:0 14px}
+  .mode .ttl small{position:absolute; left:16px; bottom:12px; z-index:1;
+    font-size:12px; opacity:.9; font-weight:700; letter-spacing:.5px}
   .mode .body{display:block; padding:12px 16px 18px}
   .mode .body p{margin:0 0 10px; font-size:14px; color:var(--muted)}
   .rec{display:inline-block; font-size:12px; font-weight:800; padding:5px 12px; border-radius:99px;
@@ -259,7 +273,6 @@
   .choice.pub{background:linear-gradient(120deg,#eafff5,#fff)}
   .chip.speed{background:#fff6da; border-color:#f0d68a; color:#8a6a00; cursor:default}
   .chip.speed.on{background:#ffe89a; border-color:#e5be3d; color:#5c4600}
-  .mode.defi .band{background:linear-gradient(120deg,#b8452f,#e0663f)}
   .mode.defi{position:relative}
   /* la tuile coupe ce qui dépasse (overflow:hidden pour arrondir la bannière) :
      la pastille est donc posée à l'intérieur, dans la bannière elle-même */
@@ -866,7 +879,7 @@
         '</button>' +
 
         '<button class="mode bac" id="m-bac">' +
-          '<span class="band"><span class="ico">' + icoBac() + '</span>' +
+          '<span class="band"><span class="voile"></span>' +
             '<span class="ttl"><b>Quizz BAC</b><small>12 CLASSES · 6 MATIÈRES</small></span>' +
             '</span>' +
           '<span class="body">' +
@@ -876,7 +889,7 @@
         '</button>' +
 
         '<button class="mode relax" id="m-relax">' +
-          '<span class="band"><span class="ico">' + icoRelax() + '</span>' +
+          '<span class="band"><span class="voile"></span>' +
             '<span class="ttl"><b>Quizz détente</b><small>30 QUESTIONS · 8 THÈMES</small></span>' +
             '</span>' +
           '<span class="body">' +
@@ -890,7 +903,7 @@
           (nDefiResultats() ? '<span class="pastille verte"' +
             (nDefiRecus() ? ' style="right:52px"' : '') + '>' + nDefiResultats() + '</span>' : '') +
           (nDefiRecus() ? '<span class="pastille">' + nDefiRecus() + '</span>' : '') +
-          '<span class="band"><span class="ico">' + icoDefi() + '</span>' +
+          '<span class="band"><span class="voile"></span>' +
             '<span class="ttl"><b>Défi</b><small>UN CONTRE UN · MÊMES QUESTIONS</small></span>' +
             '</span>' +
           '<span class="body">' +

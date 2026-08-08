@@ -75,7 +75,8 @@ var sw =
   '/* Service worker : met l\'app en cache pour qu\'elle fonctionne hors ligne. */\n' +
   'var CACHE = "quiz-culture-' + version + '";\n' +
   'var FILES = ["./", "./index.html", "./manifest.webmanifest",\n' +
-  '  "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png", "./icons/favicon-64.png"];\n' +
+  '  "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png", "./icons/favicon-64.png",\n' +
+  '  "./img/bac.jpg", "./img/detente.jpg", "./img/defi.jpg"];\n' +
   '\n' +
   'self.addEventListener("install", function (e) {\n' +
   '  e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(FILES); }).then(function () { return self.skipWaiting(); }));\n' +
@@ -105,6 +106,13 @@ var sw =
   '  }));\n' +
   '});\n';
 
+// illustrations des tuiles de l'accueil : copiées près du prototype ET dans web/
+['img'].forEach(function (d) {
+  var src = path.join(dir, 'assets', d);
+  if (!fs.existsSync(src)) return;
+  fs.cpSync(src, path.join(webDir, d), { recursive: true });
+  fs.cpSync(src, path.join(dir, d), { recursive: true });
+});
 fs.mkdirSync(path.join(webDir, 'icons'), { recursive: true });
 fs.writeFileSync(path.join(webDir, 'index.html'), webHtml);
 fs.writeFileSync(path.join(webDir, 'manifest.webmanifest'), JSON.stringify(manifest, null, 2));
