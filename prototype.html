@@ -216,7 +216,8 @@
   .acc .num{color:var(--muted); font-weight:700}
 
   /* bouton « i » et page des règles */
-  .info{position:absolute; right:12px; top:12px; width:34px; height:34px; padding:0;
+  /* z-index élevé : les calques de l'animation du portail montent jusqu'à 9 et masquaient le « i » */
+  .info{position:absolute; right:12px; top:12px; width:34px; height:34px; padding:0; z-index:20;
         display:flex; align-items:center; justify-content:center; color:var(--ink); opacity:.75}
   .info svg{width:26px; height:26px}
   .info:active{transform:translateY(1px)}
@@ -282,6 +283,217 @@
     animation:pastillePop .5s ease-out both}
   .pastille.verte{color:#1f7a45}
   @keyframes pastillePop{from{transform:scale(0)}70%{transform:scale(1.25)}to{transform:scale(1)}}
+  /* Animation "Le Quizz du BAC" — aucun framework requis */
+.bac-portal-scene {
+  --portal-x: 64%;
+  --portal-y: 36%;
+  --portal-size: 40%;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #0d5638;
+  isolation: isolate;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.bac-portal-scene img { display: block; pointer-events: none; }
+
+.bac-scene-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* Halo sur la classe quand le portail s'ouvre */
+.bac-magic-light {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at var(--portal-x) var(--portal-y),
+      rgba(71,255,236,.32) 0%,
+      rgba(33,223,231,.16) 18%,
+      rgba(0,166,203,.05) 34%,
+      transparent 56%);
+  mix-blend-mode: screen;
+}
+
+.bac-portal {
+  position: absolute;
+  left: var(--portal-x);
+  top: var(--portal-y);
+  width: var(--portal-size);
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%) scale(.01);
+  transform-origin: 50% 50%;
+  opacity: 0;
+  z-index: 3;
+  pointer-events: none;
+  filter: drop-shadow(0 0 14px rgba(53,255,240,.65));
+}
+
+.bac-world-window {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 60%;
+  height: 60%;
+  transform: translate(-50%, -50%) scale(.92);
+  border-radius: 50%;
+  overflow: hidden;
+  opacity: 0;
+  z-index: 0;
+  box-shadow: inset 0 0 28px rgba(0,0,0,.45);
+}
+
+.bac-world-window img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.12);
+}
+
+.bac-vortex-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 2;
+}
+
+.bac-portal-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 22%;
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%) scale(.2);
+  border-radius: 50%;
+  opacity: 0;
+  z-index: 1;
+  background: radial-gradient(circle,
+    rgba(235,255,255,.95) 0%,
+    rgba(79,255,241,.70) 24%,
+    rgba(9,181,207,.28) 55%,
+    transparent 72%);
+  filter: blur(1px);
+}
+
+.bac-sparks { position: absolute; inset: -15%; z-index: 4; }
+.bac-spark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(2px, .5vw, 6px);
+  aspect-ratio: 1 / 1;
+  border-radius: 999px;
+  opacity: 0;
+  background: white;
+  box-shadow: 0 0 7px 2px rgba(120,255,239,.85);
+  transform-origin: 0 0;
+}
+
+.bac-character {
+  position: absolute;
+  left: 27.5%;
+  bottom: 8.5%;
+  width: 25%;
+  height: auto;
+  z-index: 5;
+  transform-origin: 55% 55%;
+  filter: drop-shadow(0 12px 7px rgba(57,31,5,.24));
+  will-change: transform, opacity, filter;
+}
+
+.bac-dust {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  opacity: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 31% 68%, rgba(255,255,255,.8) 0 1px, transparent 2px),
+    radial-gradient(circle at 38% 63%, rgba(145,255,225,.9) 0 1px, transparent 2px),
+    radial-gradient(circle at 43% 72%, rgba(255,244,174,.8) 0 1px, transparent 2px),
+    radial-gradient(circle at 49% 59%, rgba(144,251,255,.9) 0 1px, transparent 2px),
+    radial-gradient(circle at 55% 67%, rgba(255,255,255,.8) 0 1px, transparent 2px);
+  background-size: 18% 22%, 16% 19%, 20% 23%, 17% 21%, 18% 24%;
+}
+
+.bac-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle at var(--portal-x) var(--portal-y),
+    rgba(223,255,255,.75), rgba(106,255,242,.18) 20%, transparent 50%);
+  mix-blend-mode: screen;
+}
+
+/* Option pratique pour respecter l'accessibilité. */
+@media (prefers-reduced-motion: reduce) {
+  .bac-portal-scene * { animation-duration: .001ms !important; }
+}
+
+/* Fragmentation du personnage pendant l'aspiration */
+.bac-fragments {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.bac-frag {
+  position: absolute;
+  background-repeat: no-repeat;
+  will-change: transform, opacity, filter;
+  transform-origin: 50% 50%;
+  pointer-events: none;
+}
+
+
+  /* le bouton des règles occupe le coin haut droit de la carte : on descend la scène
+     juste assez pour qu'il repose entièrement sur le fond clair */
+  .title-wrap .bac-portal-scene{margin-top:34px; border-radius:12px}
+
+  /* tuiles illustrées de la page des défis : le dessin occupe le tiers gauche,
+     le texte se cale à sa droite et reste sombre — les illustrations sont claires */
+  /* tuiles illustrées du menu pause : titre centré en haut, description en bas à gauche */
+  .pause-tuile{position:relative; min-height:122px; padding:0; overflow:hidden;
+    border-radius:18px; background-size:cover; background-position:center}
+  /* voile blanc sous la description : les illustrations sont claires mais chargées,
+     et un texte gris s'y perdait. Il ne couvre que la zone du texte. */
+  .pause-tuile::after{content:''; position:absolute; left:25%; right:0; bottom:0; height:42%;
+    background:linear-gradient(rgba(255,255,255,0), rgba(255,255,255,.82) 55%); pointer-events:none}
+  /* les deux textes vivent dans les 75 % de droite, le quart gauche restant au personnage.
+     Le titre est centré dans cette zone, à 60 % de hauteur ; la description à 15 %, alignée à gauche. */
+  .pause-tuile b{position:absolute; left:25%; right:10px; bottom:58%; z-index:2;
+    transform:translateY(50%); text-align:center;
+    font-size:24px; letter-spacing:-.3px; line-height:1.1}
+  .pause-tuile small{position:absolute; left:29%; right:14px; bottom:11%; z-index:2;
+    color:var(--ink); font-weight:600; font-size:12.5px; line-height:1.3; text-align:left}
+  .pause-tuile.continuer{background-image:url(img/continuer.jpg)}
+  .pause-tuile.reprendre{background-image:url(img/reprendre.jpg)}
+  .pause-tuile.publier{background-image:url(img/publier.jpg)}
+  .pause-tuile.recommencer{background-image:url(img/recommencer.jpg)}
+  .pause-tuile.abandonner{background-image:url(img/abandonner.jpg)}
+  .defi-tuile{min-height:112px; display:flex; flex-direction:column; justify-content:center;
+    padding:12px 16px 12px 38%; background-size:cover; background-position:center;
+    background-repeat:no-repeat}
+  .defi-tuile.lancer{background-image:url(img/defier.jpg)}
+  .defi-tuile.relever{background-image:url(img/relever.jpg)}
+  .defi-tuile[disabled]{opacity:.55}
+  .defi-tuile small{color:#5a5170}
   .defi-titre{margin-bottom:6px}
   .defi-titre.gagne{color:#1f9d55}
   .defi-titre.perdu{color:#c0392b}
@@ -322,6 +534,308 @@
 <div class="app" id="app"></div>
 <div id="fx"></div>
 
+<script>/*
+ * Animation du portail — Le Quizz du BAC
+ * Version améliorée : désintégration du personnage en fragments/poussières.
+ * Usage : await playBacPortalAnimation('#bacPortalScene');
+ */
+(function () {
+  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+  function ensureSparks(scene) {
+    const holder = scene.querySelector('.bac-sparks');
+    if (!holder || holder.children.length) return;
+    for (let i = 0; i < 26; i++) {
+      const s = document.createElement('i');
+      s.className = 'bac-spark';
+      const angle = (360 / 26) * i + (Math.random() * 10 - 5);
+      const radius = 28 + Math.random() * 34;
+      s.dataset.angle = angle;
+      s.dataset.radius = radius;
+      holder.appendChild(s);
+    }
+  }
+
+  function clearFragments(scene) {
+    const holder = scene.querySelector('.bac-fragments');
+    if (holder) holder.innerHTML = '';
+  }
+
+  function resetScene(scene) {
+    const portal = scene.querySelector('.bac-portal');
+    const world = scene.querySelector('.bac-world-window');
+    const core = scene.querySelector('.bac-portal-core');
+    const ring = scene.querySelector('.bac-vortex-ring');
+    const character = scene.querySelector('.bac-character');
+    const light = scene.querySelector('.bac-magic-light');
+    const flash = scene.querySelector('.bac-flash');
+    const dust = scene.querySelector('.bac-dust');
+    const sparks = scene.querySelectorAll('.bac-spark');
+
+    [portal, world, core, ring, character, light, flash, dust, ...sparks].forEach(el => {
+      if (!el) return;
+      el.getAnimations().forEach(a => a.cancel());
+    });
+
+    const frags = scene.querySelectorAll('.bac-frag');
+    frags.forEach(el => el.getAnimations().forEach(a => a.cancel()));
+    clearFragments(scene);
+
+    if (portal) {
+      portal.style.opacity = '0';
+      portal.style.transform = 'translate(-50%, -50%) scale(.01)';
+    }
+    if (world) {
+      world.style.opacity = '0';
+      world.style.transform = 'translate(-50%, -50%) scale(.92)';
+    }
+    if (core) {
+      core.style.opacity = '0';
+      core.style.transform = 'translate(-50%, -50%) scale(.2)';
+    }
+    if (ring) ring.style.transform = 'rotate(0deg)';
+    if (light) light.style.opacity = '0';
+    if (flash) flash.style.opacity = '0';
+    if (dust) dust.style.opacity = '0';
+    if (character) {
+      character.style.opacity = '1';
+      character.style.transform = 'translate3d(0,0,0) rotate(0deg) scale(1)';
+      character.style.filter = 'drop-shadow(0 12px 7px rgba(57,31,5,.24))';
+    }
+  }
+
+  function animateSparks(scene) {
+    const sparks = [...scene.querySelectorAll('.bac-spark')];
+    return sparks.map((s, i) => {
+      const angle = Number(s.dataset.angle || 0) * Math.PI / 180;
+      const r = Number(s.dataset.radius || 45);
+      const x1 = Math.cos(angle) * r;
+      const y1 = Math.sin(angle) * r;
+      const x2 = Math.cos(angle + 1.15) * (r * .25);
+      const y2 = Math.sin(angle + 1.15) * (r * .25);
+      return s.animate([
+        { transform: `translate(-50%,-50%) translate(${x1}%,${y1}%) scale(.2)`, opacity: 0 },
+        { opacity: .95, offset: .22 },
+        { transform: `translate(-50%,-50%) translate(${x2}%,${y2}%) scale(1.5)`, opacity: .8, offset: .72 },
+        { transform: 'translate(-50%,-50%) translate(0,0) scale(.1)', opacity: 0 }
+      ], {
+        duration: 1450 + (i % 5) * 90,
+        delay: 580 + (i % 7) * 45,
+        easing: 'cubic-bezier(.2,.7,.2,1)',
+        fill: 'both'
+      });
+    });
+  }
+
+  function createCharacterFragments(scene, cols = 9, rows = 12) {
+    const holder = scene.querySelector('.bac-fragments');
+    const character = scene.querySelector('.bac-character');
+    if (!holder || !character) return [];
+
+    holder.innerHTML = '';
+
+    const sceneRect = scene.getBoundingClientRect();
+    const charRect = character.getBoundingClientRect();
+    const left = charRect.left - sceneRect.left;
+    const top = charRect.top - sceneRect.top;
+    const src = character.currentSrc || character.getAttribute('src');
+    const pieceW = charRect.width / cols;
+    const pieceH = charRect.height / rows;
+
+    const fragments = [];
+
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const frag = document.createElement('span');
+        frag.className = 'bac-frag';
+        frag.style.left = `${left + col * pieceW}px`;
+        frag.style.top = `${top + row * pieceH}px`;
+        frag.style.width = `${pieceW + 1}px`;
+        frag.style.height = `${pieceH + 1}px`;
+        frag.style.opacity = '0';
+        frag.style.backgroundImage = `url("${src}")`;
+        frag.style.backgroundSize = `${charRect.width}px ${charRect.height}px`;
+        frag.style.backgroundPosition = `-${col * pieceW}px -${row * pieceH}px`;
+        holder.appendChild(frag);
+
+        frag._x = left + col * pieceW;
+        frag._y = top + row * pieceH;
+        frag._w = pieceW;
+        frag._h = pieceH;
+        frag._col = col;
+        frag._row = row;
+        fragments.push(frag);
+      }
+    }
+
+    return fragments;
+  }
+
+  async function disintegrateCharacter(scene, portalCenterX, portalCenterY) {
+    const character = scene.querySelector('.bac-character');
+    const sceneRect = scene.getBoundingClientRect();
+    const portalX = portalCenterX - sceneRect.left;
+    const portalY = portalCenterY - sceneRect.top;
+    const fragments = createCharacterFragments(scene, 12, 16);
+    if (!fragments.length) return;
+
+    character.style.opacity = '0';
+
+    const promises = fragments.map((frag) => {
+      const fragCx = frag._x + frag._w / 2;
+      const fragCy = frag._y + frag._h / 2;
+      const dx = portalX - fragCx;
+      const dy = portalY - fragCy;
+
+      const swirlX = (Math.random() - .5) * 44;
+      const swirlY = (Math.random() - .5) * 56;
+      const driftX = (Math.random() - .5) * 30;
+      const driftY = (Math.random() - .5) * 34;
+      const rotA = (Math.random() - .5) * 90;
+      const rotB = (Math.random() - .5) * 220;
+      const colFactor = 1 - (frag._col / 8);
+      const delay = 30 + (frag._row * 8) + (colFactor * 75) + Math.random() * 60;
+      const duration = 720 + Math.random() * 260;
+
+      return frag.animate([
+        { transform: 'translate3d(0,0,0) scale(1) rotate(0deg)', opacity: 1, filter: 'blur(0px)' },
+        { transform: `translate3d(${swirlX}px,${swirlY}px,0) scale(.94) rotate(${rotA}deg)`, opacity: 1, filter: 'blur(0px)', offset: .20 },
+        { transform: `translate3d(${dx * .42 + swirlX + driftX}px,${dy * .42 + swirlY + driftY}px,0) scale(.72) rotate(${rotB}deg)`, opacity: .88, filter: 'blur(.35px)', offset: .58 },
+        { transform: `translate3d(${dx * .80}px,${dy * .80}px,0) scale(.28) rotate(${rotB + 120}deg)`, opacity: .38, filter: 'blur(1.1px)', offset: .86 },
+        { transform: `translate3d(${dx}px,${dy}px,0) scale(.04) rotate(${rotB + 220}deg)`, opacity: 0, filter: 'blur(2.2px)' }
+      ], {
+        duration,
+        delay,
+        easing: 'cubic-bezier(.36,.02,.68,1)',
+        fill: 'forwards'
+      }).finished.then(() => frag.remove());
+    });
+
+    await Promise.all(promises);
+    clearFragments(scene);
+  }
+
+  async function playBacPortalAnimation(target, options = {}) {
+    const scene = typeof target === 'string' ? document.querySelector(target) : target;
+    if (!scene) throw new Error('Zone .bac-portal-scene introuvable');
+    if (scene.dataset.animating === '1') return;
+    scene.dataset.animating = '1';
+
+    ensureSparks(scene);
+    resetScene(scene);
+
+    const portal = scene.querySelector('.bac-portal');
+    const world = scene.querySelector('.bac-world-window');
+    const core = scene.querySelector('.bac-portal-core');
+    const ring = scene.querySelector('.bac-vortex-ring');
+    const character = scene.querySelector('.bac-character');
+    const light = scene.querySelector('.bac-magic-light');
+    const flash = scene.querySelector('.bac-flash');
+    const dust = scene.querySelector('.bac-dust');
+
+    const portalRect = portal.getBoundingClientRect();
+    const portalCenterX = portalRect.left + portalRect.width / 2;
+    const portalCenterY = portalRect.top + portalRect.height / 2;
+
+    // 0 → 0.35 s : scène normale.
+    await sleep(320);
+
+    // 0.35 → 1.2 s : naissance et ouverture du portail.
+    portal.animate([
+      { transform: 'translate(-50%, -50%) scale(.01)', opacity: 0 },
+      { transform: 'translate(-50%, -50%) scale(.16)', opacity: 1, offset: .22 },
+      { transform: 'translate(-50%, -50%) scale(1.08)', opacity: 1, offset: .82 },
+      { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 }
+    ], { duration: 900, easing: 'cubic-bezier(.16,.72,.23,1.18)', fill: 'forwards' });
+
+    ring.animate([
+      { transform: 'rotate(0deg) scale(.92)' },
+      { transform: 'rotate(510deg) scale(1.03)' }
+    ], { duration: 2700, easing: 'linear', fill: 'forwards' });
+
+    core.animate([
+      { opacity: 0, transform: 'translate(-50%,-50%) scale(.15)' },
+      { opacity: .95, transform: 'translate(-50%,-50%) scale(1.15)', offset: .55 },
+      { opacity: .25, transform: 'translate(-50%,-50%) scale(.75)' }
+    ], { duration: 850, easing: 'ease-out', fill: 'forwards' });
+
+    light.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 650, fill: 'forwards' });
+    flash.animate([{ opacity: 0 }, { opacity: .8, offset: .6 }, { opacity: .15 }], { duration: 520, fill: 'forwards' });
+
+    world.animate([
+      { opacity: 0, transform: 'translate(-50%,-50%) scale(.65)' },
+      { opacity: 1, transform: 'translate(-50%,-50%) scale(1)', offset: .7 },
+      { opacity: 1, transform: 'translate(-50%,-50%) scale(1.04)' }
+    ], { duration: 900, delay: 260, easing: 'ease-out', fill: 'forwards' });
+
+    animateSparks(scene);
+    dust.animate([
+      { opacity: 0, transform: 'translateX(0) scale(1)' },
+      { opacity: .85, offset: .3 },
+      { opacity: .65, transform: 'translateX(18%) scale(.85)', offset: .8 },
+      { opacity: 0, transform: 'translateX(28%) scale(.5)' }
+    ], { duration: 1600, delay: 520, easing: 'ease-in', fill: 'both' });
+
+    await sleep(880);
+
+    // 1.2 → 1.55 s : petite réaction avant désintégration.
+    await character.animate([
+      { transform: 'translate3d(0,0,0) rotate(0deg) scale(1)' },
+      { transform: 'translate3d(2px,-1px,0) rotate(2deg) scale(1)' },
+      { transform: 'translate3d(-2px,1px,0) rotate(-2deg) scale(1)' },
+      { transform: 'translate3d(3px,-2px,0) rotate(2deg) scale(.995)' },
+      { transform: 'translate3d(0,0,0) rotate(0deg) scale(1)' }
+    ], { duration: 320, easing: 'ease-in-out', fill: 'forwards' }).finished;
+
+    character.style.transform = 'translate3d(0,0,0) rotate(0deg) scale(1)';
+
+    // 1.55 → 2.7 s : aspiration par petits fragments.
+    world.animate([
+      { transform: 'translate(-50%,-50%) scale(1.04)' },
+      { transform: 'translate(-50%,-50%) scale(1.17)' }
+    ], { duration: 1100, easing: 'ease-in', fill: 'forwards' });
+
+    await disintegrateCharacter(scene, portalCenterX, portalCenterY);
+
+    // 2.7 → 3.2 s : fermeture du portail.
+    flash.animate([
+      { opacity: .1 },
+      { opacity: .95, offset: .28 },
+      { opacity: 0 }
+    ], { duration: 420, easing: 'ease-out', fill: 'forwards' });
+
+    const close = portal.animate([
+      { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+      { transform: 'translate(-50%, -50%) scale(.58)', opacity: 1, offset: .46 },
+      { transform: 'translate(-50%, -50%) scale(.03)', opacity: 0 }
+    ], { duration: 560, easing: 'cubic-bezier(.55,.06,.88,.52)', fill: 'forwards' });
+
+    light.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 520, fill: 'forwards' });
+    world.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 430, delay: 80, fill: 'forwards' });
+
+    await close.finished;
+    await sleep(80);
+
+    portal.style.opacity = '0';
+    light.style.opacity = '0';
+    flash.style.opacity = '0';
+    character.style.opacity = '0';
+    scene.dataset.animating = '0';
+
+    if (typeof options.onComplete === 'function') options.onComplete();
+  }
+
+  function restoreBacPortalScene(target) {
+    const scene = typeof target === 'string' ? document.querySelector(target) : target;
+    if (!scene) return;
+    resetScene(scene);
+    scene.dataset.animating = '0';
+  }
+
+  window.playBacPortalAnimation = playBacPortalAnimation;
+  window.restoreBacPortalScene = restoreBacPortalScene;
+})();
+</script>
 <script>/* Quiz Culture — moteur de jeu v0.3 (logique pure, sans UI)
  *
  * Deux modes :
@@ -13362,18 +13876,17 @@
       "level": "4ème",
       "subject": "Français",
       "difficulty": 3,
-      "prompt": "Comment appelle-t-on un récit fantastique où le surnaturel fait douter le lecteur ?",
-      "answer": "le fantastique",
+      "prompt": "Comment appelle-t-on le passage sous silence d'une période entière dans un récit ?",
+      "answer": "une ellipse",
       "accepted": [
-        "fantastique",
-        "le fantastique",
-        "recit fantastique"
+        "ellipse",
+        "une ellipse"
       ],
       "distractors": [
-        "le merveilleux",
-        "la science-fiction",
-        "le réalisme",
-        "le policier"
+        "une analepse",
+        "une prolepse",
+        "une pause descriptive",
+        "un sommaire"
       ]
     },
     {
@@ -13751,18 +14264,18 @@
       "level": "4ème",
       "subject": "Histoire",
       "difficulty": 2,
-      "prompt": "Comment appelle-t-on l'abolition définitive de l'esclavage en France, en 1848 ?",
-      "answer": "l'abolition de l'esclavage",
+      "prompt": "Quel régime est proclamé en France en février 1848 ?",
+      "answer": "la Deuxième République",
       "accepted": [
-        "abolition",
-        "l abolition de l esclavage",
-        "abolition de l esclavage"
+        "deuxieme republique",
+        "la deuxieme republique",
+        "iie republique"
       ],
       "distractors": [
-        "l'émancipation des serfs",
-        "la loi Le Chapelier",
-        "le Code noir",
-        "la loi Guizot"
+        "la Première République",
+        "la Troisième République",
+        "le Second Empire",
+        "la Restauration"
       ]
     },
     {
@@ -14340,18 +14853,18 @@
       "level": "3ème",
       "subject": "Histoire",
       "difficulty": 2,
-      "prompt": "Quelle bataille de 1916 est un symbole de la Première Guerre mondiale dans la Somme ?",
-      "answer": "la bataille de la Somme",
+      "prompt": "Quel traité signé en 1919 met fin à la guerre entre les Alliés et l'Allemagne ?",
+      "answer": "le traité de Versailles",
       "accepted": [
-        "la somme",
-        "bataille de la somme",
-        "la bataille de la somme"
+        "traite de versailles",
+        "le traite de versailles",
+        "versailles"
       ],
       "distractors": [
-        "Verdun",
-        "la Marne",
-        "Ypres",
-        "Sedan"
+        "le traité de Rome",
+        "le traité de Brest-Litovsk",
+        "le traité de Francfort",
+        "le traité de Trianon"
       ]
     },
     {
@@ -15439,26 +15952,6 @@
       ]
     },
     {
-      "id": "1ere-math-007",
-      "level": "1ère",
-      "subject": "Mathématiques",
-      "difficulty": 3,
-      "prompt": "Que peut-on dire des solutions d'une équation du second degré si le discriminant est négatif ?",
-      "answer": "il n'y en a aucune",
-      "accepted": [
-        "aucune",
-        "il n y en a aucune",
-        "aucune solution",
-        "pas de solution"
-      ],
-      "distractors": [
-        "il y en a une seule",
-        "il y en a deux",
-        "il y en a une infinité",
-        "il y en a trois"
-      ]
-    },
-    {
       "id": "1ere-math-008",
       "level": "1ère",
       "subject": "Mathématiques",
@@ -15633,7 +16126,7 @@
       "level": "1ère",
       "subject": "Géographie",
       "difficulty": 3,
-      "prompt": "Comment appelle-t-on l'aménagement visant à réduire les inégalités entre territoires ?",
+      "prompt": "Comment appelle-t-on la politique publique qui organise l'espace pour corriger les déséquilibres régionaux ?",
       "answer": "l'aménagement du territoire",
       "accepted": [
         "amenagement du territoire",
@@ -15642,8 +16135,8 @@
       "distractors": [
         "la décentralisation",
         "la métropolisation",
-        "la péréquation fiscale",
-        "le zonage"
+        "la périurbanisation",
+        "l'étalement urbain"
       ]
     },
     {
@@ -15724,17 +16217,16 @@
       "level": "1ère",
       "subject": "Histoire",
       "difficulty": 3,
-      "prompt": "Comment appelle-t-on la guerre de position dans les tranchées de 1915 à 1917 ?",
+      "prompt": "Comment appelle-t-on la phase où les fronts se figent dans les tranchées, de 1915 à 1917 ?",
       "answer": "la guerre de position",
       "accepted": [
         "guerre de position",
-        "la guerre de position",
-        "guerre des tranchees"
+        "la guerre de position"
       ],
       "distractors": [
         "la guerre de mouvement",
-        "la guerre éclair",
         "la drôle de guerre",
+        "la guerre éclair",
         "la guerre totale"
       ]
     },
@@ -25323,17 +25815,17 @@
     {
       "subject": "Géographie",
       "difficulty": 4,
-      "prompt": "Comment appelle-t-on une zone franche où les marchandises circulent sans droits de douane ?",
+      "prompt": "Comment appelle-t-on un espace où les marchandises entrent et sortent sans droits de douane ?",
       "answer": "une zone franche",
       "accepted": [
         "zone franche",
         "une zone franche"
       ],
       "distractors": [
-        "un port sec",
-        "une plateforme multimodale",
-        "un hub aérien",
-        "une zone industrielle"
+        "une conurbation",
+        "un arrière-pays",
+        "une métropole",
+        "une enclave rurale"
       ],
       "id": "4e-geo-018",
       "level": "4ème"
@@ -25598,18 +26090,17 @@
     {
       "subject": "Histoire",
       "difficulty": 4,
-      "prompt": "Quelle guerre d'indépendance a donné naissance aux États-Unis ?",
-      "answer": "la guerre d'indépendance",
+      "prompt": "Qui fut le premier président des États-Unis ?",
+      "answer": "George Washington",
       "accepted": [
-        "guerre d'independance",
-        "la guerre d'independance",
-        "revolution americaine"
+        "washington",
+        "george washington"
       ],
       "distractors": [
-        "la guerre de Sécession",
-        "la guerre de Sept Ans",
-        "la guerre du Mexique",
-        "la guerre de 1812"
+        "Thomas Jefferson",
+        "Benjamin Franklin",
+        "Abraham Lincoln",
+        "John Adams"
       ],
       "id": "4e-hist-021",
       "level": "4ème"
@@ -25654,17 +26145,16 @@
     {
       "subject": "Histoire",
       "difficulty": 4,
-      "prompt": "Quelle exposition universelle a vu s'élever un monument de fer à Paris en 1889 ?",
-      "answer": "l'Exposition universelle",
+      "prompt": "En quelle année la tour Eiffel a-t-elle été inaugurée ?",
+      "answer": "1889",
       "accepted": [
-        "exposition universelle",
-        "l'exposition universelle"
+        "1889"
       ],
       "distractors": [
-        "les Jeux olympiques",
-        "le Salon de l'automobile",
-        "la Foire de Paris",
-        "le Congrès de Paris"
+        "1878",
+        "1900",
+        "1867",
+        "1925"
       ],
       "id": "4e-hist-024",
       "level": "4ème"
@@ -26291,17 +26781,18 @@
     {
       "subject": "Français",
       "difficulty": 4,
-      "prompt": "Comment appelle-t-on la thèse que défend un auteur dans un débat ?",
-      "answer": "la thèse",
+      "prompt": "Comment appelle-t-on un mot comme « cependant » ou « donc », qui articule un raisonnement ?",
+      "answer": "un connecteur logique",
       "accepted": [
-        "these",
-        "la these"
+        "connecteur logique",
+        "un connecteur logique",
+        "connecteur"
       ],
       "distractors": [
-        "l'antithèse",
-        "l'argument",
-        "l'exemple",
-        "la conclusion"
+        "un déterminant",
+        "une interjection",
+        "un complément circonstanciel",
+        "un adverbe de lieu"
       ],
       "id": "3e-fr-023",
       "level": "3ème"
@@ -29387,7 +29878,7 @@
     {
       "subject": "Géographie",
       "difficulty": 5,
-      "prompt": "Quelle façade maritime française borde l'Atlantique de la Bretagne au Pays basque ?",
+      "prompt": "Comment appelle-t-on le littoral français qui s'étend de la Bretagne au Pays basque ?",
       "answer": "la façade atlantique",
       "accepted": [
         "facade atlantique",
@@ -29395,9 +29886,9 @@
       ],
       "distractors": [
         "la façade méditerranéenne",
-        "la façade Manche-mer du Nord",
-        "le littoral rhodanien",
-        "la côte d'Azur"
+        "la façade nord",
+        "la Manche",
+        "le littoral aquitain seul"
       ],
       "id": "1ere-geo-024",
       "level": "1ère"
@@ -29552,18 +30043,17 @@
     {
       "subject": "Histoire",
       "difficulty": 5,
-      "prompt": "Quelle loi de 1905 organise la séparation des Églises et de l'État ?",
-      "answer": "la loi de séparation",
+      "prompt": "Quel homme politique a porté la loi de 1905 sur la laïcité ?",
+      "answer": "Aristide Briand",
       "accepted": [
-        "loi de separation",
-        "la loi de separation",
-        "la laicite"
+        "briand",
+        "aristide briand"
       ],
       "distractors": [
-        "le Concordat",
-        "la loi Falloux",
-        "la loi Combes seule",
-        "l'édit de Nantes"
+        "Jules Ferry",
+        "Georges Clemenceau",
+        "Raymond Poincaré",
+        "Léon Gambetta"
       ],
       "id": "1ere-hist-021",
       "level": "1ère"
@@ -29806,17 +30296,17 @@
     {
       "subject": "Sciences",
       "difficulty": 5,
-      "prompt": "Comment appelle-t-on la quantité de matière en chimie, exprimée en moles ?",
+      "prompt": "Quelle grandeur chimique s'exprime en moles ?",
       "answer": "la quantité de matière",
       "accepted": [
         "quantite de matiere",
         "la quantite de matiere"
       ],
       "distractors": [
-        "la masse molaire",
+        "la masse volumique",
         "la concentration",
-        "le volume molaire",
-        "la densité"
+        "la pression",
+        "le volume molaire"
       ],
       "id": "1ere-sci-023",
       "level": "1ère"
@@ -31797,17 +32287,18 @@
       "level": "CM1",
       "subject": "Géographie",
       "difficulty": 1,
-      "prompt": "Lequel de ces aliments est un produit agricole non transformé ?",
-      "answer": "une pomme",
+      "prompt": "Comment appelle-t-on un aliment consommé tel qu'il sort du champ, sans transformation ?",
+      "answer": "un produit brut",
       "accepted": [
-        "pomme",
-        "une pomme"
+        "produit brut",
+        "un produit brut",
+        "produit non transforme"
       ],
       "distractors": [
-        "un biscuit",
-        "un yaourt aromatisé",
-        "une pizza surgelée",
-        "une barre chocolatée"
+        "un produit transformé",
+        "un produit industriel",
+        "une conserve",
+        "un plat préparé"
       ]
     },
     {
@@ -31815,17 +32306,17 @@
       "level": "CM1",
       "subject": "Géographie",
       "difficulty": 1,
-      "prompt": "Lequel de ces aliments est un produit transformé ?",
-      "answer": "un biscuit",
+      "prompt": "Comment appelle-t-on un aliment fabriqué en usine à partir de plusieurs ingrédients ?",
+      "answer": "un produit transformé",
       "accepted": [
-        "biscuit",
-        "un biscuit"
+        "produit transforme",
+        "un produit transforme"
       ],
       "distractors": [
-        "une pomme",
-        "une carotte",
-        "un œuf",
-        "une tomate"
+        "un produit brut",
+        "une récolte",
+        "un légume frais",
+        "un fruit de saison"
       ]
     },
     {
@@ -32680,29 +33171,6 @@
         "une digue",
         "un champ agricole",
         "une mine"
-      ]
-    },
-    {
-      "id": "6e-geo-027",
-      "level": "6ème",
-      "subject": "Géographie",
-      "difficulty": 3,
-      "prompt": "Pourquoi les métropoles attirent-elles de nombreux habitants ?",
-      "answer": "emplois et services",
-      "accepted": [
-        "elles concentrent des emplois et des services",
-        "emplois et services",
-        "elles concentrent les emplois et les services",
-        "agriculture et élevage",
-        "élevage et agriculture",
-        "agriculture / élevage",
-        "élevage / agriculture"
-      ],
-      "distractors": [
-        "elles sont toutes situées dans des déserts",
-        "elles n'ont aucun transport",
-        "elles interdisent les commerces",
-        "elles sont toujours peu peuplées"
       ]
     },
     {
@@ -34470,47 +34938,21 @@
       ]
     },
     {
-      "id": "2nde-geo-028",
-      "level": "2nde",
-      "subject": "Géographie",
-      "difficulty": 3,
-      "prompt": "Pourquoi le changement climatique peut-il accentuer certains risques ?",
-      "answer": "aléas intensifiés",
-      "accepted": [
-        "aléas intensifiés",
-        "il modifie la frequence ou l intensite de certains aleas",
-        "il modifie la fréquence ou l'intensité de certains aléas",
-        "il accentue certains aleas",
-        "il accentue certains aléas",
-        "aleas intensifies",
-        "il modifie la frequence ou l'intensite de certains aleas"
-      ],
-      "distractors": [
-        "il supprime tous les événements extrêmes",
-        "il empêche les sécheresses",
-        "il rend tous les territoires identiques",
-        "il élimine toute vulnérabilité"
-      ]
-    },
-    {
       "id": "2nde-geo-029",
       "level": "2nde",
       "subject": "Géographie",
       "difficulty": 1,
-      "prompt": "Laquelle de ces ressources est renouvelable ?",
-      "answer": "l'énergie solaire",
+      "prompt": "Comment appelle-t-on une ressource qui se reconstitue à l'échelle d'une vie humaine ?",
+      "answer": "une ressource renouvelable",
       "accepted": [
-        "energie solaire",
-        "l energie solaire",
-        "énergie solaire",
-        "l'énergie solaire",
-        "l'energie solaire"
+        "ressource renouvelable",
+        "une ressource renouvelable"
       ],
       "distractors": [
-        "le charbon",
-        "le pétrole",
-        "le gaz naturel",
-        "l'uranium"
+        "une ressource fossile",
+        "une ressource épuisable",
+        "un stock minier",
+        "une matière première rare"
       ]
     },
     {
@@ -35018,50 +35460,6 @@
       ]
     },
     {
-      "id": "1ere-geo-029",
-      "level": "1ère",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi les quartiers d'affaires sont-ils souvent situés dans des espaces très accessibles ?",
-      "answer": "connectivité",
-      "accepted": [
-        "connectivité",
-        "pour etre connectes aux flux et aux reseaux de decision",
-        "pour être connectés aux flux et aux réseaux de décision",
-        "connexion aux flux et reseaux",
-        "connexion aux flux et réseaux",
-        "connectivite"
-      ],
-      "distractors": [
-        "pour éviter toute activité économique",
-        "pour rester éloignés des transports",
-        "pour accueillir uniquement des logements",
-        "pour empêcher les échanges internationaux"
-      ]
-    },
-    {
-      "id": "1ere-geo-030",
-      "level": "1ère",
-      "subject": "Géographie",
-      "difficulty": 3,
-      "prompt": "Pourquoi la métropolisation est-elle qualifiée de processus différencié ?",
-      "answer": "hiérarchie urbaine",
-      "accepted": [
-        "hiérarchie urbaine",
-        "toutes les villes ne concentrent pas les memes fonctions ni la meme puissance",
-        "toutes les villes ne concentrent pas les mêmes fonctions ni la même puissance",
-        "les villes ont des poids differents",
-        "les villes ont des poids différents",
-        "hierarchie urbaine"
-      ],
-      "distractors": [
-        "toutes les métropoles évoluent exactement de la même manière",
-        "seules les capitales sont concernées",
-        "la métropolisation ne concerne qu'un continent",
-        "toutes les villes ont la même population"
-      ]
-    },
-    {
       "id": "1ere-hist-025",
       "level": "1ère",
       "subject": "Histoire",
@@ -35320,17 +35718,17 @@
       "level": "Terminale",
       "subject": "Français",
       "difficulty": 2,
-      "prompt": "Quelle distinction oppose ce qui est valable pour tous à ce qui ne vaut que dans certains cas ?",
-      "answer": "universel / particulier",
+      "prompt": "En philosophie, comment qualifie-t-on ce qui vaut pour tous, en tout temps et en tout lieu ?",
+      "answer": "universel",
       "accepted": [
-        "universel / particulier",
-        "universel et particulier"
+        "universel",
+        "l universel"
       ],
       "distractors": [
-        "cause / effet",
-        "théorie / pratique",
-        "objectif / subjectif",
-        "moyen / fin"
+        "particulier",
+        "singulier",
+        "relatif",
+        "contingent"
       ]
     },
     {
@@ -35338,19 +35736,17 @@
       "level": "Terminale",
       "subject": "Français",
       "difficulty": 2,
-      "prompt": "Quelle distinction oppose ce qui ne peut pas être autrement à ce qui pourrait être différent ?",
-      "answer": "nécessaire / contingent",
+      "prompt": "En philosophie, comment qualifie-t-on ce qui pourrait être autrement, sans nécessité ?",
+      "answer": "contingent",
       "accepted": [
-        "necessaire / contingent",
-        "nécessaire / contingent",
-        "necessaire et contingent",
-        "nécessaire et contingent"
+        "contingent",
+        "le contingent"
       ],
       "distractors": [
-        "légal / légitime",
-        "absolu / relatif",
-        "objectif / subjectif",
-        "cause / conséquence"
+        "nécessaire",
+        "absolu",
+        "universel",
+        "essentiel"
       ]
     },
     {
@@ -35513,69 +35909,6 @@
       "strict": true
     },
     {
-      "id": "term-geo-025",
-      "level": "Terminale",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi les détroits internationaux sont-ils des points stratégiques de la mondialisation ?",
-      "answer": "concentration des flux",
-      "accepted": [
-        "concentration des flux",
-        "ils concentrent des flux maritimes sur des passages etroits",
-        "ils concentrent des flux maritimes sur des passages étroits",
-        "concentration des flux maritimes"
-      ],
-      "distractors": [
-        "ils sont dépourvus de navigation",
-        "ils relient uniquement des fleuves",
-        "ils empêchent tout commerce maritime",
-        "ils sont tous situés en Europe"
-      ]
-    },
-    {
-      "id": "term-geo-026",
-      "level": "Terminale",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi les câbles sous-marins sont-ils essentiels à la mondialisation ?",
-      "answer": "données intercontinentales",
-      "accepted": [
-        "données intercontinentales",
-        "ils transportent une grande partie des donnees numeriques intercontinentales",
-        "ils transportent une grande partie des données numériques intercontinentales",
-        "transport des donnees numeriques",
-        "transport des données numériques",
-        "donnees intercontinentales"
-      ],
-      "distractors": [
-        "ils transportent uniquement du pétrole",
-        "ils remplacent tous les satellites",
-        "ils ne relient que des villes d'un même pays",
-        "ils servent uniquement à la pêche"
-      ]
-    },
-    {
-      "id": "term-geo-027",
-      "level": "Terminale",
-      "subject": "Géographie",
-      "difficulty": 3,
-      "prompt": "Pourquoi les mers et océans sont-ils à la fois des espaces de circulation et de rivalités ?",
-      "answer": "routes ressources souveraineté",
-      "accepted": [
-        "ils concentrent routes ressources et enjeux de souverainete",
-        "ils concentrent routes, ressources et enjeux de souveraineté",
-        "routes ressources souverainete",
-        "routes ressources souveraineté",
-        "ils concentrent routes, ressources et enjeux de souverainete"
-      ],
-      "distractors": [
-        "ils n'appartiennent à aucun enjeu géopolitique",
-        "ils ne contiennent aucune ressource",
-        "ils sont totalement libres de toute réglementation",
-        "ils ne jouent aucun rôle militaire"
-      ]
-    },
-    {
       "id": "term-hist-025",
       "level": "Terminale",
       "subject": "Histoire",
@@ -35662,21 +35995,18 @@
       "level": "Terminale",
       "subject": "Histoire",
       "difficulty": 3,
-      "prompt": "Pourquoi la Seconde Guerre mondiale est-elle qualifiée de guerre d'anéantissement ?",
-      "answer": "guerre d'anéantissement",
+      "prompt": "Quelle bataille de 1942-1943 marque le tournant du front de l'Est ?",
+      "answer": "la bataille de Stalingrad",
       "accepted": [
-        "guerre d'anéantissement",
-        "les belligerants visent non seulement les forces ennemies mais aussi des populations et des societes entieres",
-        "les belligérants visent non seulement les forces ennemies mais aussi des populations et des sociétés entières",
-        "aneantissement des forces et des populations",
-        "anéantissement des forces et des populations",
-        "guerre d'aneantissement"
+        "stalingrad",
+        "bataille de stalingrad",
+        "la bataille de stalingrad"
       ],
       "distractors": [
-        "les combats sont limités aux frontières",
-        "les civils sont systématiquement épargnés",
-        "aucune idéologie n'intervient",
-        "la guerre ne mobilise pas les économies"
+        "la bataille de Koursk",
+        "le siège de Léningrad",
+        "la bataille de Moscou",
+        "l'opération Barbarossa"
       ]
     },
     {
@@ -35704,16 +36034,16 @@
       "level": "Terminale",
       "subject": "Anglais",
       "difficulty": 2,
-      "prompt": "Que signifie « surveillance » en anglais dans le contexte du contrôle des individus ?",
-      "answer": "surveillance",
+      "prompt": "Que signifie « to monitor » ?",
+      "answer": "surveiller",
       "accepted": [
-        "surveillance"
+        "surveiller"
       ],
       "distractors": [
-        "privacy",
-        "heritage",
-        "citizenship",
-        "fiction"
+        "oublier",
+        "réparer",
+        "convaincre",
+        "rembourser"
       ]
     },
     {
@@ -35721,18 +36051,16 @@
       "level": "Terminale",
       "subject": "Anglais",
       "difficulty": 3,
-      "prompt": "Quel adverbe placé en tête déclenche l'inversion dans « Never have I seen... » ?",
-      "answer": "Never",
+      "prompt": "Complète : « Never ___ such a beautiful sunset. »",
+      "answer": "have I seen",
       "accepted": [
-        "Never",
-        "never have i seen such a debate",
-        "never have i seen such a debate."
+        "have i seen"
       ],
       "distractors": [
-        "Always",
-        "Already",
-        "Since",
-        "For"
+        "I have seen",
+        "I saw",
+        "did I see",
+        "have seen I"
       ]
     },
     {
@@ -35778,23 +36106,18 @@
       "level": "Terminale",
       "subject": "Anglais",
       "difficulty": 2,
-      "prompt": "Que signifie « heritage » ?",
-      "answer": "héritage",
+      "prompt": "Que signifie « a landmark » dans un texte sur le patrimoine ?",
+      "answer": "un monument emblématique",
       "accepted": [
-        "patrimoine ou l'héritage",
-        "patrimoine",
-        "heritage",
-        "héritage",
-        "le patrimoine",
-        "l'héritage",
-        "patrimoine ou l'heritage",
-        "l'heritage"
+        "monument emblematique",
+        "un monument emblematique",
+        "un point de repere"
       ],
       "distractors": [
-        "frontière",
-        "citoyenneté",
-        "surveillance",
-        "fiction"
+        "un locataire",
+        "un paysage agricole",
+        "un tremblement de terre",
+        "une frontière"
       ]
     },
     {
@@ -36415,22 +36738,17 @@
       "level": "1ère",
       "subject": "Sciences",
       "difficulty": 2,
-      "prompt": "La théorie cellulaire affirme notamment que...",
-      "answer": "théorie cellulaire",
+      "prompt": "Quelle est l'unité de base de tout être vivant ?",
+      "answer": "la cellule",
       "accepted": [
-        "théorie cellulaire",
-        "tous les etres vivants sont constitues d une ou plusieurs cellules",
-        "tous les êtres vivants sont constitués d'une ou plusieurs cellules",
-        "les etres vivants sont faits de cellules",
-        "les êtres vivants sont faits de cellules",
-        "theorie cellulaire",
-        "tous les etres vivants sont constitues d'une ou plusieurs cellules"
+        "cellule",
+        "la cellule"
       ],
       "distractors": [
-        "toutes les cellules possèdent une paroi",
-        "seuls les animaux sont constitués de cellules",
-        "les cellules apparaissent spontanément à partir de matière inerte",
-        "toutes les cellules ont la même taille"
+        "la molécule",
+        "l'atome",
+        "l'organe",
+        "le tissu"
       ]
     },
     {
@@ -36532,29 +36850,6 @@
         "la Lune",
         "le noyau terrestre uniquement",
         "les glaciers uniquement"
-      ]
-    },
-    {
-      "id": "term-sci-030",
-      "level": "Terminale",
-      "subject": "Sciences",
-      "difficulty": 2,
-      "prompt": "Pourquoi les modèles climatiques utilisent-ils différents scénarios d'émissions ?",
-      "answer": "scénarios futurs",
-      "accepted": [
-        "scénarios futurs",
-        "pour explorer plusieurs futurs possibles selon les choix humains",
-        "explorer plusieurs futurs possibles",
-        "tester differents scenarios d emissions",
-        "tester différents scénarios d'émissions",
-        "scenarios futurs",
-        "tester differents scenarios d'emissions"
-      ],
-      "distractors": [
-        "pour prédire exactement la météo de chaque jour en 2100",
-        "parce que les lois physiques changent selon les pays",
-        "pour supprimer toutes les incertitudes",
-        "pour éviter d'utiliser des observations"
       ]
     },
     {
@@ -37172,18 +37467,17 @@
       "level": "CM1",
       "subject": "Géographie",
       "difficulty": 1,
-      "prompt": "Lequel de ces éléments est un besoin essentiel dont l'accès peut être inégal selon les régions du monde ?",
+      "prompt": "Quelle ressource vitale reste inégalement accessible selon les régions du monde ?",
       "answer": "l'eau potable",
       "accepted": [
         "eau potable",
-        "l eau potable",
-        "l'eau potable"
+        "l eau potable"
       ],
       "distractors": [
-        "un parc d'attractions",
-        "une console de jeux",
-        "un cinéma",
-        "un stade"
+        "le charbon",
+        "l'électricité",
+        "le pétrole",
+        "le sable"
       ]
     },
     {
@@ -38107,19 +38401,18 @@
       "level": "6ème",
       "subject": "Géographie",
       "difficulty": 2,
-      "prompt": "Lequel de ces milieux est souvent faiblement peuplé en raison de fortes contraintes naturelles ?",
+      "prompt": "Quel milieu très sec, marqué par de fortes chaleurs, reste faiblement peuplé ?",
       "answer": "un désert chaud",
       "accepted": [
         "desert chaud",
         "un desert chaud",
-        "désert chaud",
-        "un désert chaud"
+        "desert"
       ],
       "distractors": [
-        "une grande plaine urbaine",
-        "un centre métropolitain",
-        "une vallée très urbanisée",
-        "un port international"
+        "une plaine tempérée",
+        "un delta fluvial",
+        "une vallée irriguée",
+        "un littoral méditerranéen"
       ]
     },
     {
@@ -38642,43 +38935,21 @@
       ]
     },
     {
-      "id": "5e-geo-032",
-      "level": "5ème",
-      "subject": "Géographie",
-      "difficulty": 3,
-      "prompt": "Pourquoi une forte croissance démographique peut-elle représenter un défi pour un territoire ?",
-      "answer": "augmentation des besoins",
-      "accepted": [
-        "elle augmente les besoins en logements services et ressources",
-        "elle augmente les besoins en logements, services et ressources",
-        "augmentation des besoins"
-      ],
-      "distractors": [
-        "elle supprime tous les besoins",
-        "elle empêche toute urbanisation",
-        "elle garantit automatiquement un niveau de vie élevé",
-        "elle réduit toujours la consommation d'eau"
-      ]
-    },
-    {
       "id": "5e-geo-033",
       "level": "5ème",
       "subject": "Géographie",
       "difficulty": 1,
-      "prompt": "Laquelle de ces ressources est renouvelable à l'échelle humaine ?",
-      "answer": "l'énergie solaire",
+      "prompt": "Quelle énergie renouvelable exploite la chaleur venue du sous-sol ?",
+      "answer": "la géothermie",
       "accepted": [
-        "energie solaire",
-        "l energie solaire",
-        "énergie solaire",
-        "l'énergie solaire",
-        "l'energie solaire"
+        "geothermie",
+        "la geothermie"
       ],
       "distractors": [
-        "le pétrole",
+        "l'énergie marémotrice",
+        "la biomasse",
         "le charbon",
-        "le gaz naturel",
-        "l'uranium"
+        "le gaz naturel"
       ]
     },
     {
@@ -39340,32 +39611,6 @@
       ]
     },
     {
-      "id": "4e-geo-032",
-      "level": "4ème",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi les métropoles sont-elles des centres majeurs de la mondialisation ?",
-      "answer": "commandement et réseaux",
-      "accepted": [
-        "commandement et réseaux",
-        "elles concentrent des fonctions de commandement et des reseaux",
-        "elles concentrent des fonctions de commandement et des réseaux",
-        "fonctions de commandement et reseaux",
-        "fonctions de commandement et réseaux",
-        "commandement et reseaux",
-        "fonctions et réseaux",
-        "réseaux et fonctions",
-        "fonctions / réseaux",
-        "réseaux / fonctions"
-      ],
-      "distractors": [
-        "elles sont toutes isolées",
-        "elles interdisent les échanges",
-        "elles sont toutes peu peuplées",
-        "elles n'ont aucun aéroport"
-      ]
-    },
-    {
       "id": "4e-geo-033",
       "level": "4ème",
       "subject": "Géographie",
@@ -39401,27 +39646,6 @@
         "les taxes portuaires",
         "les subventions agricoles",
         "les recettes touristiques uniquement"
-      ]
-    },
-    {
-      "id": "4e-geo-035",
-      "level": "4ème",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Quelle différence distingue un réfugié d'un touriste ?",
-      "answer": "fuite de dangers",
-      "accepted": [
-        "fuite de dangers",
-        "le refugie fuit notamment des persecutions ou des dangers",
-        "le réfugié fuit notamment des persécutions ou des dangers",
-        "le refugie fuit un danger",
-        "le réfugié fuit un danger"
-      ],
-      "distractors": [
-        "le réfugié voyage uniquement pour les loisirs",
-        "le touriste s'installe toujours définitivement",
-        "le touriste fuit obligatoirement une guerre",
-        "il n'existe aucune différence"
       ]
     },
     {
@@ -40001,40 +40225,17 @@
       "level": "3ème",
       "subject": "Géographie",
       "difficulty": 2,
-      "prompt": "Parmi ces acteurs, lequel participe directement à l'aménagement des territoires en France ?",
+      "prompt": "Comment appelle-t-on les régions, départements et communes qui aménagent le territoire français ?",
       "answer": "les collectivités territoriales",
       "accepted": [
         "collectivites territoriales",
-        "les collectivites territoriales",
-        "collectivités territoriales",
-        "les collectivités territoriales"
+        "les collectivites territoriales"
       ],
       "distractors": [
-        "uniquement les touristes étrangers",
-        "uniquement les ménages",
-        "uniquement les associations sportives",
-        "aucun acteur public"
-      ]
-    },
-    {
-      "id": "3e-geo-035",
-      "level": "3ème",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi développe-t-on des lignes ferroviaires à grande vitesse ?",
-      "answer": "améliorer l'accessibilité",
-      "accepted": [
-        "pour ameliorer les connexions entre les territoires",
-        "pour améliorer les connexions entre les territoires",
-        "ameliorer l accessibilite",
-        "améliorer l'accessibilité",
-        "ameliorer l'accessibilite"
-      ],
-      "distractors": [
-        "pour isoler les métropoles",
-        "pour supprimer les mobilités",
-        "pour empêcher les échanges",
-        "pour remplacer toutes les routes locales"
+        "les entreprises privées",
+        "les associations",
+        "l'Union européenne",
+        "les syndicats"
       ]
     },
     {
@@ -40527,29 +40728,6 @@
         "la transition énergétique",
         "la littoralisation",
         "la désertification"
-      ]
-    },
-    {
-      "id": "2nde-geo-032",
-      "level": "2nde",
-      "subject": "Géographie",
-      "difficulty": 3,
-      "prompt": "Pourquoi le vieillissement démographique constitue-t-il un défi pour certains pays ?",
-      "answer": "retraites et santé",
-      "accepted": [
-        "il augmente les besoins lies aux retraites et a la sante",
-        "il augmente les besoins liés aux retraites et à la santé",
-        "retraites et sante",
-        "retraites et santé",
-        "santé et retraites",
-        "retraites / santé",
-        "santé / retraites"
-      ],
-      "distractors": [
-        "il supprime les besoins médicaux",
-        "il fait toujours augmenter la natalité",
-        "il élimine toute migration",
-        "il réduit automatiquement l'espérance de vie"
       ]
     },
     {
@@ -41206,26 +41384,6 @@
       ]
     },
     {
-      "id": "1ere-geo-034",
-      "level": "1ère",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi les grands ports sont-ils des lieux majeurs de la production mondialisée ?",
-      "answer": "connexion maritime",
-      "accepted": [
-        "connexion maritime",
-        "ils connectent les espaces de production aux flux maritimes mondiaux",
-        "connexion aux flux maritimes mondiaux",
-        "ils relient production et commerce mondial"
-      ],
-      "distractors": [
-        "ils empêchent les échanges",
-        "ils ne traitent que des passagers",
-        "ils sont toujours éloignés des industries",
-        "ils ne sont reliés à aucun arrière-pays"
-      ]
-    },
-    {
       "id": "1ere-geo-035",
       "level": "1ère",
       "subject": "Géographie",
@@ -41244,28 +41402,6 @@
         "ports de pêche et stations balnéaires",
         "logements sociaux uniquement",
         "casernes et prisons"
-      ]
-    },
-    {
-      "id": "1ere-geo-036",
-      "level": "1ère",
-      "subject": "Géographie",
-      "difficulty": 3,
-      "prompt": "Pourquoi les chaînes de valeur mondiales rendent-elles les territoires interdépendants ?",
-      "answer": "production fragmentée",
-      "accepted": [
-        "production fragmentée",
-        "les differentes etapes de production sont reparties entre plusieurs territoires relies par des flux",
-        "les différentes étapes de production sont réparties entre plusieurs territoires reliés par des flux",
-        "production repartie entre plusieurs territoires",
-        "production répartie entre plusieurs territoires",
-        "production fragmentee"
-      ],
-      "distractors": [
-        "chaque produit est entièrement fabriqué dans un seul village",
-        "les entreprises n'échangent aucun composant",
-        "les transports ne jouent aucun rôle",
-        "les marchés sont totalement séparés"
       ]
     },
     {
@@ -41324,28 +41460,6 @@
         "la Première Guerre mondiale",
         "la guerre d'Algérie",
         "la guerre de Sécession"
-      ]
-    },
-    {
-      "id": "1ere-hist-034",
-      "level": "1ère",
-      "subject": "Histoire",
-      "difficulty": 3,
-      "prompt": "Pourquoi la période 1848-1871 est-elle politiquement instable en France ?",
-      "answer": "instabilité politique",
-      "accepted": [
-        "instabilité politique",
-        "plusieurs regimes se succedent dans un contexte de conflits sociaux et politiques",
-        "plusieurs régimes se succèdent dans un contexte de conflits sociaux et politiques",
-        "succession de plusieurs regimes",
-        "succession de plusieurs régimes",
-        "instabilite politique"
-      ],
-      "distractors": [
-        "un même régime reste en place sans interruption",
-        "la France n'organise aucune élection",
-        "aucun conflit social n'existe",
-        "la monarchie absolue est restaurée durablement"
       ]
     },
     {
@@ -41453,20 +41567,18 @@
       "level": "1ère",
       "subject": "Sciences",
       "difficulty": 3,
-      "prompt": "Quel effet l'augmentation de certains gaz à effet de serre a-t-elle sur le bilan énergétique terrestre ?",
-      "answer": "effet de serre",
+      "prompt": "Quel gaz à effet de serre, émis notamment par les ruminants, suit le dioxyde de carbone ?",
+      "answer": "le méthane",
       "accepted": [
-        "effet de serre",
-        "elle renforce la retention du rayonnement infrarouge et contribue au rechauffement",
-        "elle renforce la rétention du rayonnement infrarouge et contribue au réchauffement",
-        "elle renforce l effet de serre",
-        "elle renforce l'effet de serre"
+        "methane",
+        "le methane",
+        "ch4"
       ],
       "distractors": [
-        "elle bloque totalement la lumière solaire",
-        "elle supprime l'atmosphère",
-        "elle refroidit nécessairement toutes les régions",
-        "elle empêche tout rayonnement infrarouge d'exister"
+        "le dioxygène",
+        "le diazote",
+        "l'ozone",
+        "l'argon"
       ]
     },
     {
@@ -41492,19 +41604,16 @@
       "level": "1ère",
       "subject": "Anglais",
       "difficulty": 2,
-      "prompt": "Quelle expression introduit l'opinion dans « In my view, this policy... » ?",
-      "answer": "In my view",
+      "prompt": "Que signifie « to overcome » ?",
+      "answer": "surmonter",
       "accepted": [
-        "In my view",
-        "in my view this policy could be effective because it addresses the main problem",
-        "in my view, this policy could be effective because it addresses the main problem",
-        "in my view, this policy could be effective because it addresses the main problem."
+        "surmonter"
       ],
       "distractors": [
-        "According to",
-        "For example",
-        "As a result",
-        "In addition"
+        "abandonner",
+        "ignorer",
+        "retarder",
+        "hésiter"
       ]
     },
     {
@@ -41512,17 +41621,17 @@
       "level": "Terminale",
       "subject": "Français",
       "difficulty": 2,
-      "prompt": "Quelle notion désigne une obligation morale que l'on estime devoir respecter ?",
+      "prompt": "Quelle notion morale désigne ce que l'on s'impose d'accomplir par principe, même à contrecœur ?",
       "answer": "le devoir",
       "accepted": [
         "devoir",
         "le devoir"
       ],
       "distractors": [
-        "le bonheur",
-        "l'art",
-        "la nature",
-        "la technique"
+        "le désir",
+        "l'intérêt",
+        "le plaisir",
+        "la contrainte"
       ]
     },
     {
@@ -41568,19 +41677,17 @@
       "level": "Terminale",
       "subject": "Français",
       "difficulty": 2,
-      "prompt": "Quelle distinction permet de demander si une règle conforme au droit est aussi moralement justifiée ?",
-      "answer": "légal / légitime",
+      "prompt": "En philosophie, comment qualifie-t-on ce qui est conforme à la loi, sans préjuger de sa justice ?",
+      "answer": "légal",
       "accepted": [
-        "legal / legitime",
-        "légal / légitime",
-        "legal et legitime",
-        "légal et légitime"
+        "legal",
+        "le legal"
       ],
       "distractors": [
-        "vrai / probable",
-        "cause / fin",
-        "universel / singulier",
-        "abstrait / concret"
+        "légitime",
+        "moral",
+        "équitable",
+        "arbitraire"
       ]
     },
     {
@@ -41786,29 +41893,6 @@
       ]
     },
     {
-      "id": "term-geo-031",
-      "level": "Terminale",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi certaines frontières restent-elles des espaces de tensions malgré la mondialisation ?",
-      "answer": "rivalités frontalières",
-      "accepted": [
-        "rivalités frontalières",
-        "elles peuvent cristalliser des rivalites de souverainete de ressources ou d identite",
-        "elles peuvent cristalliser des rivalités de souveraineté, de ressources ou d'identité",
-        "rivalites de souverainete ressources identite",
-        "rivalités de souveraineté ressources identité",
-        "rivalites frontalieres",
-        "elles peuvent cristalliser des rivalites de souverainete, de ressources ou d'identite"
-      ],
-      "distractors": [
-        "la mondialisation supprime toutes les frontières",
-        "les frontières n'ont jamais d'enjeu économique",
-        "aucun État ne contrôle son territoire",
-        "les identités ne jouent aucun rôle"
-      ]
-    },
-    {
       "id": "term-geo-032",
       "level": "Terminale",
       "subject": "Géographie",
@@ -41827,29 +41911,6 @@
         "la féodalité",
         "la natalité",
         "la continentalité"
-      ]
-    },
-    {
-      "id": "term-geo-033",
-      "level": "Terminale",
-      "subject": "Géographie",
-      "difficulty": 3,
-      "prompt": "Pourquoi tous les territoires ne sont-ils pas également intégrés à la mondialisation ?",
-      "answer": "intégration inégale",
-      "accepted": [
-        "intégration inégale",
-        "leur connexion aux reseaux leur puissance et leurs fonctions sont inegales",
-        "leur connexion aux réseaux, leur puissance et leurs fonctions sont inégales",
-        "connexion inegale aux reseaux et fonctions",
-        "connexion inégale aux réseaux et fonctions",
-        "integration inegale",
-        "leur connexion aux reseaux, leur puissance et leurs fonctions sont inegales"
-      ],
-      "distractors": [
-        "tous les territoires occupent exactement la même place",
-        "les transports sont identiques partout",
-        "les activités productives sont réparties uniformément",
-        "aucune hiérarchie territoriale n'existe"
       ]
     },
     {
@@ -41912,28 +41973,6 @@
       ]
     },
     {
-      "id": "term-hist-033",
-      "level": "Terminale",
-      "subject": "Histoire",
-      "difficulty": 3,
-      "prompt": "Pourquoi la décolonisation transforme-t-elle les relations internationales après 1945 ?",
-      "answer": "nouveaux États",
-      "accepted": [
-        "nouveaux États",
-        "de nombreux nouveaux etats deviennent des acteurs de la scene internationale",
-        "de nombreux nouveaux États deviennent des acteurs de la scène internationale",
-        "apparition de nouveaux etats independants",
-        "apparition de nouveaux États indépendants",
-        "nouveaux Etats"
-      ],
-      "distractors": [
-        "les empires coloniaux s'étendent partout",
-        "les nouveaux États disparaissent immédiatement",
-        "l'ONU perd tous ses membres",
-        "les rivalités internationales prennent fin"
-      ]
-    },
-    {
       "id": "term-sci-031",
       "level": "Terminale",
       "subject": "Sciences",
@@ -41958,21 +41997,18 @@
       "level": "Terminale",
       "subject": "Sciences",
       "difficulty": 3,
-      "prompt": "Quelle différence distingue atténuation et adaptation face au changement climatique ?",
-      "answer": "causes / effets",
+      "prompt": "Comment appelle-t-on l'action de réduire les émissions de gaz à effet de serre ?",
+      "answer": "l'atténuation",
       "accepted": [
-        "causes / effets",
-        "l attenuation agit sur les causes l adaptation reduit les effets subis",
-        "l'atténuation agit sur les causes ; l'adaptation réduit les effets subis",
-        "attenuation causes adaptation effets",
-        "atténuation causes adaptation effets",
-        "l'attenuation agit sur les causes ; l'adaptation reduit les effets subis"
+        "attenuation",
+        "l attenuation",
+        "la mitigation"
       ],
       "distractors": [
-        "les deux termes sont strictement synonymes",
-        "l'adaptation supprime toutes les émissions",
-        "l'atténuation concerne uniquement les séismes",
-        "l'adaptation ne concerne que les pays froids"
+        "l'adaptation",
+        "la résilience",
+        "la vulnérabilité",
+        "la compensation"
       ],
       "strict": true
     },
@@ -42035,26 +42071,6 @@
         "la chaleur en masse",
         "l'énergie chimique en lumière uniquement",
         "le son en gravitation"
-      ]
-    },
-    {
-      "id": "term-sci-036",
-      "level": "Terminale",
-      "subject": "Sciences",
-      "difficulty": 2,
-      "prompt": "Pourquoi transporte-t-on l'électricité à haute tension sur de longues distances ?",
-      "answer": "réduire les pertes",
-      "accepted": [
-        "pour limiter les pertes par effet joule",
-        "limiter les pertes par effet joule",
-        "reduire les pertes",
-        "réduire les pertes"
-      ],
-      "distractors": [
-        "pour augmenter volontairement l'échauffement des lignes",
-        "pour rendre les électrons plus lourds",
-        "pour supprimer tout besoin de transformateur",
-        "pour stocker l'électricité dans les câbles"
       ]
     },
     {
@@ -43323,26 +43339,6 @@
       ]
     },
     {
-      "id": "ce2-hist-045",
-      "level": "CE2",
-      "subject": "Histoire",
-      "difficulty": 2,
-      "prompt": "Pourquoi compare-t-on des photographies anciennes et actuelles d'un même lieu ?",
-      "answer": "observer les changements",
-      "accepted": [
-        "pour voir comment le lieu a change",
-        "voir comment le lieu a change",
-        "pour observer les changements",
-        "observer les changements"
-      ],
-      "distractors": [
-        "pour connaître la météo de demain",
-        "pour apprendre une multiplication",
-        "pour trouver le nord",
-        "pour traduire un mot"
-      ]
-    },
-    {
       "id": "ce2-hist-046",
       "level": "CE2",
       "subject": "Histoire",
@@ -43831,19 +43827,20 @@
       "level": "CM1",
       "subject": "Géographie",
       "difficulty": 1,
-      "prompt": "Laquelle de ces activités utilise Internet pour communiquer à distance ?",
-      "answer": "envoyer un courriel",
+      "prompt": "Quel service permet d'envoyer un message écrit par Internet ?",
+      "answer": "le courriel",
       "accepted": [
-        "envoyer un courriel",
-        "envoyer un email",
-        "envoyer un e mail",
-        "envoyer un e-mail"
+        "courriel",
+        "le courriel",
+        "e-mail",
+        "mail",
+        "courrier electronique"
       ],
       "distractors": [
-        "marcher jusqu'à l'école",
-        "faire du vélo sans téléphone",
-        "écrire sur une feuille hors ligne",
-        "lire une affiche imprimée"
+        "la radio",
+        "le journal télévisé",
+        "l'affiche",
+        "le pigeon voyageur"
       ]
     },
     {
@@ -44044,18 +44041,17 @@
       "level": "CM1",
       "subject": "Histoire",
       "difficulty": 2,
-      "prompt": "Laquelle de ces idées est associée aux philosophes des Lumières ?",
+      "prompt": "Quelle valeur les philosophes des Lumières opposent-ils à l'arbitraire du roi ?",
       "answer": "la liberté",
       "accepted": [
         "liberte",
-        "la liberte",
-        "la liberté"
+        "la liberte"
       ],
       "distractors": [
-        "le retour au servage",
-        "l'interdiction de penser",
-        "la suppression de toute éducation",
-        "l'obéissance sans discussion à toute autorité"
+        "l'obéissance",
+        "la tradition",
+        "le secret",
+        "la richesse"
       ]
     },
     {
@@ -44171,21 +44167,17 @@
       "level": "CM2",
       "subject": "Français",
       "difficulty": 2,
-      "prompt": "Parmi les propositions, laquelle respecte l'accord au féminin pluriel ?",
-      "answer": "filles sont arrivées.",
+      "prompt": "Complète : « Les filles ___ hier soir. » (verbe arriver, passé composé)",
+      "answer": "sont arrivées",
       "accepted": [
-        "filles sont arrivées.",
-        "les filles sont arrivees",
-        "les filles sont arrivées",
-        "les filles sont arrivées.",
-        "filles sont arrivees.",
-        "les filles sont arrivees."
+        "sont arrivees",
+        "elles sont arrivees"
       ],
       "distractors": [
-        "Les filles revient.",
-        "La fille sont arrivées.",
-        "Les filles est là.",
-        "Un filles arrivent."
+        "est arrivée",
+        "ont arrivé",
+        "sont arrivé",
+        "sont arrivés"
       ]
     },
     {
@@ -44614,26 +44606,6 @@
       ]
     },
     {
-      "id": "cm2-geo-041",
-      "level": "CM2",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi trie-t-on les déchets ?",
-      "answer": "recycler",
-      "accepted": [
-        "pour faciliter leur recyclage",
-        "faciliter leur recyclage",
-        "pour recycler",
-        "recycler"
-      ],
-      "distractors": [
-        "pour les mélanger davantage",
-        "pour augmenter leur volume",
-        "pour empêcher leur collecte",
-        "pour les envoyer tous au même endroit sans traitement"
-      ]
-    },
-    {
       "id": "cm2-geo-042",
       "level": "CM2",
       "subject": "Géographie",
@@ -44857,29 +44829,6 @@
         "la prise de la Bastille",
         "la création de l'euro",
         "le début de la Révolution industrielle"
-      ]
-    },
-    {
-      "id": "cm2-hist-040",
-      "level": "CM2",
-      "subject": "Histoire",
-      "difficulty": 3,
-      "prompt": "Pourquoi des pays européens commencent-ils à construire une coopération après 1945 ?",
-      "answer": "préserver la paix",
-      "accepted": [
-        "préserver la paix",
-        "pour preserver la paix et cooperer",
-        "préserver la paix et coopérer",
-        "pour maintenir la paix",
-        "pour construire la paix",
-        "preserver la paix",
-        "preserver la paix et cooperer"
-      ],
-      "distractors": [
-        "pour préparer une nouvelle guerre européenne",
-        "pour restaurer la monarchie absolue",
-        "pour supprimer tous les échanges",
-        "pour revenir au système féodal"
       ]
     },
     {
@@ -45485,30 +45434,6 @@
       ]
     },
     {
-      "id": "6e-geo-039",
-      "level": "6ème",
-      "subject": "Géographie",
-      "difficulty": 3,
-      "prompt": "Pourquoi les littoraux attirent-ils beaucoup d'activités et d'habitants ?",
-      "answer": "échanges et activités",
-      "accepted": [
-        "ils facilitent les echanges et offrent de nombreuses activites",
-        "ils facilitent les échanges et offrent de nombreuses activités",
-        "echanges et activites",
-        "échanges et activités",
-        "emplois et services",
-        "services et emplois",
-        "emplois / services",
-        "services / emplois"
-      ],
-      "distractors": [
-        "ils sont toujours inhabitables",
-        "ils sont tous protégés de toute activité",
-        "ils sont tous désertiques",
-        "ils interdisent les transports"
-      ]
-    },
-    {
       "id": "6e-geo-040",
       "level": "6ème",
       "subject": "Géographie",
@@ -45595,19 +45520,18 @@
       "level": "6ème",
       "subject": "Géographie",
       "difficulty": 2,
-      "prompt": "Lequel de ces ensembles est un grand foyer de peuplement mondial ?",
+      "prompt": "Quel ensemble régional, autour de la Chine et du Japon, forme le principal foyer de peuplement mondial ?",
       "answer": "l'Asie de l'Est",
       "accepted": [
         "asie de l est",
         "l asie de l est",
-        "asie de l'est",
-        "l'asie de l'est"
+        "asie orientale"
       ],
       "distractors": [
-        "l'Antarctique",
-        "le Groenland intérieur",
-        "le Sahara central",
-        "le désert australien"
+        "l'Europe du Nord",
+        "l'Afrique australe",
+        "l'Amérique andine",
+        "l'Océanie"
       ]
     },
     {
@@ -45970,29 +45894,6 @@
         "le mouvement des nuages",
         "l'inclinaison des montagnes"
       ]
-    },
-    {
-      "id": "6e-sci-041",
-      "level": "6ème",
-      "subject": "Sciences",
-      "difficulty": 3,
-      "prompt": "Quelle différence essentielle existe entre la météo et le climat ?",
-      "answer": "court / long terme",
-      "accepted": [
-        "court / long terme",
-        "la meteo decrit le temps a court terme le climat s etudie sur de longues durees",
-        "la météo décrit le temps à court terme, le climat s'étudie sur de longues durées",
-        "meteo court terme climat long terme",
-        "météo court terme climat long terme",
-        "la meteo decrit le temps a court terme, le climat s'etudie sur de longues durees"
-      ],
-      "distractors": [
-        "la météo et le climat sont exactement la même chose",
-        "le climat change chaque heure",
-        "la météo décrit uniquement les océans",
-        "le climat ne concerne que les températures"
-      ],
-      "strict": true
     },
     {
       "id": "6e-sci-042",
@@ -46579,26 +46480,6 @@
       "strict": true
     },
     {
-      "id": "5e-geo-037",
-      "level": "5ème",
-      "subject": "Géographie",
-      "difficulty": 3,
-      "prompt": "Pourquoi le pétrole, le charbon et le gaz sont-ils appelés des énergies fossiles ?",
-      "answer": "matière organique ancienne",
-      "accepted": [
-        "ils proviennent de matiere organique ancienne transformee sur de tres longues durees",
-        "ils proviennent de matière organique ancienne transformée sur de très longues durées",
-        "matiere organique ancienne",
-        "matière organique ancienne"
-      ],
-      "distractors": [
-        "ils se renouvellent chaque jour",
-        "ils sont fabriqués par les barrages",
-        "ils proviennent uniquement du vent",
-        "ils sont produits par le Soleil directement"
-      ]
-    },
-    {
       "id": "5e-geo-038",
       "level": "5ème",
       "subject": "Géographie",
@@ -46634,29 +46515,6 @@
         "une centrale thermique",
         "un aéroport",
         "une autoroute"
-      ]
-    },
-    {
-      "id": "5e-geo-040",
-      "level": "5ème",
-      "subject": "Géographie",
-      "difficulty": 3,
-      "prompt": "Pourquoi la gestion de l'eau peut-elle provoquer des tensions entre territoires ?",
-      "answer": "répartition inégale",
-      "accepted": [
-        "répartition inégale",
-        "la ressource est inegalement repartie et partagee",
-        "la ressource est inégalement répartie et partagée",
-        "l eau est inegalement repartie",
-        "l'eau est inégalement répartie",
-        "repartition inegale",
-        "l'eau est inegalement repartie"
-      ],
-      "distractors": [
-        "l'eau est disponible partout en quantité illimitée",
-        "aucune activité humaine n'utilise d'eau",
-        "les frontières n'existent jamais",
-        "les besoins sont identiques partout"
       ]
     },
     {
@@ -46741,27 +46599,6 @@
       ]
     },
     {
-      "id": "5e-geo-045",
-      "level": "5ème",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi certains littoraux sont-ils vulnérables à la montée du niveau de la mer ?",
-      "answer": "forte vulnérabilité",
-      "accepted": [
-        "forte vulnérabilité",
-        "ils sont bas et fortement peuples ou amenages",
-        "ils sont bas et fortement peuplés ou aménagés",
-        "faible altitude et forte occupation humaine",
-        "forte vulnerabilite"
-      ],
-      "distractors": [
-        "ils sont tous situés en haute montagne",
-        "ils sont toujours inhabités",
-        "ils ne subissent jamais de tempêtes",
-        "ils sont tous protégés par des falaises très hautes"
-      ]
-    },
-    {
       "id": "5e-geo-046",
       "level": "5ème",
       "subject": "Géographie",
@@ -46794,22 +46631,17 @@
       "level": "5ème",
       "subject": "Géographie",
       "difficulty": 3,
-      "prompt": "Quelle différence distingue principalement prévention et adaptation face au changement global ?",
-      "answer": "prévention / adaptation",
+      "prompt": "Comment appelle-t-on l'ensemble des mesures prises avant une catastrophe pour en limiter les dégâts ?",
+      "answer": "la prévention",
       "accepted": [
-        "prévention / adaptation",
-        "la prevention cherche a limiter les risques l adaptation ajuste les societes a leurs effets",
-        "la prévention cherche à limiter les risques, l'adaptation ajuste les sociétés à leurs effets",
-        "prevention limite les risques adaptation ajuste les societes",
-        "prévention limite les risques adaptation ajuste les sociétés",
-        "prevention / adaptation",
-        "la prevention cherche a limiter les risques, l'adaptation ajuste les societes a leurs effets"
+        "prevention",
+        "la prevention"
       ],
       "distractors": [
-        "les deux termes signifient exactement la même chose",
-        "la prévention ne concerne que le passé",
-        "l'adaptation interdit tout aménagement",
-        "la prévention concerne uniquement les séismes"
+        "la reconstruction",
+        "l'indemnisation",
+        "le secours d'urgence",
+        "l'adaptation"
       ]
     },
     {
@@ -46871,25 +46703,6 @@
       ]
     },
     {
-      "id": "5e-hist-036",
-      "level": "5ème",
-      "subject": "Histoire",
-      "difficulty": 3,
-      "prompt": "Pourquoi les rois capétiens cherchent-ils progressivement à agrandir le domaine royal ?",
-      "answer": "renforcer leur pouvoir",
-      "accepted": [
-        "pour renforcer leur pouvoir",
-        "renforcer leur pouvoir",
-        "pour augmenter le pouvoir royal"
-      ],
-      "distractors": [
-        "pour supprimer toute monarchie",
-        "pour restaurer l'Empire romain",
-        "pour abolir l'agriculture",
-        "pour quitter la France"
-      ]
-    },
-    {
       "id": "5e-hist-037",
       "level": "5ème",
       "subject": "Histoire",
@@ -46944,29 +46757,6 @@
         "François Ier",
         "Louis XVI",
         "Charles V"
-      ]
-    },
-    {
-      "id": "5e-hist-040",
-      "level": "5ème",
-      "subject": "Histoire",
-      "difficulty": 3,
-      "prompt": "Pourquoi les grandes explorations européennes des XVe et XVIe siècles transforment-elles les échanges mondiaux ?",
-      "answer": "échanges intercontinentaux",
-      "accepted": [
-        "échanges intercontinentaux",
-        "elles relient durablement davantage de continents par des echanges de marchandises de personnes et de cultures",
-        "elles relient durablement davantage de continents par des échanges de marchandises, de personnes et de cultures",
-        "elles intensifient les echanges entre continents",
-        "elles intensifient les échanges entre continents",
-        "echanges intercontinentaux",
-        "elles relient durablement davantage de continents par des echanges de marchandises, de personnes et de cultures"
-      ],
-      "distractors": [
-        "elles mettent fin à tout commerce maritime",
-        "elles isolent l'Europe du reste du monde",
-        "elles suppriment les empires coloniaux dès 1500",
-        "elles empêchent toute circulation de plantes et d'animaux"
       ]
     },
     {
@@ -47128,28 +46918,6 @@
       ]
     },
     {
-      "id": "5e-sci-044",
-      "level": "5ème",
-      "subject": "Sciences",
-      "difficulty": 3,
-      "prompt": "Pourquoi surveille-t-on l'activité d'un volcan ?",
-      "answer": "prévoir l'éruption",
-      "accepted": [
-        "prévoir l'éruption",
-        "pour mieux prevoir une eventuelle eruption et reduire le risque",
-        "pour mieux prévoir une éventuelle éruption et réduire le risque",
-        "pour reduire le risque",
-        "pour réduire le risque",
-        "prevoir l'eruption"
-      ],
-      "distractors": [
-        "pour empêcher le magma d'exister",
-        "pour supprimer les plaques tectoniques",
-        "pour arrêter toutes les vibrations de la Terre",
-        "pour modifier la météo"
-      ]
-    },
-    {
       "id": "5e-sci-045",
       "level": "5ème",
       "subject": "Sciences",
@@ -47169,27 +46937,6 @@
         "la stabilité permanente du milieu",
         "l'absence totale de variation",
         "le respect de tous les habitats"
-      ]
-    },
-    {
-      "id": "5e-sci-046",
-      "level": "5ème",
-      "subject": "Sciences",
-      "difficulty": 3,
-      "prompt": "Pourquoi la biodiversité d'un milieu peut-elle diminuer après la destruction d'un habitat ?",
-      "answer": "perte d'habitat",
-      "accepted": [
-        "perte d'habitat",
-        "des especes perdent les ressources et les conditions necessaires a leur survie",
-        "des espèces perdent les ressources et les conditions nécessaires à leur survie",
-        "perte d habitat et de ressources",
-        "perte d'habitat et de ressources"
-      ],
-      "distractors": [
-        "toutes les espèces s'adaptent immédiatement",
-        "la destruction crée toujours plus d'espèces",
-        "les habitats n'ont aucun rôle",
-        "les chaînes alimentaires deviennent automatiquement plus riches"
       ]
     },
     {
@@ -47410,17 +47157,18 @@
       "level": "4ème",
       "subject": "Français",
       "difficulty": 1,
-      "prompt": "Dans un article de presse, comment appelle-t-on le titre placé au-dessus du texte ?",
-      "answer": "le titre",
+      "prompt": "Dans un article de presse, comment appelle-t-on le court paragraphe qui résume l'essentiel avant le texte ?",
+      "answer": "le chapeau",
       "accepted": [
-        "titre",
-        "le titre"
+        "chapeau",
+        "le chapeau",
+        "chapo"
       ],
       "distractors": [
         "la légende",
-        "la source",
-        "le chapeau uniquement",
-        "la bibliographie"
+        "l'accroche",
+        "l'ours",
+        "la brève"
       ]
     },
     {
@@ -47901,27 +47649,6 @@
       ]
     },
     {
-      "id": "4e-geo-040",
-      "level": "4ème",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi les grands aéroports sont-ils des lieux majeurs des mobilités mondiales ?",
-      "answer": "connectivité mondiale",
-      "accepted": [
-        "connectivité mondiale",
-        "ils connectent de nombreux territoires a differentes echelles",
-        "ils connectent de nombreux territoires à différentes échelles",
-        "ils connectent de nombreux territoires",
-        "connectivite mondiale"
-      ],
-      "distractors": [
-        "ils ne servent qu'aux marchandises locales",
-        "ils isolent les métropoles",
-        "ils empêchent les migrations",
-        "ils sont absents des grandes villes"
-      ]
-    },
-    {
       "id": "4e-geo-041",
       "level": "4ème",
       "subject": "Géographie",
@@ -47962,32 +47689,6 @@
         "un delta",
         "une métropole",
         "un isthme"
-      ]
-    },
-    {
-      "id": "4e-geo-043",
-      "level": "4ème",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi les grandes façades maritimes sont-elles importantes dans la mondialisation ?",
-      "answer": "ports et flux",
-      "accepted": [
-        "ports et flux",
-        "elles concentrent ports activites et flux internationaux",
-        "elles concentrent ports, activités et flux internationaux",
-        "ports activites et flux internationaux",
-        "ports, activités et flux internationaux",
-        "elles concentrent ports, activites et flux internationaux",
-        "ports, activites et flux internationaux",
-        "flux et ports",
-        "ports / flux",
-        "flux / ports"
-      ],
-      "distractors": [
-        "elles interdisent les échanges",
-        "elles sont toutes inhabitées",
-        "elles n'ont aucune industrie",
-        "elles ne sont reliées à aucun arrière-pays"
       ]
     },
     {
@@ -48034,50 +47735,6 @@
         "un espace totalement isolé",
         "une zone sans ressources",
         "un espace uniquement résidentiel"
-      ]
-    },
-    {
-      "id": "4e-geo-046",
-      "level": "4ème",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi les États-Unis occupent-ils une place majeure dans la mondialisation ?",
-      "answer": "puissance mondiale",
-      "accepted": [
-        "puissance mondiale",
-        "ils concentrent une forte puissance economique financiere technologique et culturelle",
-        "ils concentrent une forte puissance économique, financière, technologique et culturelle",
-        "forte puissance economique financiere technologique et culturelle",
-        "ils concentrent une forte puissance economique, financiere, technologique et culturelle"
-      ],
-      "distractors": [
-        "ils sont isolés des échanges mondiaux",
-        "ils n'ont aucune métropole mondiale",
-        "ils ne disposent d'aucune entreprise internationale",
-        "ils ne participent pas aux flux financiers"
-      ]
-    },
-    {
-      "id": "4e-geo-047",
-      "level": "4ème",
-      "subject": "Géographie",
-      "difficulty": 3,
-      "prompt": "Pourquoi la mondialisation transforme-t-elle inégalement les territoires ?",
-      "answer": "connexion inégale",
-      "accepted": [
-        "connexion inégale",
-        "certains sont mieux connectes aux flux et aux reseaux que d autres",
-        "certains sont mieux connectés aux flux et aux réseaux que d'autres",
-        "connexion inegale aux flux et reseaux",
-        "connexion inégale aux flux et réseaux",
-        "connexion inegale",
-        "certains sont mieux connectes aux flux et aux reseaux que d'autres"
-      ],
-      "distractors": [
-        "tous les territoires ont exactement le même rôle",
-        "les réseaux sont identiques partout",
-        "les échanges suppriment toutes les inégalités",
-        "aucun territoire n'est spécialisé"
       ]
     },
     {
@@ -48239,26 +47896,6 @@
         "le droit de travailler",
         "le droit de voyager",
         "le droit de se marier"
-      ]
-    },
-    {
-      "id": "4e-hist-042",
-      "level": "4ème",
-      "subject": "Histoire",
-      "difficulty": 3,
-      "prompt": "Pourquoi l'industrialisation transforme-t-elle profondément les sociétés européennes au XIXe siècle ?",
-      "answer": "industrialisation sociale",
-      "accepted": [
-        "industrialisation sociale",
-        "elle modifie le travail les villes les transports et les rapports sociaux",
-        "elle modifie le travail, les villes, les transports et les rapports sociaux",
-        "transformation du travail des villes des transports et des rapports sociaux"
-      ],
-      "distractors": [
-        "elle supprime les villes",
-        "elle fait disparaître tout commerce",
-        "elle maintient exactement les mêmes modes de vie",
-        "elle empêche l'essor des transports"
       ]
     },
     {
@@ -48488,28 +48125,6 @@
         "produire tous les mouvements",
         "fabriquer les os",
         "transporter uniquement l'oxygène"
-      ]
-    },
-    {
-      "id": "4e-sci-046",
-      "level": "4ème",
-      "subject": "Sciences",
-      "difficulty": 3,
-      "prompt": "Pourquoi la vaccination peut-elle protéger contre certaines maladies infectieuses ?",
-      "answer": "mémoire immunitaire",
-      "accepted": [
-        "mémoire immunitaire",
-        "elle prepare le systeme immunitaire a reconnaitre plus rapidement un agent pathogene",
-        "elle prépare le système immunitaire à reconnaître plus rapidement un agent pathogène",
-        "elle prepare le systeme immunitaire",
-        "elle prépare le système immunitaire",
-        "memoire immunitaire"
-      ],
-      "distractors": [
-        "elle détruit tous les microbes de la planète",
-        "elle remplace définitivement le système immunitaire",
-        "elle empêche toute mutation",
-        "elle agit comme un antibiotique contre tous les virus"
       ]
     },
     {
@@ -49252,28 +48867,6 @@
       ]
     },
     {
-      "id": "3e-geo-041",
-      "level": "3ème",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi les régions frontalières peuvent-elles développer des coopérations transfrontalières ?",
-      "answer": "coopérations communes",
-      "accepted": [
-        "coopérations communes",
-        "pour gerer ensemble des services et projets communs",
-        "pour gérer ensemble des services et projets communs",
-        "cooperer sur des projets communs",
-        "coopérer sur des projets communs",
-        "cooperations communes"
-      ],
-      "distractors": [
-        "pour fermer tous les passages",
-        "pour supprimer les transports",
-        "pour interdire tout travail de l'autre côté de la frontière",
-        "pour éviter toute coordination"
-      ]
-    },
-    {
       "id": "3e-geo-042",
       "level": "3ème",
       "subject": "Géographie",
@@ -49331,49 +48924,6 @@
         "uniquement les barrages",
         "uniquement les frontières fermées",
         "aucune infrastructure"
-      ]
-    },
-    {
-      "id": "3e-geo-045",
-      "level": "3ème",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi les politiques européennes peuvent-elles soutenir certains territoires ?",
-      "answer": "cohésion territoriale",
-      "accepted": [
-        "cohésion territoriale",
-        "pour favoriser la cohesion et reduire des ecarts de developpement",
-        "pour favoriser la cohésion et réduire des écarts de développement",
-        "reduire les ecarts de developpement",
-        "réduire les écarts de développement",
-        "cohesion territoriale"
-      ],
-      "distractors": [
-        "pour augmenter systématiquement les inégalités",
-        "pour supprimer toutes les régions",
-        "pour interdire les investissements",
-        "pour empêcher les transports"
-      ]
-    },
-    {
-      "id": "3e-geo-046",
-      "level": "3ème",
-      "subject": "Géographie",
-      "difficulty": 3,
-      "prompt": "Pourquoi dit-on que le territoire français est à la fois intégré à l'Europe et ouvert sur le monde ?",
-      "answer": "connexion multiscalaire",
-      "accepted": [
-        "connexion multiscalaire",
-        "il est connecte a de nombreux reseaux flux et organisations a plusieurs echelles",
-        "il est connecté à de nombreux réseaux, flux et organisations à plusieurs échelles",
-        "connexion aux reseaux et flux europeens et mondiaux",
-        "il est connecte a de nombreux reseaux, flux et organisations a plusieurs echelles"
-      ],
-      "distractors": [
-        "il ne commerce qu'avec ses voisins",
-        "il est isolé des flux mondiaux",
-        "tous ses territoires ont le même rôle",
-        "il ne possède aucun littoral"
       ]
     },
     {
@@ -49658,29 +49208,6 @@
       ]
     },
     {
-      "id": "3e-sci-039",
-      "level": "3ème",
-      "subject": "Sciences",
-      "difficulty": 2,
-      "prompt": "Pourquoi les antibiotiques ne soignent-ils pas une infection virale comme la grippe ?",
-      "answer": "cible bactérienne",
-      "accepted": [
-        "cible bactérienne",
-        "ils agissent contre les bacteries pas contre les virus",
-        "ils agissent contre les bactéries, pas contre les virus",
-        "les antibiotiques agissent sur les bacteries",
-        "les antibiotiques agissent sur les bactéries",
-        "cible bacterienne",
-        "ils agissent contre les bacteries, pas contre les virus"
-      ],
-      "distractors": [
-        "les virus sont toujours trop gros",
-        "les antibiotiques ne fonctionnent jamais",
-        "la grippe est une maladie génétique",
-        "les antibiotiques ne pénètrent pas dans le sang"
-      ]
-    },
-    {
       "id": "3e-sci-040",
       "level": "3ème",
       "subject": "Sciences",
@@ -49699,26 +49226,6 @@
         "détruire tous les microbes du corps pour toujours",
         "agir comme un antibiotique universel",
         "modifier le groupe sanguin"
-      ]
-    },
-    {
-      "id": "3e-sci-041",
-      "level": "3ème",
-      "subject": "Sciences",
-      "difficulty": 3,
-      "prompt": "Pourquoi la fragmentation des habitats peut-elle réduire la biodiversité ?",
-      "answer": "isolement des populations",
-      "accepted": [
-        "elle isole les populations et reduit leurs possibilites de deplacement et de reproduction",
-        "elle isole les populations et réduit leurs possibilités de déplacement et de reproduction",
-        "isolement des populations",
-        "elle isole les populations"
-      ],
-      "distractors": [
-        "elle crée toujours de nouvelles espèces immédiatement",
-        "elle augmente automatiquement toutes les populations",
-        "elle n'a aucun effet écologique",
-        "elle supprime toute sélection naturelle"
       ]
     },
     {
@@ -49785,19 +49292,17 @@
       "level": "3ème",
       "subject": "Anglais",
       "difficulty": 2,
-      "prompt": "Dans « In my view, this policy is unfair », quels mots introduisent l'opinion ?",
-      "answer": "In my view",
+      "prompt": "Que signifie « to be aware of » ?",
+      "answer": "être conscient de",
       "accepted": [
-        "In my view",
-        "in my view this policy is unfair",
-        "in my view, this policy is unfair",
-        "in my view, this policy is unfair."
+        "etre conscient de",
+        "conscient de"
       ],
       "distractors": [
-        "According to",
-        "For example",
-        "As a result",
-        "In addition"
+        "être fier de",
+        "avoir peur de",
+        "se souvenir de",
+        "avoir besoin de"
       ]
     },
     {
@@ -49939,19 +49444,16 @@
       "level": "3ème",
       "subject": "Anglais",
       "difficulty": 3,
-      "prompt": "Quel connecteur introduit la concession dans « Although the plan is expensive... » ?",
-      "answer": "Although",
+      "prompt": "Quel connecteur complète : « It was raining, ___ we stayed home » ?",
+      "answer": "so",
       "accepted": [
-        "Although",
-        "although the plan is expensive i think it is necessary",
-        "although the plan is expensive, i think it is necessary",
-        "although the plan is expensive, i think it is necessary."
+        "so"
       ],
       "distractors": [
-        "Because",
-        "Therefore",
-        "Since",
-        "So"
+        "but",
+        "unless",
+        "whereas",
+        "despite"
       ]
     },
     {
@@ -50080,16 +49582,17 @@
       "level": "2nde",
       "subject": "Français",
       "difficulty": 2,
-      "prompt": "Dans « Personne ne répond », quel mot porte principalement la négation ?",
-      "answer": "personne",
+      "prompt": "Dans « Il ne viendra jamais », quels mots forment la négation ?",
+      "answer": "ne jamais",
       "accepted": [
-        "personne"
+        "ne jamais",
+        "ne... jamais"
       ],
       "distractors": [
-        "répond",
-        "ne uniquement",
-        "la terminaison du verbe",
-        "aucun mot"
+        "ne pas",
+        "ne plus",
+        "ne rien",
+        "ne guère"
       ]
     },
     {
@@ -50508,44 +50011,21 @@
       ]
     },
     {
-      "id": "2nde-geo-039",
-      "level": "2nde",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi les grandes métropoles sont-elles des nœuds majeurs de mobilité ?",
-      "answer": "nœuds de transport",
-      "accepted": [
-        "nœuds de transport",
-        "elles concentrent des reseaux et des infrastructures de transport",
-        "elles concentrent des réseaux et des infrastructures de transport",
-        "reseaux et infrastructures de transport",
-        "réseaux et infrastructures de transport"
-      ],
-      "distractors": [
-        "elles sont toutes isolées",
-        "elles interdisent les déplacements",
-        "elles sont dépourvues d'aéroports",
-        "elles ne reçoivent aucun flux"
-      ]
-    },
-    {
       "id": "2nde-geo-040",
       "level": "2nde",
       "subject": "Géographie",
       "difficulty": 1,
-      "prompt": "Dans quelle partie du continent africain se situe l'Afrique australe ?",
-      "answer": "sud de l'Afrique",
+      "prompt": "Quel désert s'étend sur une large part du Botswana et de la Namibie ?",
+      "answer": "le Kalahari",
       "accepted": [
-        "sud de l'Afrique",
-        "au sud de l afrique",
-        "au sud de l'Afrique",
-        "en afrique australe"
+        "kalahari",
+        "le kalahari"
       ],
       "distractors": [
-        "au nord de l'Afrique",
-        "à l'ouest de l'Europe",
-        "en Asie centrale",
-        "en Amérique du Sud"
+        "le Sahara",
+        "le Ténéré",
+        "le Danakil",
+        "le Karoo"
       ]
     },
     {
@@ -50588,30 +50068,6 @@
       ]
     },
     {
-      "id": "2nde-geo-043",
-      "level": "2nde",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi les ressources minières jouent-elles un rôle important en Afrique australe ?",
-      "answer": "exportations minières",
-      "accepted": [
-        "exportations minières",
-        "elles participent fortement aux exportations et a l economie de plusieurs etats",
-        "elles participent fortement aux exportations et à l'économie de plusieurs États",
-        "elles contribuent aux exportations et a l economie",
-        "elles contribuent aux exportations et à l'économie",
-        "exportations minieres",
-        "elles participent fortement aux exportations et a l'economie de plusieurs Etats",
-        "elles contribuent aux exportations et a l'economie"
-      ],
-      "distractors": [
-        "elles ne sont jamais exploitées",
-        "elles servent uniquement à l'agriculture",
-        "elles empêchent tout commerce extérieur",
-        "elles rendent la région indépendante de tous les marchés mondiaux"
-      ]
-    },
-    {
       "id": "2nde-geo-044",
       "level": "2nde",
       "subject": "Géographie",
@@ -50628,29 +50084,6 @@
         "la guerre froide uniquement",
         "la construction européenne",
         "la féodalité"
-      ]
-    },
-    {
-      "id": "2nde-geo-045",
-      "level": "2nde",
-      "subject": "Géographie",
-      "difficulty": 3,
-      "prompt": "Pourquoi l'Afrique australe illustre-t-elle les défis contemporains du développement ?",
-      "answer": "développement contrasté",
-      "accepted": [
-        "développement contrasté",
-        "elle combine croissance fortes inegalites mobilites et pressions environnementales",
-        "elle combine croissance, fortes inégalités, mobilités et pressions environnementales",
-        "croissance inegalites mobilites environnement",
-        "croissance inégalités mobilités environnement",
-        "developpement contraste",
-        "elle combine croissance, fortes inegalites, mobilites et pressions environnementales"
-      ],
-      "distractors": [
-        "elle ne connaît aucune urbanisation",
-        "elle est totalement coupée de la mondialisation",
-        "elle ne possède aucune ressource",
-        "tous ses territoires ont le même niveau de développement"
       ]
     },
     {
@@ -50968,28 +50401,6 @@
       ]
     },
     {
-      "id": "2nde-sci-042",
-      "level": "2nde",
-      "subject": "Sciences",
-      "difficulty": 2,
-      "prompt": "Pourquoi apporte-t-on parfois des engrais minéraux dans un agrosystème ?",
-      "answer": "apport minéral",
-      "accepted": [
-        "apport minéral",
-        "pour fournir aux plantes des elements mineraux necessaires a leur croissance",
-        "pour fournir aux plantes des éléments minéraux nécessaires à leur croissance",
-        "apporter des elements mineraux aux plantes",
-        "apporter des éléments minéraux aux plantes",
-        "apport mineral"
-      ],
-      "distractors": [
-        "pour supprimer toute photosynthèse",
-        "pour empêcher les racines d'absorber l'eau",
-        "pour transformer le sol en roche",
-        "pour éliminer tout organisme du sol"
-      ]
-    },
-    {
       "id": "2nde-sci-043",
       "level": "2nde",
       "subject": "Sciences",
@@ -51046,28 +50457,6 @@
         "les hormones",
         "les nutriments",
         "les chromosomes"
-      ]
-    },
-    {
-      "id": "2nde-sci-046",
-      "level": "2nde",
-      "subject": "Sciences",
-      "difficulty": 3,
-      "prompt": "Pourquoi l'usage excessif ou inadapté d'antibiotiques peut-il poser un problème de santé publique ?",
-      "answer": "résistance bactérienne",
-      "accepted": [
-        "résistance bactérienne",
-        "il favorise la selection de bacteries resistantes",
-        "il favorise la sélection de bactéries résistantes",
-        "selection de bacteries resistantes",
-        "sélection de bactéries résistantes",
-        "resistance bacterienne"
-      ],
-      "distractors": [
-        "il rend tous les virus plus gros",
-        "il détruit définitivement le système immunitaire",
-        "il transforme les antibiotiques en vaccins",
-        "il empêche toute mutation bactérienne"
       ]
     },
     {
@@ -51773,27 +51162,6 @@
       ]
     },
     {
-      "id": "1ere-geo-038",
-      "level": "1ère",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi certains espaces ruraux sont-ils attractifs pour de nouveaux habitants ?",
-      "answer": "attractivité rurale",
-      "accepted": [
-        "attractivité rurale",
-        "ils offrent un cadre de vie recherche et peuvent rester connectes aux villes",
-        "ils offrent un cadre de vie recherché et peuvent rester connectés aux villes",
-        "cadre de vie et connexion aux villes",
-        "attractivite rurale"
-      ],
-      "distractors": [
-        "ils sont tous dépourvus de services",
-        "ils interdisent toute activité économique",
-        "ils sont nécessairement isolés",
-        "ils n'accueillent jamais de touristes"
-      ]
-    },
-    {
       "id": "1ere-geo-039",
       "level": "1ère",
       "subject": "Géographie",
@@ -51831,27 +51199,6 @@
         "développer uniquement des autoroutes",
         "supprimer toute agriculture",
         "urbaniser intégralement le territoire"
-      ]
-    },
-    {
-      "id": "1ere-geo-041",
-      "level": "1ère",
-      "subject": "Géographie",
-      "difficulty": 3,
-      "prompt": "Pourquoi les espaces ruraux sont-ils dits fragmentés ?",
-      "answer": "trajectoires rurales différentes",
-      "accepted": [
-        "leurs trajectoires sont tres differentes selon leur accessibilite leurs activites et leur attractivite",
-        "leurs trajectoires sont très différentes selon leur accessibilité, leurs activités et leur attractivité",
-        "trajectoires rurales differentes",
-        "trajectoires rurales différentes",
-        "leurs trajectoires sont tres differentes selon leur accessibilite, leurs activites et leur attractivite"
-      ],
-      "distractors": [
-        "tous les espaces ruraux connaissent la même évolution",
-        "ils sont tous agricoles uniquement",
-        "ils sont tous en déclin démographique",
-        "ils sont tous proches d'une métropole"
       ]
     },
     {
@@ -51893,28 +51240,6 @@
         "le plateau tibétain",
         "les zones frontalières de haute montagne uniquement",
         "le centre rural exclusivement"
-      ]
-    },
-    {
-      "id": "1ere-geo-044",
-      "level": "1ère",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi les métropoles littorales chinoises jouent-elles un rôle majeur ?",
-      "answer": "concentration littorale",
-      "accepted": [
-        "concentration littorale",
-        "elles concentrent population activites ports et investissements",
-        "elles concentrent population, activités, ports et investissements",
-        "population activites ports investissements",
-        "population activités ports investissements",
-        "elles concentrent population, activites, ports et investissements"
-      ],
-      "distractors": [
-        "elles sont coupées des échanges mondiaux",
-        "elles ne possèdent aucune industrie",
-        "elles sont toutes de petite taille",
-        "elles sont dépourvues d'infrastructures"
       ]
     },
     {
@@ -51962,21 +51287,17 @@
       "level": "1ère",
       "subject": "Géographie",
       "difficulty": 3,
-      "prompt": "Pourquoi parle-t-on de recompositions spatiales en Chine ?",
-      "answer": "recompositions spatiales",
+      "prompt": "Quelle ville chinoise abrite la principale place financière du pays ?",
+      "answer": "Shanghai",
       "accepted": [
-        "recompositions spatiales",
-        "la croissance transforme les hierarchies entre littoraux metropoles et espaces interieurs",
-        "la croissance transforme les hiérarchies entre littoraux, métropoles et espaces intérieurs",
-        "transformation des hierarchies territoriales",
-        "transformation des hiérarchies territoriales",
-        "la croissance transforme les hierarchies entre littoraux, metropoles et espaces interieurs"
+        "shanghai",
+        "shangai"
       ],
       "distractors": [
-        "les territoires chinois restent inchangés",
-        "toutes les régions progressent exactement au même rythme",
-        "la Chine n'a aucune mobilité interne",
-        "les littoraux ont perdu tout rôle économique"
+        "Pékin",
+        "Canton",
+        "Shenzhen",
+        "Chengdu"
       ]
     },
     {
@@ -52125,29 +51446,6 @@
       ]
     },
     {
-      "id": "1ere-hist-042",
-      "level": "1ère",
-      "subject": "Histoire",
-      "difficulty": 3,
-      "prompt": "Pourquoi la Première Guerre mondiale bouleverse-t-elle durablement l'Europe ?",
-      "answer": "bouleversement européen",
-      "accepted": [
-        "bouleversement européen",
-        "elle provoque des pertes immenses la chute d empires et de nouvelles frontieres",
-        "elle provoque des pertes immenses, la chute d'empires et de nouvelles frontières",
-        "pertes chute des empires nouvelles frontieres",
-        "pertes chute des empires nouvelles frontières",
-        "bouleversement europeen",
-        "elle provoque des pertes immenses, la chute d'empires et de nouvelles frontieres"
-      ],
-      "distractors": [
-        "elle ne modifie aucune frontière",
-        "elle renforce tous les empires européens",
-        "elle épargne les populations civiles",
-        "elle met fin à tous les nationalismes"
-      ]
-    },
-    {
       "id": "1ere-sci-036",
       "level": "1ère",
       "subject": "Sciences",
@@ -52163,28 +51461,6 @@
         "Galilée",
         "Newton",
         "Copernic"
-      ]
-    },
-    {
-      "id": "1ere-sci-037",
-      "level": "1ère",
-      "subject": "Sciences",
-      "difficulty": 2,
-      "prompt": "Pourquoi voit-on toujours approximativement la même face de la Lune depuis la Terre ?",
-      "answer": "rotation synchronisée",
-      "accepted": [
-        "rotation synchronisée",
-        "sa periode de rotation est egale a sa periode de revolution autour de la terre",
-        "sa période de rotation est égale à sa période de révolution autour de la Terre",
-        "rotation et revolution ont la meme periode",
-        "rotation et révolution ont la même période",
-        "rotation synchronisee"
-      ],
-      "distractors": [
-        "la Lune ne tourne pas sur elle-même",
-        "la Terre ne tourne pas",
-        "la face cachée n'est jamais éclairée",
-        "la Lune est immobile"
       ]
     },
     {
@@ -52255,17 +51531,20 @@
       "level": "1ère",
       "subject": "Sciences",
       "difficulty": 3,
-      "prompt": "Quel élément de la géométrie terrestre explique la variation annuelle de la durée du jour ?",
-      "answer": "axe terrestre",
+      "prompt": "Quelle inclinaison de l'axe terrestre explique l'alternance des saisons ?",
+      "answer": "23,4 degrés",
       "accepted": [
-        "axe terrestre",
-        "l'axe terrestre"
+        "23,4 degres",
+        "23,5 degres",
+        "23 degres",
+        "23,4",
+        "23,5"
       ],
       "distractors": [
-        "orbite lunaire",
-        "marées océaniques",
-        "rotation solaire",
-        "champ magnétique"
+        "0 degré",
+        "45 degrés",
+        "66,5 degrés",
+        "90 degrés"
       ]
     },
     {
@@ -52363,26 +51642,6 @@
         "de rendre le son toujours plus grave",
         "de diminuer obligatoirement la taille du fichier",
         "de transformer le son en lumière"
-      ]
-    },
-    {
-      "id": "1ere-sci-047",
-      "level": "1ère",
-      "subject": "Sciences",
-      "difficulty": 3,
-      "prompt": "Pourquoi deux instruments jouant la même note peuvent-ils être distingués à l'oreille ?",
-      "answer": "leurs harmoniques diffèrent",
-      "accepted": [
-        "leurs spectres et leurs harmoniques different",
-        "leurs spectres et leurs harmoniques diffèrent",
-        "leurs harmoniques different",
-        "leurs harmoniques diffèrent"
-      ],
-      "distractors": [
-        "ils jouent forcément des fréquences fondamentales différentes",
-        "l'un des deux ne produit aucune onde",
-        "leur vitesse de propagation dans l'air est différente",
-        "la gravité agit différemment sur chaque instrument"
       ]
     },
     {
@@ -52790,27 +52049,6 @@
       ]
     },
     {
-      "id": "term-fr-045",
-      "level": "Terminale",
-      "subject": "Français",
-      "difficulty": 2,
-      "prompt": "Pourquoi le temps constitue-t-il un problème philosophique ?",
-      "answer": "changement durée finitude",
-      "accepted": [
-        "parce qu il engage notre experience du changement de la duree et de la finitude",
-        "parce qu'il engage notre expérience du changement, de la durée et de la finitude",
-        "changement duree finitude",
-        "changement durée finitude",
-        "parce qu'il engage notre experience du changement, de la duree et de la finitude"
-      ],
-      "distractors": [
-        "parce qu'il se réduit uniquement à l'heure légale",
-        "parce qu'il ne concerne que la physique",
-        "parce qu'il n'a aucun rapport avec l'existence",
-        "parce qu'il est toujours vécu de la même manière"
-      ]
-    },
-    {
       "id": "term-fr-046",
       "level": "Terminale",
       "subject": "Français",
@@ -52849,28 +52087,6 @@
         "de dire si l'on aime le texte",
         "de résumer chaque phrase sans lien logique",
         "de remplacer le texte par son propre cours"
-      ]
-    },
-    {
-      "id": "term-fr-048",
-      "level": "Terminale",
-      "subject": "Français",
-      "difficulty": 3,
-      "prompt": "Pourquoi une thèse philosophique doit-elle être argumentée ?",
-      "answer": "justification rationnelle",
-      "accepted": [
-        "justification rationnelle",
-        "parce qu elle doit pouvoir etre examinee rationnellement et justifiee",
-        "parce qu'elle doit pouvoir être examinée rationnellement et justifiée",
-        "pour etre justifiee rationnellement",
-        "pour être justifiée rationnellement",
-        "parce qu'elle doit pouvoir etre examinee rationnellement et justifiee"
-      ],
-      "distractors": [
-        "parce qu'une opinion personnelle suffit toujours",
-        "parce qu'une autorité la rend automatiquement vraie",
-        "parce que les exemples remplacent tout raisonnement",
-        "parce qu'une thèse philosophique ne peut jamais être discutée"
       ]
     },
     {
@@ -53020,18 +52236,17 @@
       "level": "Terminale",
       "subject": "Mathématiques",
       "difficulty": 2,
-      "prompt": "Dans l'espace, un vecteur normal à un plan est...",
-      "answer": "normal au plan",
+      "prompt": "Dans l'espace, comment appelle-t-on un vecteur orthogonal à tous les vecteurs d'un plan ?",
+      "answer": "un vecteur normal",
       "accepted": [
-        "perpendiculaire a toutes les directions du plan",
-        "perpendiculaire à toutes les directions du plan",
-        "normal au plan"
+        "vecteur normal",
+        "un vecteur normal"
       ],
       "distractors": [
-        "parallèle à toutes les droites du plan",
-        "contenu dans le plan obligatoirement",
-        "de norme nulle",
-        "toujours vertical"
+        "un vecteur directeur",
+        "un vecteur unitaire",
+        "un vecteur nul",
+        "un vecteur colinéaire"
       ]
     },
     {
@@ -53153,29 +52368,6 @@
       ]
     },
     {
-      "id": "term-geo-036",
-      "level": "Terminale",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi l'Union européenne est-elle un pôle majeur de la mondialisation ?",
-      "answer": "puissance économique",
-      "accepted": [
-        "puissance économique",
-        "elle concentre une forte puissance economique commerciale et reglementaire",
-        "elle concentre une forte puissance économique, commerciale et réglementaire",
-        "puissance economique commerciale reglementaire",
-        "puissance économique commerciale réglementaire",
-        "puissance economique",
-        "elle concentre une forte puissance economique, commerciale et reglementaire"
-      ],
-      "distractors": [
-        "elle est totalement isolée des échanges",
-        "elle n'a aucune métropole mondiale",
-        "elle ne participe pas au commerce international",
-        "elle ne produit aucune norme"
-      ]
-    },
-    {
       "id": "term-geo-037",
       "level": "Terminale",
       "subject": "Géographie",
@@ -53217,28 +52409,6 @@
       ]
     },
     {
-      "id": "term-geo-039",
-      "level": "Terminale",
-      "subject": "Géographie",
-      "difficulty": 3,
-      "prompt": "Pourquoi l'Union européenne peut-elle être à la fois un espace de coopération et de tensions ?",
-      "answer": "intérêts divergents",
-      "accepted": [
-        "intérêts divergents",
-        "les etats partagent des politiques communes mais conservent des interets et des priorites differents",
-        "les États partagent des politiques communes mais conservent des intérêts et des priorités différents",
-        "politiques communes et interets nationaux",
-        "politiques communes et intérêts nationaux",
-        "interets divergents"
-      ],
-      "distractors": [
-        "les États ont abandonné toute souveraineté",
-        "aucun désaccord n'existe entre membres",
-        "l'Union ne mène aucune politique commune",
-        "les frontières intérieures sont toutes fermées"
-      ]
-    },
-    {
       "id": "term-geo-040",
       "level": "Terminale",
       "subject": "Géographie",
@@ -53259,25 +52429,6 @@
       ]
     },
     {
-      "id": "term-geo-041",
-      "level": "Terminale",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi Paris joue-t-elle un rôle majeur dans l'intégration mondiale de la France ?",
-      "answer": "fonctions de commandement",
-      "accepted": [
-        "fonctions de commandement",
-        "elle concentre des fonctions de commandement nationales et internationales",
-        "fonctions de commandement nationales et internationales"
-      ],
-      "distractors": [
-        "elle est la seule ville française",
-        "elle ne possède aucun aéroport international",
-        "elle concentre toute l'agriculture française",
-        "elle est isolée des réseaux européens"
-      ]
-    },
-    {
       "id": "term-geo-042",
       "level": "Terminale",
       "subject": "Géographie",
@@ -53295,67 +52446,6 @@
         "la décolonisation",
         "la féodalité",
         "la sédentarisation"
-      ]
-    },
-    {
-      "id": "term-geo-043",
-      "level": "Terminale",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi les régions frontalières françaises peuvent-elles être des espaces d'intégration européenne ?",
-      "answer": "coopérations transfrontalières",
-      "accepted": [
-        "elles developpent des mobilites et des cooperations transfrontalieres",
-        "elles développent des mobilités et des coopérations transfrontalières",
-        "cooperations transfrontalieres",
-        "coopérations transfrontalières"
-      ],
-      "distractors": [
-        "elles sont toutes fermées aux échanges",
-        "elles interdisent le travail transfrontalier",
-        "elles n'ont aucun réseau de transport",
-        "elles ne participent à aucun projet européen"
-      ]
-    },
-    {
-      "id": "term-geo-044",
-      "level": "Terminale",
-      "subject": "Géographie",
-      "difficulty": 2,
-      "prompt": "Pourquoi certains territoires français sont-ils moins intégrés aux grands flux ?",
-      "answer": "accessibilité plus faible",
-      "accepted": [
-        "leur accessibilite et leur connexion aux reseaux peuvent etre plus faibles",
-        "leur accessibilité et leur connexion aux réseaux peuvent être plus faibles",
-        "accessibilite plus faible",
-        "accessibilité plus faible"
-      ],
-      "distractors": [
-        "ils sont nécessairement interdits d'investissement",
-        "ils n'ont aucun habitant",
-        "ils sont tous hors de l'Union européenne",
-        "ils ne disposent d'aucune route"
-      ]
-    },
-    {
-      "id": "term-geo-045",
-      "level": "Terminale",
-      "subject": "Géographie",
-      "difficulty": 3,
-      "prompt": "Pourquoi la mondialisation recompose-t-elle les territoires français à plusieurs échelles ?",
-      "answer": "recomposition territoriale",
-      "accepted": [
-        "recomposition territoriale",
-        "elle renforce certains poles et reseaux tout en accentuant ou transformant des contrastes territoriaux",
-        "elle renforce certains pôles et réseaux tout en accentuant ou transformant des contrastes territoriaux",
-        "renforcement des poles et recomposition des contrastes",
-        "renforcement des pôles et recomposition des contrastes"
-      ],
-      "distractors": [
-        "elle rend tous les territoires identiques",
-        "elle supprime toute hiérarchie urbaine",
-        "elle met fin à toutes les mobilités",
-        "elle élimine les différences d'accessibilité"
       ]
     },
     {
@@ -53444,28 +52534,6 @@
       "numeric": true
     },
     {
-      "id": "term-hist-038",
-      "level": "Terminale",
-      "subject": "Histoire",
-      "difficulty": 3,
-      "prompt": "Pourquoi les années 1970-1991 constituent-elles une période de recomposition ?",
-      "answer": "recomposition mondiale",
-      "accepted": [
-        "recomposition mondiale",
-        "les crises economiques les mutations sociales et l affaiblissement du bloc sovietique modifient les equilibres",
-        "les crises économiques, les mutations sociales et l'affaiblissement du bloc soviétique modifient les équilibres",
-        "crises mutations sociales affaiblissement sovietique",
-        "crises mutations sociales affaiblissement soviétique",
-        "les crises economiques, les mutations sociales et l'affaiblissement du bloc sovietique modifient les equilibres"
-      ],
-      "distractors": [
-        "le monde reste totalement inchangé",
-        "la guerre froide disparaît dès 1970",
-        "tous les États adoptent le même modèle économique",
-        "aucun mouvement social ne se développe"
-      ]
-    },
-    {
       "id": "term-hist-039",
       "level": "Terminale",
       "subject": "Histoire",
@@ -53547,28 +52615,6 @@
       ]
     },
     {
-      "id": "term-hist-043",
-      "level": "Terminale",
-      "subject": "Histoire",
-      "difficulty": 3,
-      "prompt": "Pourquoi les relations internationales depuis les années 1990 sont-elles difficiles à réduire à un seul modèle ?",
-      "answer": "monde complexe",
-      "accepted": [
-        "monde complexe",
-        "elles combinent cooperation rivalites de puissances conflits regionaux et nouveaux acteurs",
-        "elles combinent coopération, rivalités de puissances, conflits régionaux et nouveaux acteurs",
-        "cooperation rivalites conflits nouveaux acteurs",
-        "coopération rivalités conflits nouveaux acteurs",
-        "elles combinent cooperation, rivalites de puissances, conflits regionaux et nouveaux acteurs"
-      ],
-      "distractors": [
-        "un seul État contrôle toutes les relations internationales",
-        "les organisations internationales ont disparu",
-        "les conflits ont cessé",
-        "les acteurs non étatiques n'existent plus"
-      ]
-    },
-    {
       "id": "term-sci-037",
       "level": "Terminale",
       "subject": "Sciences",
@@ -53625,28 +52671,6 @@
         "la combustion du carbone uniquement",
         "la photosynthèse",
         "la radioactivité naturelle de l'air"
-      ]
-    },
-    {
-      "id": "term-sci-040",
-      "level": "Terminale",
-      "subject": "Sciences",
-      "difficulty": 3,
-      "prompt": "Pourquoi un choix énergétique ne peut-il pas être évalué uniquement par son rendement ?",
-      "answer": "impacts multiples",
-      "accepted": [
-        "impacts multiples",
-        "il faut aussi considerer ressources emissions risques couts et impacts environnementaux",
-        "il faut aussi considérer ressources, émissions, risques, coûts et impacts environnementaux",
-        "considerer aussi les impacts et les ressources",
-        "considérer aussi les impacts et les ressources",
-        "il faut aussi considerer ressources, emissions, risques, couts et impacts environnementaux"
-      ],
-      "distractors": [
-        "le rendement détermine à lui seul tous les effets sociaux",
-        "les impacts environnementaux sont toujours nuls",
-        "le coût n'a jamais d'importance",
-        "toutes les sources ont les mêmes contraintes"
       ]
     },
     {
@@ -53794,29 +52818,6 @@
       ]
     },
     {
-      "id": "term-sci-048",
-      "level": "Terminale",
-      "subject": "Sciences",
-      "difficulty": 3,
-      "prompt": "Pourquoi les performances d'un système d'intelligence artificielle dépendent-elles fortement des données d'entraînement ?",
-      "answer": "données biaisées",
-      "accepted": [
-        "données biaisées",
-        "les biais et la representativite des donnees influencent ce que le systeme apprend",
-        "les biais et la représentativité des données influencent ce que le système apprend",
-        "les donnees d entrainement influencent le modele",
-        "les données d'entraînement influencent le modèle",
-        "donnees biaisees",
-        "les donnees d'entrainement influencent le modele"
-      ],
-      "distractors": [
-        "un algorithme apprend sans données",
-        "les données n'ont aucun effet sur les résultats",
-        "tout jeu de données produit exactement le même modèle",
-        "l'intelligence artificielle ne fait jamais d'erreur"
-      ]
-    },
-    {
       "id": "term-angl-037",
       "level": "Terminale",
       "subject": "Anglais",
@@ -53878,19 +52879,17 @@
       "level": "Terminale",
       "subject": "Anglais",
       "difficulty": 3,
-      "prompt": "Quel connecteur introduit la concession dans « While the campaign was effective... » ?",
-      "answer": "While",
+      "prompt": "Que signifie « to bridge the gap » ?",
+      "answer": "combler l'écart",
       "accepted": [
-        "While",
-        "while the campaign was effective its message remained controversial",
-        "while the campaign was effective, its message remained controversial",
-        "while the campaign was effective, its message remained controversial."
+        "combler l ecart",
+        "combler le fosse"
       ],
       "distractors": [
-        "Because",
-        "Therefore",
-        "Since",
-        "Unless"
+        "creuser l'écart",
+        "changer d'avis",
+        "prendre du retard",
+        "faire le tri"
       ]
     },
     {
@@ -54052,8 +53051,7 @@
       ]
     }
   ]
-}
-;</script>
+};</script>
 <script>var RELAX = {
   "version": "0.2.0",
   "themes": [
@@ -71754,7 +70752,7 @@
   "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbnVpZ2J0c3loZHpsaXBuZ29sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMTEyNTMsImV4cCI6MjEwMDg4NzI1M30.eEw1D1Nbdu7LPSGbXScZICuA2Pj4WGiLnOHC_o_pJ3M"
 }
 ;</script>
-<script>var BUILD = {"version":"3a5d509","date":"2026-08-08 12:24"};</script>
+<script>var BUILD = {"version":"908c7e5","date":"2026-08-08 14:30"};</script>
 <script>
 (function () {
   'use strict';
@@ -71986,7 +70984,12 @@
   }
   function mapSvg(pawn) {
     var upTo = anim ? Math.min(anim.from, anim.to) : (game ? Math.min(game.levelIndex, ALL_LEVELS.length) : 0);
-    var s = '<svg viewBox="0 0 308 340" xmlns="http://www.w3.org/2000/svg">' + landscape();
+    // fond de carte : l'illustration remplace le paysage dessiné, dont la grille de cases
+    // et l'étang avaient servi de gabarit. « href » et « xlink:href » pour les vieux moteurs.
+    var s = '<svg viewBox="0 0 308 340" xmlns="http://www.w3.org/2000/svg" ' +
+      'xmlns:xlink="http://www.w3.org/1999/xlink">' +
+      '<image href="img/carte.jpg" xlink:href="img/carte.jpg" x="0" y="0" width="308" height="340" ' +
+      'preserveAspectRatio="xMidYMid slice"/>';
     for (var i = 0; i < upTo; i++) s += pathSeg(i, 1);
     if (anim) s += '<g id="growing">' + pathSeg(Math.min(anim.from, anim.to), anim.phase === 'path' ? anim.t : 1) + '</g>';
     for (i = 0; i <= Math.min(upTo, ALL_LEVELS.length - 1); i++) s += nodeTile(i);
@@ -72104,9 +71107,8 @@
     app.innerHTML =
       '<div class="card center">' + infoBtn() +
         '<div class="title-wrap">' +
-          '<div class="game-title">Le Quizz</div>' +
-          '<h1 class="game-title-main">DU <span>BAC</span></h1>' +
-          '<div class="scene">' + classroom() + '</div>' +
+          // le titre est peint sur le tableau de l'illustration : l'écrire deux fois ferait doublon
+          scenePortail() +
           '<p class="muted" style="margin:14px 0 0">Du CP à la Terminale.<br>Réponds vite, réponds juste.</p>' +
           '<button class="btn go" id="start">Commencer</button>' +
           (slotLabel() ? '<button class="btn resume" id="resume">Reprendre<br><small style="font-weight:600">' +
@@ -72116,10 +71118,39 @@
     document.getElementById('info').onclick = openRules;
     document.getElementById('start').onclick = function () {
       audio();                       // premier geste : le son est débloqué
-      vortex(function () { view = 'modes'; render(); });
+      var suite = function () { view = 'modes'; render(); };
+      var b = document.getElementById('start');
+      if (b) b.disabled = true;
+      // l'animation du portail remplace l'ancien vortex dessiné ; si le pack n'est pas
+      // chargé (test hors navigateur), on retombe sur l'ancienne transition
+      if (typeof window.playBacPortalAnimation === 'function') {
+        sfx.vortex();
+        window.playBacPortalAnimation('#bacPortalScene').then(suite, suite);
+      } else {
+        vortex(suite);
+      }
     };
     var rz = document.getElementById('resume');
     if (rz) rz.onclick = function () { audio(); resumeGame(); };
+  }
+
+  /* Scène du portail : la classe, le vortex qui s'ouvre dans le tableau, et le héros aspiré.
+   * Le balisage est celui attendu par portail.js — ne pas renommer les classes. */
+  function scenePortail() {
+    return '<div id="bacPortalScene" class="bac-portal-scene">' +
+        '<img class="bac-scene-bg" src="img/classe.jpg" alt="Salle de classe du Quizz du BAC">' +
+        '<div class="bac-magic-light"></div>' +
+        '<div class="bac-portal" aria-hidden="true">' +
+          '<div class="bac-world-window"><img src="img/monde.jpg" alt=""></div>' +
+          '<div class="bac-portal-core"></div>' +
+          '<img class="bac-vortex-ring" src="img/vortex.png" alt="">' +
+          '<div class="bac-sparks"></div>' +
+        '</div>' +
+        '<div class="bac-dust"></div>' +
+        '<div class="bac-fragments" aria-hidden="true"></div>' +   // sans lui, aucune fragmentation
+        '<img class="bac-character" src="img/personnage.png" alt="Le héros du jeu">' +
+        '<div class="bac-flash"></div>' +
+      '</div>';
   }
 
   /** Décrit la partie mise de côté : « Quizz BAC — CM2, 34 points ». */
@@ -72512,18 +71543,18 @@
           (p.pausePenalty || E.CONFIG.pausePenaltySeconds) +
           ' secondes</b> de temps de jeu' + (p.pauses > 1 ? ' · ' + p.pauses + ' pauses au total' : '') +
           '. Le classement départage les scores égaux au temps.</div>' +
-        '<button class="choice go" id="p-resume"><b>▶ Continuer à jouer</b>' +
+        '<button class="choice pause-tuile continuer" id="p-resume"><b>Continuer à jouer</b>' +
           '<small>Le chrono reprend où tu l\'as laissé : ' + Math.ceil(game.timeLeft) + ' s.</small></button>' +
         (game.defi ? '' :
-          '<button class="choice save" id="p-save"><b>💾 M\'arrêter ici</b>' +
-          '<small>Ta partie est mise de côté, chrono compris : tu la reprendras depuis l\'accueil.</small></button>' +
-          '<button class="choice pub" id="p-publish"><b>🏆 Publier mon score</b>' +
-          '<small>Ton score de ' + game.score + ' points rejoint le classement' +
-          (game.mode === 'detente' ? '' : ' de la classe ' + esc(p.level)) + ', et la partie s\'arrête.</small></button>' +
-          '<button class="choice again" id="p-restart"><b>↻ Recommencer</b>' +
-          '<small>Une nouvelle partie ' + (game.mode === 'detente' ? 'détente' : 'du CP au BAC') +
-          ', tout de suite. La partie en cours est perdue.</small></button>') +
-        '<button class="choice quit" id="p-quit"><b>✕ Abandonner</b>' +
+          '<button class="choice pause-tuile reprendre" id="p-save"><b>Reprendre plus tard</b>' +
+          '<small>Mise de côté, chrono compris. À reprendre depuis l\'accueil.</small></button>' +
+          '<button class="choice pause-tuile publier" id="p-publish"><b>Publier mon score</b>' +
+          '<small>Tes ' + game.score + ' points rejoignent le classement' +
+          (game.mode === 'detente' ? '' : ' de ' + esc(p.level)) + '. La partie s\'arrête.</small></button>' +
+          '<button class="choice pause-tuile recommencer" id="p-restart"><b>Recommencer</b>' +
+          '<small>Une partie ' + (game.mode === 'detente' ? 'détente' : 'du CP au BAC') +
+          ' tout de suite ; celle-ci est perdue.</small></button>') +
+        '<button class="choice pause-tuile abandonner" id="p-quit"><b>Abandonner</b>' +
           '<small>' + (game.defi
             ? 'Abandonner un défi, c\'est le perdre.'
             : 'Retour à l\'accueil sans enregistrer ni sauvegarder.') + '</small></button>' +
@@ -72829,12 +71860,12 @@
         '<p class="center muted" style="margin-top:0">Mode détente · 30 questions · ' +
           'la même liste pour les deux joueurs</p>' +
 
-        '<button class="choice go" id="d-lancer"><b>⚔ Défier un joueur</b>' +
-          '<small>Tu joues d\'abord, ton adversaire relève ensuite.</small></button>' +
+        '<button class="choice defi-tuile lancer" id="d-lancer"><b>Défier un joueur</b>' +
+          '<small>Tu joues d\'abord, il relève ensuite.</small></button>' +
 
-        '<button class="choice save" id="d-relever"' + (recus.length ? '' : ' disabled') + '>' +
-          '<b>🛡 Relever un défi' + (recus.length ? ' (' + recus.length + ')' : '') + '</b>' +
-          '<small>' + (recus.length ? 'On t\'attend au tournant.' : 'Aucun défi reçu pour l\'instant.') +
+        '<button class="choice defi-tuile relever" id="d-relever"' + (recus.length ? '' : ' disabled') + '>' +
+          '<b>Relever un défi' + (recus.length ? ' (' + recus.length + ')' : '') + '</b>' +
+          '<small>' + (recus.length ? 'On t\'attend au tournant.' : 'Aucun défi pour l\'instant.') +
           '</small></button>' +
 
         (resultats.length ? '<div class="rank-head">Résultats</div>' +

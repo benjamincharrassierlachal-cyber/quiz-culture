@@ -216,7 +216,8 @@
   .acc .num{color:var(--muted); font-weight:700}
 
   /* bouton « i » et page des règles */
-  .info{position:absolute; right:12px; top:12px; width:34px; height:34px; padding:0;
+  /* z-index élevé : les calques de l'animation du portail montent jusqu'à 9 et masquaient le « i » */
+  .info{position:absolute; right:12px; top:12px; width:34px; height:34px; padding:0; z-index:20;
         display:flex; align-items:center; justify-content:center; color:var(--ink); opacity:.75}
   .info svg{width:26px; height:26px}
   .info:active{transform:translateY(1px)}
@@ -282,6 +283,40 @@
     animation:pastillePop .5s ease-out both}
   .pastille.verte{color:#1f7a45}
   @keyframes pastillePop{from{transform:scale(0)}70%{transform:scale(1.25)}to{transform:scale(1)}}
+  /*__PORTAIL_CSS__*/
+
+  /* le bouton des règles occupe le coin haut droit de la carte : on descend la scène
+     juste assez pour qu'il repose entièrement sur le fond clair */
+  .title-wrap .bac-portal-scene{margin-top:34px; border-radius:12px}
+
+  /* tuiles illustrées de la page des défis : le dessin occupe le tiers gauche,
+     le texte se cale à sa droite et reste sombre — les illustrations sont claires */
+  /* tuiles illustrées du menu pause : titre centré en haut, description en bas à gauche */
+  .pause-tuile{position:relative; min-height:122px; padding:0; overflow:hidden;
+    border-radius:18px; background-size:cover; background-position:center}
+  /* voile blanc sous la description : les illustrations sont claires mais chargées,
+     et un texte gris s'y perdait. Il ne couvre que la zone du texte. */
+  .pause-tuile::after{content:''; position:absolute; left:25%; right:0; bottom:0; height:42%;
+    background:linear-gradient(rgba(255,255,255,0), rgba(255,255,255,.82) 55%); pointer-events:none}
+  /* les deux textes vivent dans les 75 % de droite, le quart gauche restant au personnage.
+     Le titre est centré dans cette zone, à 60 % de hauteur ; la description à 15 %, alignée à gauche. */
+  .pause-tuile b{position:absolute; left:25%; right:10px; bottom:58%; z-index:2;
+    transform:translateY(50%); text-align:center;
+    font-size:24px; letter-spacing:-.3px; line-height:1.1}
+  .pause-tuile small{position:absolute; left:29%; right:14px; bottom:11%; z-index:2;
+    color:var(--ink); font-weight:600; font-size:12.5px; line-height:1.3; text-align:left}
+  .pause-tuile.continuer{background-image:url(img/continuer.jpg)}
+  .pause-tuile.reprendre{background-image:url(img/reprendre.jpg)}
+  .pause-tuile.publier{background-image:url(img/publier.jpg)}
+  .pause-tuile.recommencer{background-image:url(img/recommencer.jpg)}
+  .pause-tuile.abandonner{background-image:url(img/abandonner.jpg)}
+  .defi-tuile{min-height:112px; display:flex; flex-direction:column; justify-content:center;
+    padding:12px 16px 12px 38%; background-size:cover; background-position:center;
+    background-repeat:no-repeat}
+  .defi-tuile.lancer{background-image:url(img/defier.jpg)}
+  .defi-tuile.relever{background-image:url(img/relever.jpg)}
+  .defi-tuile[disabled]{opacity:.55}
+  .defi-tuile small{color:#5a5170}
   .defi-titre{margin-bottom:6px}
   .defi-titre.gagne{color:#1f9d55}
   .defi-titre.perdu{color:#c0392b}
@@ -322,6 +357,7 @@
 <div class="app" id="app"></div>
 <div id="fx"></div>
 
+<script>/*__PORTAIL_JS__*/</script>
 <script>/*__ENGINE__*/</script>
 <script>/*__SCORES__*/</script>
 <script>var BANK = /*__DATA__*/;</script>
@@ -559,7 +595,12 @@
   }
   function mapSvg(pawn) {
     var upTo = anim ? Math.min(anim.from, anim.to) : (game ? Math.min(game.levelIndex, ALL_LEVELS.length) : 0);
-    var s = '<svg viewBox="0 0 308 340" xmlns="http://www.w3.org/2000/svg">' + landscape();
+    // fond de carte : l'illustration remplace le paysage dessiné, dont la grille de cases
+    // et l'étang avaient servi de gabarit. « href » et « xlink:href » pour les vieux moteurs.
+    var s = '<svg viewBox="0 0 308 340" xmlns="http://www.w3.org/2000/svg" ' +
+      'xmlns:xlink="http://www.w3.org/1999/xlink">' +
+      '<image href="img/carte.jpg" xlink:href="img/carte.jpg" x="0" y="0" width="308" height="340" ' +
+      'preserveAspectRatio="xMidYMid slice"/>';
     for (var i = 0; i < upTo; i++) s += pathSeg(i, 1);
     if (anim) s += '<g id="growing">' + pathSeg(Math.min(anim.from, anim.to), anim.phase === 'path' ? anim.t : 1) + '</g>';
     for (i = 0; i <= Math.min(upTo, ALL_LEVELS.length - 1); i++) s += nodeTile(i);
@@ -677,9 +718,8 @@
     app.innerHTML =
       '<div class="card center">' + infoBtn() +
         '<div class="title-wrap">' +
-          '<div class="game-title">Le Quizz</div>' +
-          '<h1 class="game-title-main">DU <span>BAC</span></h1>' +
-          '<div class="scene">' + classroom() + '</div>' +
+          // le titre est peint sur le tableau de l'illustration : l'écrire deux fois ferait doublon
+          scenePortail() +
           '<p class="muted" style="margin:14px 0 0">Du CP à la Terminale.<br>Réponds vite, réponds juste.</p>' +
           '<button class="btn go" id="start">Commencer</button>' +
           (slotLabel() ? '<button class="btn resume" id="resume">Reprendre<br><small style="font-weight:600">' +
@@ -689,10 +729,39 @@
     document.getElementById('info').onclick = openRules;
     document.getElementById('start').onclick = function () {
       audio();                       // premier geste : le son est débloqué
-      vortex(function () { view = 'modes'; render(); });
+      var suite = function () { view = 'modes'; render(); };
+      var b = document.getElementById('start');
+      if (b) b.disabled = true;
+      // l'animation du portail remplace l'ancien vortex dessiné ; si le pack n'est pas
+      // chargé (test hors navigateur), on retombe sur l'ancienne transition
+      if (typeof window.playBacPortalAnimation === 'function') {
+        sfx.vortex();
+        window.playBacPortalAnimation('#bacPortalScene').then(suite, suite);
+      } else {
+        vortex(suite);
+      }
     };
     var rz = document.getElementById('resume');
     if (rz) rz.onclick = function () { audio(); resumeGame(); };
+  }
+
+  /* Scène du portail : la classe, le vortex qui s'ouvre dans le tableau, et le héros aspiré.
+   * Le balisage est celui attendu par portail.js — ne pas renommer les classes. */
+  function scenePortail() {
+    return '<div id="bacPortalScene" class="bac-portal-scene">' +
+        '<img class="bac-scene-bg" src="img/classe.jpg" alt="Salle de classe du Quizz du BAC">' +
+        '<div class="bac-magic-light"></div>' +
+        '<div class="bac-portal" aria-hidden="true">' +
+          '<div class="bac-world-window"><img src="img/monde.jpg" alt=""></div>' +
+          '<div class="bac-portal-core"></div>' +
+          '<img class="bac-vortex-ring" src="img/vortex.png" alt="">' +
+          '<div class="bac-sparks"></div>' +
+        '</div>' +
+        '<div class="bac-dust"></div>' +
+        '<div class="bac-fragments" aria-hidden="true"></div>' +   // sans lui, aucune fragmentation
+        '<img class="bac-character" src="img/personnage.png" alt="Le héros du jeu">' +
+        '<div class="bac-flash"></div>' +
+      '</div>';
   }
 
   /** Décrit la partie mise de côté : « Quizz BAC — CM2, 34 points ». */
@@ -1085,18 +1154,18 @@
           (p.pausePenalty || E.CONFIG.pausePenaltySeconds) +
           ' secondes</b> de temps de jeu' + (p.pauses > 1 ? ' · ' + p.pauses + ' pauses au total' : '') +
           '. Le classement départage les scores égaux au temps.</div>' +
-        '<button class="choice go" id="p-resume"><b>▶ Continuer à jouer</b>' +
+        '<button class="choice pause-tuile continuer" id="p-resume"><b>Continuer à jouer</b>' +
           '<small>Le chrono reprend où tu l\'as laissé : ' + Math.ceil(game.timeLeft) + ' s.</small></button>' +
         (game.defi ? '' :
-          '<button class="choice save" id="p-save"><b>💾 M\'arrêter ici</b>' +
-          '<small>Ta partie est mise de côté, chrono compris : tu la reprendras depuis l\'accueil.</small></button>' +
-          '<button class="choice pub" id="p-publish"><b>🏆 Publier mon score</b>' +
-          '<small>Ton score de ' + game.score + ' points rejoint le classement' +
-          (game.mode === 'detente' ? '' : ' de la classe ' + esc(p.level)) + ', et la partie s\'arrête.</small></button>' +
-          '<button class="choice again" id="p-restart"><b>↻ Recommencer</b>' +
-          '<small>Une nouvelle partie ' + (game.mode === 'detente' ? 'détente' : 'du CP au BAC') +
-          ', tout de suite. La partie en cours est perdue.</small></button>') +
-        '<button class="choice quit" id="p-quit"><b>✕ Abandonner</b>' +
+          '<button class="choice pause-tuile reprendre" id="p-save"><b>Reprendre plus tard</b>' +
+          '<small>Mise de côté, chrono compris. À reprendre depuis l\'accueil.</small></button>' +
+          '<button class="choice pause-tuile publier" id="p-publish"><b>Publier mon score</b>' +
+          '<small>Tes ' + game.score + ' points rejoignent le classement' +
+          (game.mode === 'detente' ? '' : ' de ' + esc(p.level)) + '. La partie s\'arrête.</small></button>' +
+          '<button class="choice pause-tuile recommencer" id="p-restart"><b>Recommencer</b>' +
+          '<small>Une partie ' + (game.mode === 'detente' ? 'détente' : 'du CP au BAC') +
+          ' tout de suite ; celle-ci est perdue.</small></button>') +
+        '<button class="choice pause-tuile abandonner" id="p-quit"><b>Abandonner</b>' +
           '<small>' + (game.defi
             ? 'Abandonner un défi, c\'est le perdre.'
             : 'Retour à l\'accueil sans enregistrer ni sauvegarder.') + '</small></button>' +
@@ -1402,12 +1471,12 @@
         '<p class="center muted" style="margin-top:0">Mode détente · 30 questions · ' +
           'la même liste pour les deux joueurs</p>' +
 
-        '<button class="choice go" id="d-lancer"><b>⚔ Défier un joueur</b>' +
-          '<small>Tu joues d\'abord, ton adversaire relève ensuite.</small></button>' +
+        '<button class="choice defi-tuile lancer" id="d-lancer"><b>Défier un joueur</b>' +
+          '<small>Tu joues d\'abord, il relève ensuite.</small></button>' +
 
-        '<button class="choice save" id="d-relever"' + (recus.length ? '' : ' disabled') + '>' +
-          '<b>🛡 Relever un défi' + (recus.length ? ' (' + recus.length + ')' : '') + '</b>' +
-          '<small>' + (recus.length ? 'On t\'attend au tournant.' : 'Aucun défi reçu pour l\'instant.') +
+        '<button class="choice defi-tuile relever" id="d-relever"' + (recus.length ? '' : ' disabled') + '>' +
+          '<b>Relever un défi' + (recus.length ? ' (' + recus.length + ')' : '') + '</b>' +
+          '<small>' + (recus.length ? 'On t\'attend au tournant.' : 'Aucun défi pour l\'instant.') +
           '</small></button>' +
 
         (resultats.length ? '<div class="rank-head">Résultats</div>' +

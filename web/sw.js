@@ -1,8 +1,12 @@
 /* Service worker : met l'app en cache pour qu'elle fonctionne hors ligne. */
-var CACHE = "quiz-culture-4f51d0a5bb";
+var CACHE = "quiz-culture-f56ff8af97";
 var FILES = ["./", "./index.html", "./manifest.webmanifest",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png", "./icons/favicon-64.png",
-  "./img/bac.jpg", "./img/detente.jpg", "./img/defi.jpg"];
+  "./img/bac.jpg", "./img/detente.jpg", "./img/defi.jpg",
+  "./img/classe.jpg", "./img/monde.jpg", "./img/personnage.png", "./img/vortex.png",
+  "./img/defier.jpg", "./img/relever.jpg",
+  "./img/continuer.jpg", "./img/reprendre.jpg", "./img/publier.jpg",
+  "./img/recommencer.jpg", "./img/abandonner.jpg", "./img/carte.jpg"];
 
 self.addEventListener("install", function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(FILES); }).then(function () { return self.skipWaiting(); }));

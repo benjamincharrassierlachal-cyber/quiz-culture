@@ -1,0 +1,209 @@
+# Questions ouvertes retirées de la banque BAC
+
+Une question ouverte n'a pas de réponse courte déterminée : « Pourquoi les métropoles
+attirent-elles des habitants ? » appelle un paragraphe, pas un mot. En réponse libre elle est
+ininterprétable, et en choix multiple elle devient un exercice de lecture.
+
+Ces 67 questions sont conservées ici : elles peuvent être reformulées et réintégrées.
+
+- **1ere-math-007** · 1ère / Mathématiques
+  - Que peut-on dire des solutions d'une équation du second degré si le discriminant est négatif ?
+  - → il n'y en a aucune
+- **6e-geo-027** · 6ème / Géographie
+  - Pourquoi les métropoles attirent-elles de nombreux habitants ?
+  - → emplois et services
+- **2nde-geo-028** · 2nde / Géographie
+  - Pourquoi le changement climatique peut-il accentuer certains risques ?
+  - → aléas intensifiés
+- **1ere-geo-029** · 1ère / Géographie
+  - Pourquoi les quartiers d'affaires sont-ils souvent situés dans des espaces très accessibles ?
+  - → connectivité
+- **1ere-geo-030** · 1ère / Géographie
+  - Pourquoi la métropolisation est-elle qualifiée de processus différencié ?
+  - → hiérarchie urbaine
+- **term-geo-025** · Terminale / Géographie
+  - Pourquoi les détroits internationaux sont-ils des points stratégiques de la mondialisation ?
+  - → concentration des flux
+- **term-geo-026** · Terminale / Géographie
+  - Pourquoi les câbles sous-marins sont-ils essentiels à la mondialisation ?
+  - → données intercontinentales
+- **term-geo-027** · Terminale / Géographie
+  - Pourquoi les mers et océans sont-ils à la fois des espaces de circulation et de rivalités ?
+  - → routes ressources souveraineté
+- **term-sci-030** · Terminale / Sciences
+  - Pourquoi les modèles climatiques utilisent-ils différents scénarios d'émissions ?
+  - → scénarios futurs
+- **5e-geo-032** · 5ème / Géographie
+  - Pourquoi une forte croissance démographique peut-elle représenter un défi pour un territoire ?
+  - → augmentation des besoins
+- **4e-geo-032** · 4ème / Géographie
+  - Pourquoi les métropoles sont-elles des centres majeurs de la mondialisation ?
+  - → commandement et réseaux
+- **4e-geo-035** · 4ème / Géographie
+  - Quelle différence distingue un réfugié d'un touriste ?
+  - → fuite de dangers
+- **3e-geo-035** · 3ème / Géographie
+  - Pourquoi développe-t-on des lignes ferroviaires à grande vitesse ?
+  - → améliorer l'accessibilité
+- **2nde-geo-032** · 2nde / Géographie
+  - Pourquoi le vieillissement démographique constitue-t-il un défi pour certains pays ?
+  - → retraites et santé
+- **1ere-geo-034** · 1ère / Géographie
+  - Pourquoi les grands ports sont-ils des lieux majeurs de la production mondialisée ?
+  - → connexion maritime
+- **1ere-geo-036** · 1ère / Géographie
+  - Pourquoi les chaînes de valeur mondiales rendent-elles les territoires interdépendants ?
+  - → production fragmentée
+- **1ere-hist-034** · 1ère / Histoire
+  - Pourquoi la période 1848-1871 est-elle politiquement instable en France ?
+  - → instabilité politique
+- **term-geo-031** · Terminale / Géographie
+  - Pourquoi certaines frontières restent-elles des espaces de tensions malgré la mondialisation ?
+  - → rivalités frontalières
+- **term-geo-033** · Terminale / Géographie
+  - Pourquoi tous les territoires ne sont-ils pas également intégrés à la mondialisation ?
+  - → intégration inégale
+- **term-hist-033** · Terminale / Histoire
+  - Pourquoi la décolonisation transforme-t-elle les relations internationales après 1945 ?
+  - → nouveaux États
+- **term-sci-036** · Terminale / Sciences
+  - Pourquoi transporte-t-on l'électricité à haute tension sur de longues distances ?
+  - → réduire les pertes
+- **ce2-hist-045** · CE2 / Histoire
+  - Pourquoi compare-t-on des photographies anciennes et actuelles d'un même lieu ?
+  - → observer les changements
+- **cm2-geo-041** · CM2 / Géographie
+  - Pourquoi trie-t-on les déchets ?
+  - → recycler
+- **cm2-hist-040** · CM2 / Histoire
+  - Pourquoi des pays européens commencent-ils à construire une coopération après 1945 ?
+  - → préserver la paix
+- **6e-geo-039** · 6ème / Géographie
+  - Pourquoi les littoraux attirent-ils beaucoup d'activités et d'habitants ?
+  - → échanges et activités
+- **6e-sci-041** · 6ème / Sciences
+  - Quelle différence essentielle existe entre la météo et le climat ?
+  - → court / long terme
+- **5e-geo-037** · 5ème / Géographie
+  - Pourquoi le pétrole, le charbon et le gaz sont-ils appelés des énergies fossiles ?
+  - → matière organique ancienne
+- **5e-geo-040** · 5ème / Géographie
+  - Pourquoi la gestion de l'eau peut-elle provoquer des tensions entre territoires ?
+  - → répartition inégale
+- **5e-geo-045** · 5ème / Géographie
+  - Pourquoi certains littoraux sont-ils vulnérables à la montée du niveau de la mer ?
+  - → forte vulnérabilité
+- **5e-hist-036** · 5ème / Histoire
+  - Pourquoi les rois capétiens cherchent-ils progressivement à agrandir le domaine royal ?
+  - → renforcer leur pouvoir
+- **5e-hist-040** · 5ème / Histoire
+  - Pourquoi les grandes explorations européennes des XVe et XVIe siècles transforment-elles les échanges mondiaux ?
+  - → échanges intercontinentaux
+- **5e-sci-044** · 5ème / Sciences
+  - Pourquoi surveille-t-on l'activité d'un volcan ?
+  - → prévoir l'éruption
+- **5e-sci-046** · 5ème / Sciences
+  - Pourquoi la biodiversité d'un milieu peut-elle diminuer après la destruction d'un habitat ?
+  - → perte d'habitat
+- **4e-geo-040** · 4ème / Géographie
+  - Pourquoi les grands aéroports sont-ils des lieux majeurs des mobilités mondiales ?
+  - → connectivité mondiale
+- **4e-geo-043** · 4ème / Géographie
+  - Pourquoi les grandes façades maritimes sont-elles importantes dans la mondialisation ?
+  - → ports et flux
+- **4e-geo-046** · 4ème / Géographie
+  - Pourquoi les États-Unis occupent-ils une place majeure dans la mondialisation ?
+  - → puissance mondiale
+- **4e-geo-047** · 4ème / Géographie
+  - Pourquoi la mondialisation transforme-t-elle inégalement les territoires ?
+  - → connexion inégale
+- **4e-hist-042** · 4ème / Histoire
+  - Pourquoi l'industrialisation transforme-t-elle profondément les sociétés européennes au XIXe siècle ?
+  - → industrialisation sociale
+- **4e-sci-046** · 4ème / Sciences
+  - Pourquoi la vaccination peut-elle protéger contre certaines maladies infectieuses ?
+  - → mémoire immunitaire
+- **3e-geo-041** · 3ème / Géographie
+  - Pourquoi les régions frontalières peuvent-elles développer des coopérations transfrontalières ?
+  - → coopérations communes
+- **3e-geo-045** · 3ème / Géographie
+  - Pourquoi les politiques européennes peuvent-elles soutenir certains territoires ?
+  - → cohésion territoriale
+- **3e-geo-046** · 3ème / Géographie
+  - Pourquoi dit-on que le territoire français est à la fois intégré à l'Europe et ouvert sur le monde ?
+  - → connexion multiscalaire
+- **3e-sci-039** · 3ème / Sciences
+  - Pourquoi les antibiotiques ne soignent-ils pas une infection virale comme la grippe ?
+  - → cible bactérienne
+- **3e-sci-041** · 3ème / Sciences
+  - Pourquoi la fragmentation des habitats peut-elle réduire la biodiversité ?
+  - → isolement des populations
+- **2nde-geo-039** · 2nde / Géographie
+  - Pourquoi les grandes métropoles sont-elles des nœuds majeurs de mobilité ?
+  - → nœuds de transport
+- **2nde-geo-043** · 2nde / Géographie
+  - Pourquoi les ressources minières jouent-elles un rôle important en Afrique australe ?
+  - → exportations minières
+- **2nde-geo-045** · 2nde / Géographie
+  - Pourquoi l'Afrique australe illustre-t-elle les défis contemporains du développement ?
+  - → développement contrasté
+- **2nde-sci-042** · 2nde / Sciences
+  - Pourquoi apporte-t-on parfois des engrais minéraux dans un agrosystème ?
+  - → apport minéral
+- **2nde-sci-046** · 2nde / Sciences
+  - Pourquoi l'usage excessif ou inadapté d'antibiotiques peut-il poser un problème de santé publique ?
+  - → résistance bactérienne
+- **1ere-geo-038** · 1ère / Géographie
+  - Pourquoi certains espaces ruraux sont-ils attractifs pour de nouveaux habitants ?
+  - → attractivité rurale
+- **1ere-geo-041** · 1ère / Géographie
+  - Pourquoi les espaces ruraux sont-ils dits fragmentés ?
+  - → trajectoires rurales différentes
+- **1ere-geo-044** · 1ère / Géographie
+  - Pourquoi les métropoles littorales chinoises jouent-elles un rôle majeur ?
+  - → concentration littorale
+- **1ere-hist-042** · 1ère / Histoire
+  - Pourquoi la Première Guerre mondiale bouleverse-t-elle durablement l'Europe ?
+  - → bouleversement européen
+- **1ere-sci-037** · 1ère / Sciences
+  - Pourquoi voit-on toujours approximativement la même face de la Lune depuis la Terre ?
+  - → rotation synchronisée
+- **1ere-sci-047** · 1ère / Sciences
+  - Pourquoi deux instruments jouant la même note peuvent-ils être distingués à l'oreille ?
+  - → leurs harmoniques diffèrent
+- **term-fr-045** · Terminale / Français
+  - Pourquoi le temps constitue-t-il un problème philosophique ?
+  - → changement durée finitude
+- **term-fr-048** · Terminale / Français
+  - Pourquoi une thèse philosophique doit-elle être argumentée ?
+  - → justification rationnelle
+- **term-geo-036** · Terminale / Géographie
+  - Pourquoi l'Union européenne est-elle un pôle majeur de la mondialisation ?
+  - → puissance économique
+- **term-geo-039** · Terminale / Géographie
+  - Pourquoi l'Union européenne peut-elle être à la fois un espace de coopération et de tensions ?
+  - → intérêts divergents
+- **term-geo-041** · Terminale / Géographie
+  - Pourquoi Paris joue-t-elle un rôle majeur dans l'intégration mondiale de la France ?
+  - → fonctions de commandement
+- **term-geo-043** · Terminale / Géographie
+  - Pourquoi les régions frontalières françaises peuvent-elles être des espaces d'intégration européenne ?
+  - → coopérations transfrontalières
+- **term-geo-044** · Terminale / Géographie
+  - Pourquoi certains territoires français sont-ils moins intégrés aux grands flux ?
+  - → accessibilité plus faible
+- **term-geo-045** · Terminale / Géographie
+  - Pourquoi la mondialisation recompose-t-elle les territoires français à plusieurs échelles ?
+  - → recomposition territoriale
+- **term-hist-038** · Terminale / Histoire
+  - Pourquoi les années 1970-1991 constituent-elles une période de recomposition ?
+  - → recomposition mondiale
+- **term-hist-043** · Terminale / Histoire
+  - Pourquoi les relations internationales depuis les années 1990 sont-elles difficiles à réduire à un seul modèle ?
+  - → monde complexe
+- **term-sci-040** · Terminale / Sciences
+  - Pourquoi un choix énergétique ne peut-il pas être évalué uniquement par son rendement ?
+  - → impacts multiples
+- **term-sci-048** · Terminale / Sciences
+  - Pourquoi les performances d'un système d'intelligence artificielle dépendent-elles fortement des données d'entraînement ?
+  - → données biaisées

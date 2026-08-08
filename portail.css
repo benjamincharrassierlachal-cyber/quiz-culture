@@ -1,0 +1,177 @@
+/* Animation "Le Quizz du BAC" — aucun framework requis */
+.bac-portal-scene {
+  --portal-x: 64%;
+  --portal-y: 36%;
+  --portal-size: 40%;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #0d5638;
+  isolation: isolate;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.bac-portal-scene img { display: block; pointer-events: none; }
+
+.bac-scene-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* Halo sur la classe quand le portail s'ouvre */
+.bac-magic-light {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at var(--portal-x) var(--portal-y),
+      rgba(71,255,236,.32) 0%,
+      rgba(33,223,231,.16) 18%,
+      rgba(0,166,203,.05) 34%,
+      transparent 56%);
+  mix-blend-mode: screen;
+}
+
+.bac-portal {
+  position: absolute;
+  left: var(--portal-x);
+  top: var(--portal-y);
+  width: var(--portal-size);
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%) scale(.01);
+  transform-origin: 50% 50%;
+  opacity: 0;
+  z-index: 3;
+  pointer-events: none;
+  filter: drop-shadow(0 0 14px rgba(53,255,240,.65));
+}
+
+.bac-world-window {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 60%;
+  height: 60%;
+  transform: translate(-50%, -50%) scale(.92);
+  border-radius: 50%;
+  overflow: hidden;
+  opacity: 0;
+  z-index: 0;
+  box-shadow: inset 0 0 28px rgba(0,0,0,.45);
+}
+
+.bac-world-window img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.12);
+}
+
+.bac-vortex-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 2;
+}
+
+.bac-portal-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 22%;
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%) scale(.2);
+  border-radius: 50%;
+  opacity: 0;
+  z-index: 1;
+  background: radial-gradient(circle,
+    rgba(235,255,255,.95) 0%,
+    rgba(79,255,241,.70) 24%,
+    rgba(9,181,207,.28) 55%,
+    transparent 72%);
+  filter: blur(1px);
+}
+
+.bac-sparks { position: absolute; inset: -15%; z-index: 4; }
+.bac-spark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(2px, .5vw, 6px);
+  aspect-ratio: 1 / 1;
+  border-radius: 999px;
+  opacity: 0;
+  background: white;
+  box-shadow: 0 0 7px 2px rgba(120,255,239,.85);
+  transform-origin: 0 0;
+}
+
+.bac-character {
+  position: absolute;
+  left: 27.5%;
+  bottom: 8.5%;
+  width: 25%;
+  height: auto;
+  z-index: 5;
+  transform-origin: 55% 55%;
+  filter: drop-shadow(0 12px 7px rgba(57,31,5,.24));
+  will-change: transform, opacity, filter;
+}
+
+.bac-dust {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  opacity: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 31% 68%, rgba(255,255,255,.8) 0 1px, transparent 2px),
+    radial-gradient(circle at 38% 63%, rgba(145,255,225,.9) 0 1px, transparent 2px),
+    radial-gradient(circle at 43% 72%, rgba(255,244,174,.8) 0 1px, transparent 2px),
+    radial-gradient(circle at 49% 59%, rgba(144,251,255,.9) 0 1px, transparent 2px),
+    radial-gradient(circle at 55% 67%, rgba(255,255,255,.8) 0 1px, transparent 2px);
+  background-size: 18% 22%, 16% 19%, 20% 23%, 17% 21%, 18% 24%;
+}
+
+.bac-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle at var(--portal-x) var(--portal-y),
+    rgba(223,255,255,.75), rgba(106,255,242,.18) 20%, transparent 50%);
+  mix-blend-mode: screen;
+}
+
+/* Option pratique pour respecter l'accessibilité. */
+@media (prefers-reduced-motion: reduce) {
+  .bac-portal-scene * { animation-duration: .001ms !important; }
+}
+
+/* Fragmentation du personnage pendant l'aspiration */
+.bac-fragments {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.bac-frag {
+  position: absolute;
+  background-repeat: no-repeat;
+  will-change: transform, opacity, filter;
+  transform-origin: 50% 50%;
+  pointer-events: none;
+}

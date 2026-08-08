@@ -10,6 +10,8 @@ var dir = __dirname, webDir = path.join(dir, 'web');
 var tpl = fs.readFileSync(path.join(dir, 'template.html'), 'utf8');
 var engine = fs.readFileSync(path.join(dir, 'engine.js'), 'utf8');
 var scores = fs.readFileSync(path.join(dir, 'scores.js'), 'utf8');
+var portailCss = fs.readFileSync(path.join(dir, 'portail.css'), 'utf8');   // animation du portail
+var portailJs = fs.readFileSync(path.join(dir, 'portail.js'), 'utf8');
 var data = fs.readFileSync(path.join(dir, 'data/questions.json'), 'utf8');
 var relax = fs.readFileSync(path.join(dir, 'data/detente.json'), 'utf8');
 var board = fs.readFileSync(path.join(dir, 'data/leaderboard.json'), 'utf8');
@@ -19,7 +21,7 @@ JSON.parse(board);
 
 var stampDate = new Date().toISOString().slice(0, 10);
 var stamp = JSON.stringify({
-  version: crypto.createHash('sha1').update(tpl + engine + scores + data + relax).digest('hex').slice(0, 7),
+  version: crypto.createHash('sha1').update(tpl + engine + scores + portailCss + portailJs + data + relax).digest('hex').slice(0, 7),
   date: new Date().toISOString().slice(0, 16).replace('T', ' ')
 });
 
@@ -27,11 +29,13 @@ var html = tpl
   .replace('/*__BUILD__*/', function () { return stamp; })
   .replace('/*__ENGINE__*/', function () { return engine; })
   .replace('/*__SCORES__*/', function () { return scores; })
+  .replace('/*__PORTAIL_CSS__*/', function () { return portailCss; })
+  .replace('/*__PORTAIL_JS__*/', function () { return portailJs; })
   .replace('/*__DATA__*/', function () { return data; })
   .replace('/*__RELAX__*/', function () { return relax; })
   .replace('/*__LEADERBOARD__*/', function () { return board; });
 
-['__ENGINE__', '__SCORES__', '__DATA__', '__RELAX__', '__LEADERBOARD__', '__BUILD__'].forEach(function (m) {
+['__ENGINE__', '__SCORES__', '__PORTAIL_CSS__', '__PORTAIL_JS__', '__DATA__', '__RELAX__', '__LEADERBOARD__', '__BUILD__'].forEach(function (m) {
   if (html.indexOf(m) !== -1) {
     console.error('Injection incomplète : marqueur ' + m + ' absent du template.');
     process.exit(1);
@@ -76,7 +80,11 @@ var sw =
   'var CACHE = "quiz-culture-' + version + '";\n' +
   'var FILES = ["./", "./index.html", "./manifest.webmanifest",\n' +
   '  "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png", "./icons/favicon-64.png",\n' +
-  '  "./img/bac.jpg", "./img/detente.jpg", "./img/defi.jpg"];\n' +
+  '  "./img/bac.jpg", "./img/detente.jpg", "./img/defi.jpg",\n' +
+  '  "./img/classe.jpg", "./img/monde.jpg", "./img/personnage.png", "./img/vortex.png",\n' +
+  '  "./img/defier.jpg", "./img/relever.jpg",\n' +
+  '  "./img/continuer.jpg", "./img/reprendre.jpg", "./img/publier.jpg",\n' +
+  '  "./img/recommencer.jpg", "./img/abandonner.jpg", "./img/carte.jpg"];\n' +
   '\n' +
   'self.addEventListener("install", function (e) {\n' +
   '  e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(FILES); }).then(function () { return self.skipWaiting(); }));\n' +
