@@ -70758,7 +70758,7 @@
   "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbnVpZ2J0c3loZHpsaXBuZ29sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMTEyNTMsImV4cCI6MjEwMDg4NzI1M30.eEw1D1Nbdu7LPSGbXScZICuA2Pj4WGiLnOHC_o_pJ3M"
 }
 ;</script>
-<script>var BUILD = {"version":"908c7e5","date":"2026-08-08 14:30"};</script>
+<script>var BUILD = {"version":"5c01644","date":"2026-08-08 15:20"};</script>
 <script>
 (function () {
   'use strict';
@@ -71979,10 +71979,31 @@
     });
   }
 
-  /** Je défie : ma partie démarre immédiatement, sur une graine tirée maintenant. */
+  /* Un défi impose la même liste aux deux joueurs : la file ne dépend donc que de la graine,
+   * et l'historique personnel doit être ignoré — sinon les deux listes divergeraient.
+   * Conséquence : le défi repioche dans les questions déjà vues en partie normale.
+   * Le remède sans casser l'égalité, c'est de CHOISIR la graine : on en tire une poignée,
+   * on garde celle dont la file recoupe le moins mon historique. L'adversaire, lui,
+   * reconstruit exactement la même file à partir de cette graine. */
+  function graineFraiche() {
+    var vus = {}, i;
+    seenIds('detente').forEach(function (id) { vus[id] = 1; });
+    var meilleure = null, meilleurScore = Infinity;
+    for (i = 0; i < 40; i++) {
+      var g = S.defiGraine();
+      var file = E.createRelax(RELAX, { seed: g }).queue;
+      var deja = 0;
+      file.forEach(function (q) { if (vus[q.id]) deja++; });
+      if (deja < meilleurScore) { meilleurScore = deja; meilleure = g; }
+      if (!deja) break;                       // file entièrement inédite : inutile de chercher plus
+    }
+    return meilleure;
+  }
+
+  /** Je défie : ma partie démarre immédiatement, sur la graine la plus fraîche trouvée. */
   function lancerDefi(adv) {
     defiChoix = adv;
-    startDefi({ role: 'lanceur', seed: S.defiGraine(), adversaire: adv.pseudo, masque: adv.masque });
+    startDefi({ role: 'lanceur', seed: graineFraiche(), adversaire: adv.pseudo, masque: adv.masque });
   }
 
   /** Page « on te défie » : un défi par écran, accepter ou refuser. */
@@ -72094,7 +72115,7 @@
     document.getElementById('info').onclick = openRules;
     var rv = document.getElementById('revanche');
     if (rv) rv.onclick = function () {
-      startDefi({ role: 'lanceur', seed: S.defiGraine(),
+      startDefi({ role: 'lanceur', seed: graineFraiche(),
                   adversaire: f.adversaire, masque: f.masque });
     };
     document.getElementById('next').onclick = function () { defis = null; defiLu = 0; openDefis(); };
