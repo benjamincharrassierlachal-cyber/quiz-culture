@@ -501,6 +501,15 @@
     padding:10px 14px; border:3px solid var(--ink); border-radius:16px; background:#fff7d9;
     text-align:left}
   .avatar.big{width:46px; height:46px}
+  .histo-l{display:flex; align-items:center; gap:8px; padding:9px 4px;
+    border-bottom:2px dashed var(--pale); font-size:14px}
+  .histo-l .j{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .histo-l .j:last-of-type{text-align:right}
+  .histo-l .vs{color:var(--muted); font-weight:800}
+  .histo-l .gagne{color:#1f9d55; font-weight:800}
+  .histo-l .perdu{color:#c0392b}
+  .histo-l .nul{color:var(--muted)}
+  .histo-l .note{font-size:11px; color:var(--muted); font-weight:700; text-transform:uppercase}
   .defi-res{display:flex; align-items:center; gap:10px; padding:9px 6px;
     border-bottom:2px dashed var(--pale); font-size:14px}
   .defi-res span:first-child{flex:1; min-width:0}
@@ -1906,6 +1915,19 @@
 
   function defiVu(id) { return rpc('defi_vu', { p_id: id, p_tag: getTag() }); }
 
+  /** Tous mes défis tranchés, du plus récent au plus ancien. */
+  function defiHistorique(max) {
+    return rpc('defi_historique', { p_tag: getTag(), p_max: max || 60 })
+      .then(function (rows) { return rows || []; });
+  }
+
+  /** Cherche un adversaire par début de pseudo. Le serveur ne renvoie que le numéro masqué. */
+  function defiChercher(debut, max) {
+    if (!debut || debut.length < 2) return Promise.resolve([]);
+    return rpc('defi_chercher', { p_debut: debut, p_max: max || 20 })
+      .then(function (rows) { return rows || []; });
+  }
+
   function defiBilan() {
     return rpc('defi_bilan', { p_tag: getTag() }).then(function (r) {
       var b = (r && r[0]) || r || {};
@@ -2218,6 +2240,8 @@
     defiRepondre: defiRepondre,
     defiVu: defiVu,
     defiBilan: defiBilan,
+    defiHistorique: defiHistorique,
+    defiChercher: defiChercher,
     defiGraine: defiGraine,
     defiGagne: defiGagne,
     getTag: getTag,
@@ -70752,7 +70776,7 @@
   "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbnVpZ2J0c3loZHpsaXBuZ29sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMTEyNTMsImV4cCI6MjEwMDg4NzI1M30.eEw1D1Nbdu7LPSGbXScZICuA2Pj4WGiLnOHC_o_pJ3M"
 }
 ;</script>
-<script>var BUILD = {"version":"5c01644","date":"2026-08-08 15:20"};</script>
+<script>var BUILD = {"version":"6bdef32","date":"2026-08-09 08:13"};</script>
 <script>
 (function () {
   'use strict';
@@ -71048,6 +71072,7 @@
     if (view === 'defiChoix') return renderDefiChoix();
     if (view === 'defiFin') return renderDefiFin();
     if (view === 'defiRecu') return renderDefiRecu();
+    if (view === 'defiHisto') return renderDefiHisto();
     if (view === 'rules') return renderRules();
     if (view === 'diploma') return renderDiploma();
     if (view === 'endBac') return renderEndBac();
@@ -71868,8 +71893,11 @@
           '<small>' + (recus.length ? 'On t\'attend au tournant.' : 'Aucun défi pour l\'instant.') +
           '</small></button>' +
 
-        (resultats.length ? '<div class="rank-head">Résultats</div>' +
+        (resultats.length ? '<div class="rank-head">À consulter</div>' +
           resultats.map(ligneResultat).join('') : '') +
+
+        '<button class="choice" id="d-histo"><b>Historique des défis</b>' +
+          '<small>Tous tes duels, du plus récent au plus ancien.</small></button>' +
 
         (b ? '<div class="rank-head">Mon bilan</div><table class="rank">' +
           '<tr><td>Défis gagnés</td><td class="s">' + b.gagnes + '</td></tr>' +
@@ -71886,7 +71914,14 @@
       '</div>';
     document.getElementById('info').onclick = openRules;
     document.getElementById('d-refresh').onclick = function () { defis = null; defiLu = 0; render(); chargerDefis(); };
-    document.getElementById('d-lancer').onclick = function () { view = 'defiChoix'; render(); chargerAdversaires(); };
+    document.getElementById('d-lancer').onclick = function () {
+      advQ = ''; advTrouve = null; view = 'defiChoix'; render(); chargerAdversaires();
+    };
+    document.getElementById('d-histo').onclick = function () {
+      histo = null; view = 'defiHisto'; render();
+      S.defiHistorique(80).then(function (r) { histo = r; if (view === 'defiHisto') render(); },
+        function (e) { histo = []; histoErr = String(e && e.message || e); if (view === 'defiHisto') render(); });
+    };
     var dr = document.getElementById('d-relever');
     if (recus.length) dr.onclick = function () { view = 'defiRecu'; render(); };
     document.getElementById('menu').onclick = function () { defiLu = 0; view = 'modes'; render(); };
@@ -71932,72 +71967,124 @@
     }, function () { advListe = []; if (view === 'defiChoix') render(); });
   }
 
+  var advQ = '', advTrouve = null, advCherche = 0;
+
+  /* Recherche d'adversaire. Deux sources complémentaires : le classement déjà chargé, filtré
+   * instantanément à la frappe, et le serveur, qui connaît aussi les joueurs n'ayant jamais
+   * publié de score. Deux caractères minimum côté serveur, pour ne pas servir l'annuaire. */
+  function advFiltre() {
+    var q = advQ.trim().toLowerCase();
+    var vus = {}, sortie = [];
+    var ajoute = function (a) {
+      var k = a.pseudo.toLowerCase() + '#' + a.masque;
+      if (vus[k]) return;
+      vus[k] = 1; sortie.push(a);
+    };
+    (advListe || []).forEach(function (a) {
+      if (!q || a.pseudo.toLowerCase().indexOf(q) === 0) ajoute(a);
+    });
+    (advTrouve || []).forEach(ajoute);
+    return sortie.slice(0, 30);
+  }
+
+  function chercherAdversaire() {
+    var q = advQ.trim();
+    if (q.length < 2) { advTrouve = null; return render(); }
+    var mien = ++advCherche;
+    S.defiChercher(q, 20).then(function (rows) {
+      if (mien !== advCherche || view !== 'defiChoix') return;      // frappe plus récente
+      var moi = S.getTag();
+      advTrouve = rows.filter(function (r) { return S.maskTag(moi) !== r.masque; })
+        .map(function (r) { return { pseudo: r.pseudo, masque: r.masque }; });
+      render();
+    }, function () { if (mien === advCherche) { advTrouve = []; render(); } });
+  }
+
   function renderDefiChoix() {
+    var liste = advFiltre();
     app.innerHTML =
       '<div class="card">' + infoBtn() +
         '<h1 class="center">Qui veux-tu défier ?</h1>' +
         '<div class="hint center">Ta partie se lance aussitôt. Impossible de recommencer : ' +
           'abandonner compte comme une défaite.</div>' +
-        '<form id="adv-form" autocomplete="off">' +
-          '<input type="text" id="adv-pseudo" maxlength="14" placeholder="Pseudo de l\'adversaire">' +
-          '<input type="text" id="adv-num" maxlength="8" placeholder="Son numéro affiché, ex. 48***3" ' +
-            'style="margin-top:8px">' +
-          '<button class="btn go" type="submit" style="margin-top:8px">Défier</button>' +
-        '</form>' +
-        '<div class="err" id="adv-err"></div>' +
-        (advListe === null ? '<p class="center muted">Chargement des joueurs…</p>'
-          : (advListe.length ? '<div class="rank-head">Joueurs du classement détente</div>' +
-              '<div class="rank-wrap">' + advListe.map(function (a, i) {
-                return '<button class="acc-row" id="adv-' + i + '">' +
-                  '<span>' + esc(a.pseudo) + ' <span class="muted">#' + esc(a.masque) + '</span></span>' +
-                  '<span class="muted">' + a.score + ' pts</span></button>';
-              }).join('') + '</div>'
-            : '<p class="center muted">Personne au classement détente pour l\'instant.</p>')) +
+        '<input type="text" id="adv-q" maxlength="14" autocomplete="off" ' +
+          'placeholder="Tape les premières lettres du pseudo" value="' + esc(advQ) + '">' +
+        (liste.length
+          ? '<div class="rank-wrap">' + liste.map(function (a, i) {
+              return '<button class="acc-row" id="adv-' + i + '">' +
+                '<span>' + esc(a.pseudo) + ' <span class="muted">#' + esc(a.masque) + '</span></span>' +
+                '<span class="muted">' + (a.score !== undefined ? a.score + ' pts' : 'défier') + '</span></button>';
+            }).join('') + '</div>'
+          : '<p class="center muted">' + (advQ.trim().length >= 2
+              ? 'Aucun joueur à ce nom.' : (advListe === null ? 'Chargement…' : 'Tape deux lettres pour chercher.')) +
+            '</p>') +
         '<button class="btn ghost" id="back">Retour</button>' +
       '</div>';
     document.getElementById('info').onclick = openRules;
     document.getElementById('back').onclick = function () { view = 'defis'; render(); };
-    document.getElementById('adv-form').onsubmit = function (e) {
-      e.preventDefault();
-      var ps = document.getElementById('adv-pseudo').value.trim();
-      var nu = document.getElementById('adv-num').value.trim();
-      if (ps.length < 3 || nu.length < 4) {
-        document.getElementById('adv-err').textContent = 'Pseudo et numéro affiché sont nécessaires.';
-        return;
-      }
-      lancerDefi({ pseudo: ps, masque: nu });
-    };
-    (advListe || []).forEach(function (a, i) {
+    var champ = document.getElementById('adv-q');
+    if (champ) {
+      champ.oninput = function () {
+        advQ = champ.value;
+        render();                                  // le filtre local répond à la frappe
+        clearTimeout(champ._t);
+        champ._t = setTimeout(chercherAdversaire, 280);   // le serveur, lui, attend une pause
+      };
+      if (!('ontouchstart' in window)) champ.focus();
+    }
+    liste.forEach(function (a, i) {
       var el = document.getElementById('adv-' + i);
       if (el) el.onclick = function () { lancerDefi(a); };
     });
-  }
-
-  /* Un défi impose la même liste aux deux joueurs : la file ne dépend donc que de la graine,
-   * et l'historique personnel doit être ignoré — sinon les deux listes divergeraient.
-   * Conséquence : le défi repioche dans les questions déjà vues en partie normale.
-   * Le remède sans casser l'égalité, c'est de CHOISIR la graine : on en tire une poignée,
-   * on garde celle dont la file recoupe le moins mon historique. L'adversaire, lui,
-   * reconstruit exactement la même file à partir de cette graine. */
-  function graineFraiche() {
-    var vus = {}, i;
-    seenIds('detente').forEach(function (id) { vus[id] = 1; });
-    var meilleure = null, meilleurScore = Infinity;
-    for (i = 0; i < 40; i++) {
-      var g = S.defiGraine();
-      var file = E.createRelax(RELAX, { seed: g }).queue;
-      var deja = 0;
-      file.forEach(function (q) { if (vus[q.id]) deja++; });
-      if (deja < meilleurScore) { meilleurScore = deja; meilleure = g; }
-      if (!deja) break;                       // file entièrement inédite : inutile de chercher plus
-    }
-    return meilleure;
   }
 
   /** Je défie : ma partie démarre immédiatement, sur la graine la plus fraîche trouvée. */
   function lancerDefi(adv) {
     defiChoix = adv;
     startDefi({ role: 'lanceur', seed: graineFraiche(), adversaire: adv.pseudo, masque: adv.masque });
+  }
+
+
+  var histo = null, histoErr = null;
+
+  /** Historique : une ligne par duel, « Guillaume 32 — Benji 45 », gagnant en vert. */
+  function renderDefiHisto() {
+    var moi = S.getPseudo() || 'Moi';
+    var corps;
+    if (histo === null) corps = '<p class="center muted">Chargement…</p>';
+    else if (!histo.length) corps = '<p class="center muted">Aucun défi terminé pour l\'instant.</p>';
+    else corps = '<div class="rank-wrap">' + histo.map(function (d) {
+      var jeGagne = null;                       // null = ni victoire ni défaite (refus, expiration)
+      if (d.etat === 'releve') {
+        jeGagne = S.defiGagne(d.mon_score, d.mes_secondes, d.son_score, d.ses_secondes);
+      } else if (d.etat === 'abandonne') {
+        jeGagne = d.abandon_par !== d.je_suis ? true : false;
+        if (d.abandon_par === 'lanceur' && d.je_suis === 'cible') jeGagne = null;  // il a renoncé avant moi
+      }
+      var moiCl = jeGagne === null ? 'nul' : (jeGagne ? 'gagne' : 'perdu');
+      var luiCl = jeGagne === null ? 'nul' : (jeGagne ? 'perdu' : 'gagne');
+      var sc = function (v) { return (v === null || v === undefined) ? '—' : v; };
+      var note = d.etat === 'refuse' ? 'refusé' : (d.etat === 'expire' ? 'expiré'
+                 : (d.etat === 'abandonne' ? 'abandon' : ''));
+      return '<div class="histo-l">' +
+        '<span class="j ' + luiCl + '">' + esc(d.son_pseudo) + ' <b>' + sc(d.son_score) + '</b></span>' +
+        '<span class="vs">—</span>' +
+        '<span class="j ' + moiCl + '"><b>' + sc(d.mon_score) + '</b> ' + esc(moi) + '</span>' +
+        (note ? '<span class="note">' + note + '</span>' : '') +
+      '</div>';
+    }).join('') + '</div>';
+
+    app.innerHTML =
+      '<div class="card">' + infoBtn() +
+        '<h1 class="center">Historique</h1>' +
+        (histoErr ? '<div class="oops">' + esc(histoErr) + '</div>' : '') +
+        corps +
+        '<div class="hint center">En vert le vainqueur, en rouge le vaincu. ' +
+          'À score égal, c\'est le temps qui départage.</div>' +
+        '<button class="btn ghost" id="back">Retour</button>' +
+      '</div>';
+    document.getElementById('info').onclick = openRules;
+    document.getElementById('back').onclick = function () { view = 'defis'; render(); };
   }
 
   /** Page « on te défie » : un défi par écran, accepter ou refuser. */

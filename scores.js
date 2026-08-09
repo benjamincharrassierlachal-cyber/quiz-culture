@@ -194,6 +194,19 @@
 
   function defiVu(id) { return rpc('defi_vu', { p_id: id, p_tag: getTag() }); }
 
+  /** Tous mes défis tranchés, du plus récent au plus ancien. */
+  function defiHistorique(max) {
+    return rpc('defi_historique', { p_tag: getTag(), p_max: max || 60 })
+      .then(function (rows) { return rows || []; });
+  }
+
+  /** Cherche un adversaire par début de pseudo. Le serveur ne renvoie que le numéro masqué. */
+  function defiChercher(debut, max) {
+    if (!debut || debut.length < 2) return Promise.resolve([]);
+    return rpc('defi_chercher', { p_debut: debut, p_max: max || 20 })
+      .then(function (rows) { return rows || []; });
+  }
+
   function defiBilan() {
     return rpc('defi_bilan', { p_tag: getTag() }).then(function (r) {
       var b = (r && r[0]) || r || {};
@@ -506,6 +519,8 @@
     defiRepondre: defiRepondre,
     defiVu: defiVu,
     defiBilan: defiBilan,
+    defiHistorique: defiHistorique,
+    defiChercher: defiChercher,
     defiGraine: defiGraine,
     defiGagne: defiGagne,
     getTag: getTag,
