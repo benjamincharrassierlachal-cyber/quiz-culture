@@ -1644,6 +1644,26 @@
     majListeAdv();
   }
 
+  /* Un défi impose la même liste aux deux joueurs : la file ne dépend que de la graine,
+   * et l'historique personnel doit être ignoré — sinon les deux listes divergeraient.
+   * Conséquence : le défi repioche dans les questions déjà vues en partie normale.
+   * Le remède sans casser l'égalité, c'est de CHOISIR la graine : on en tire une série,
+   * on garde celle dont la file recoupe le moins mon historique. L'adversaire, lui,
+   * reconstruit exactement la même file à partir de cette graine. */
+  function graineFraiche() {
+    var vus = {}, i;
+    seenIds('detente').forEach(function (id) { vus[id] = 1; });
+    var meilleure = null, meilleurScore = Infinity;
+    for (i = 0; i < 40; i++) {
+      var g = S.defiGraine();
+      var deja = 0;
+      E.createRelax(RELAX, { seed: g }).queue.forEach(function (q) { if (vus[q.id]) deja++; });
+      if (deja < meilleurScore) { meilleurScore = deja; meilleure = g; }
+      if (!deja) break;                       // file entièrement inédite : inutile de chercher plus
+    }
+    return meilleure === null ? S.defiGraine() : meilleure;
+  }
+
   /** Je défie : ma partie démarre immédiatement, sur la graine la plus fraîche trouvée. */
   function lancerDefi(adv) {
     defiChoix = adv;

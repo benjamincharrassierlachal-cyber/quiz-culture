@@ -25,6 +25,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Fonctions appelées mais non définies
+        run: node tools/lint.js
+
       - name: Tests des règles du jeu
         run: node tests.js
 
