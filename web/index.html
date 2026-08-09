@@ -70782,7 +70782,7 @@
   "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbnVpZ2J0c3loZHpsaXBuZ29sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMTEyNTMsImV4cCI6MjEwMDg4NzI1M30.eEw1D1Nbdu7LPSGbXScZICuA2Pj4WGiLnOHC_o_pJ3M"
 }
 ;</script>
-<script>var BUILD = {"version":"6bdef32","date":"2026-08-09 08:13"};</script>
+<script>var BUILD = {"version":"b79899b","date":"2026-08-09 08:25"};</script>
 <script>
 (function () {
   'use strict';
@@ -71969,8 +71969,8 @@
       }).slice(0, 40).map(function (r) {
         return { pseudo: r.pseudo, masque: S.maskTag(r.tag), score: r.score };
       });
-      if (view === 'defiChoix') render();
-    }, function () { advListe = []; if (view === 'defiChoix') render(); });
+      if (view === 'defiChoix') majListeAdv();
+    }, function () { advListe = []; if (view === 'defiChoix') majListeAdv(); });
   }
 
   var advQ = '', advTrouve = null, advCherche = 0;
@@ -71995,19 +71995,40 @@
 
   function chercherAdversaire() {
     var q = advQ.trim();
-    if (q.length < 2) { advTrouve = null; return render(); }
+    if (q.length < 2) { advTrouve = null; return majListeAdv(); }
     var mien = ++advCherche;
     S.defiChercher(q, 20).then(function (rows) {
       if (mien !== advCherche || view !== 'defiChoix') return;      // frappe plus récente
-      var moi = S.getTag();
-      advTrouve = rows.filter(function (r) { return S.maskTag(moi) !== r.masque; })
+      var moi = S.maskTag(S.getTag());
+      advTrouve = rows.filter(function (r) { return r.masque !== moi; })
         .map(function (r) { return { pseudo: r.pseudo, masque: r.masque }; });
-      render();
-    }, function () { if (mien === advCherche) { advTrouve = []; render(); } });
+      majListeAdv();
+    }, function () { if (mien === advCherche) { advTrouve = []; majListeAdv(); } });
+  }
+
+  /* Ne redessine QUE la liste des résultats. Repasser par render() reconstruisait la carte
+   * entière à chaque lettre : le champ de saisie était détruit et recréé, donc le clavier
+   * du téléphone se refermait à chaque frappe. */
+  function majListeAdv() {
+    var zone = document.getElementById('adv-liste');
+    if (!zone) return;
+    var liste = advFiltre();
+    zone.innerHTML = liste.length
+      ? '<div class="rank-wrap">' + liste.map(function (a, i) {
+          return '<button class="acc-row" id="adv-' + i + '">' +
+            '<span>' + esc(a.pseudo) + ' <span class="muted">#' + esc(a.masque) + '</span></span>' +
+            '<span class="muted">' + (a.score !== undefined ? a.score + ' pts' : 'défier') + '</span></button>';
+        }).join('') + '</div>'
+      : '<p class="center muted">' + (advQ.trim().length >= 2
+          ? 'Aucun joueur à ce nom.'
+          : (advListe === null ? 'Chargement…' : 'Tape deux lettres pour chercher.')) + '</p>';
+    liste.forEach(function (a, i) {
+      var el = document.getElementById('adv-' + i);
+      if (el) el.onclick = function () { lancerDefi(a); };
+    });
   }
 
   function renderDefiChoix() {
-    var liste = advFiltre();
     app.innerHTML =
       '<div class="card">' + infoBtn() +
         '<h1 class="center">Qui veux-tu défier ?</h1>' +
@@ -72015,15 +72036,7 @@
           'abandonner compte comme une défaite.</div>' +
         '<input type="text" id="adv-q" maxlength="14" autocomplete="off" ' +
           'placeholder="Tape les premières lettres du pseudo" value="' + esc(advQ) + '">' +
-        (liste.length
-          ? '<div class="rank-wrap">' + liste.map(function (a, i) {
-              return '<button class="acc-row" id="adv-' + i + '">' +
-                '<span>' + esc(a.pseudo) + ' <span class="muted">#' + esc(a.masque) + '</span></span>' +
-                '<span class="muted">' + (a.score !== undefined ? a.score + ' pts' : 'défier') + '</span></button>';
-            }).join('') + '</div>'
-          : '<p class="center muted">' + (advQ.trim().length >= 2
-              ? 'Aucun joueur à ce nom.' : (advListe === null ? 'Chargement…' : 'Tape deux lettres pour chercher.')) +
-            '</p>') +
+        '<div id="adv-liste"></div>' +
         '<button class="btn ghost" id="back">Retour</button>' +
       '</div>';
     document.getElementById('info').onclick = openRules;
@@ -72032,16 +72045,13 @@
     if (champ) {
       champ.oninput = function () {
         advQ = champ.value;
-        render();                                  // le filtre local répond à la frappe
+        majListeAdv();                                    // filtre local : instantané
         clearTimeout(champ._t);
-        champ._t = setTimeout(chercherAdversaire, 280);   // le serveur, lui, attend une pause
+        champ._t = setTimeout(chercherAdversaire, 280);    // serveur : après une pause de frappe
       };
       if (!('ontouchstart' in window)) champ.focus();
     }
-    liste.forEach(function (a, i) {
-      var el = document.getElementById('adv-' + i);
-      if (el) el.onclick = function () { lancerDefi(a); };
-    });
+    majListeAdv();
   }
 
   /** Je défie : ma partie démarre immédiatement, sur la graine la plus fraîche trouvée. */
