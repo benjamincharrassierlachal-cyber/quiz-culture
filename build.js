@@ -105,6 +105,7 @@ var sw =
   '  var url;\n' +
   '  try { url = new URL(e.request.url); } catch (err) { return; }\n' +
   '  if (url.origin !== self.location.origin) return;      // API distante : jamais de cache\n' +
+  '  if (/\\/version\\.json$/.test(url.pathname)) return;      // l\'empreinte doit venir du réseau\n' +
   '  e.respondWith(caches.match(e.request, { ignoreSearch: true }).then(function (hit) {\n' +
   '    return hit || fetch(e.request).then(function (res) {\n' +
   '      var copy = res.clone();\n' +
@@ -125,6 +126,9 @@ fs.mkdirSync(path.join(webDir, 'icons'), { recursive: true });
 fs.writeFileSync(path.join(webDir, 'index.html'), webHtml);
 fs.writeFileSync(path.join(webDir, 'manifest.webmanifest'), JSON.stringify(manifest, null, 2));
 fs.writeFileSync(path.join(webDir, 'sw.js'), sw);
+// empreinte de la version, lue par le jeu pour savoir s'il tourne sur du neuf.
+// Volontairement absente du cache du service worker : mise en cache, elle ne dirait plus rien.
+fs.writeFileSync(path.join(webDir, 'version.json'), stamp + '\n');
 // page de confidentialité : exigée par les stores, et honnête envers les joueurs
 var privacy = '<!doctype html>\n<html lang="fr"><head><meta charset="utf-8">' +
   '<meta name="viewport" content="width=device-width,initial-scale=1">' +

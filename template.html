@@ -272,6 +272,9 @@
   .choice.go{background:linear-gradient(120deg,#eef3ff,#fff)}
   .choice.save{background:linear-gradient(120deg,#fff6da,#fff)}
   .choice.pub{background:linear-gradient(120deg,#eafff5,#fff)}
+  .maj{display:flex; align-items:center; justify-content:space-between; gap:10px;
+    margin:0 0 12px; padding:9px 12px; border:3px solid var(--ink); border-radius:14px;
+    background:#e7f2ff; font-size:13.5px; font-weight:700; text-align:left}
   .chip.speed{background:#fff6da; border-color:#f0d68a; color:#8a6a00; cursor:default}
   .chip.speed.on{background:#ffe89a; border-color:#e5be3d; color:#5c4600}
   .mode.defi{position:relative}
@@ -728,7 +731,7 @@
 
   function renderTitle() {
     app.innerHTML =
-      '<div class="card center">' + infoBtn() +
+      '<div class="card center">' + infoBtn() + bandeauMaj() +
         '<div class="title-wrap">' +
           // le titre est peint sur le tableau de l'illustration : l'écrire deux fois ferait doublon
           scenePortail() +
@@ -739,6 +742,7 @@
         '</div>' +
       '</div>';
     document.getElementById('info').onclick = openRules;
+    brancherMaj(); verifierMaj();
     document.getElementById('start').onclick = function () {
       audio();                       // premier geste : le son est débloqué
       var suite = function () { view = 'modes'; render(); };
@@ -948,7 +952,7 @@
     var p = S.getPseudo(), tag = S.getTag();
     var bestBac = S.best('bac'), bestRelax = S.best('detente');
     app.innerHTML =
-      '<div class="card">' + infoBtn() +
+      '<div class="card">' + infoBtn() + bandeauMaj() +
         '<h1 class="center" style="margin-bottom:14px">Choisis ton mode</h1>' +
         '<button class="player" id="edit-pseudo">' +
           '<span class="avatar"><svg width="26" height="30" viewBox="0 0 12 16">' + sprite(1, 0) + '</svg></span>' +
@@ -996,6 +1000,7 @@
         '<button class="btn ghost" id="see-rank">Voir le classement</button>' +
       '</div>';
     document.getElementById('info').onclick = openRules;
+    brancherMaj(); verifierMaj();
     document.getElementById('m-defi').onclick = openDefis;
     document.getElementById('m-bac').onclick = function () { startMode('bac'); };
     document.getElementById('m-relax').onclick = function () { startMode('detente'); };
@@ -1414,6 +1419,54 @@
     document.getElementById('next').onclick = function () { view = 'play'; startTimer(); render(); };
   }
 
+
+  // ---------------------------------------------------------------- mise à jour
+  /* Le jeu se met déjà à jour tout seul, mais avec un lancement de retard et sans le dire.
+   * On lit donc une empreinte servie hors cache : si elle diffère de celle embarquée,
+   * une version plus récente est en ligne. Le bandeau n'apparaît que sur l'accueil —
+   * proposer de recharger au milieu d'une partie serait une trahison. */
+  var majDispo = false, majLue = 0, majEnCours = false;
+
+  function verifierMaj() {
+    if (majDispo || Date.now() - majLue < 60000) return;
+    majLue = Date.now();
+    if (typeof fetch !== 'function' || location.protocol === 'file:') return;
+    fetch('version.json?t=' + Date.now(), { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (v) {
+        if (!v || !v.version || v.version === BUILD.version) return;
+        majDispo = true;
+        if (view === 'title' || view === 'modes') render();
+      })
+      .catch(function () { /* hors ligne : rien à signaler */ });
+  }
+
+  function bandeauMaj() {
+    if (!majDispo) return '';
+    return '<div class="maj" id="maj">' +
+      '<span>Une nouvelle version est disponible.</span>' +
+      '<button class="chip" id="maj-go">' + (majEnCours ? 'Chargement…' : 'Recharger') + '</button>' +
+    '</div>';
+  }
+
+  /** Recharge en s'assurant que le service worker a bien pris la nouvelle version. */
+  function brancherMaj() {
+    var b = document.getElementById('maj-go');
+    if (!b) return;
+    b.onclick = function () {
+      if (majEnCours) return;
+      majEnCours = true; b.textContent = 'Chargement…';
+      var recharger = function () { location.reload(); };
+      try {
+        if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
+          navigator.serviceWorker.getRegistration().then(function (reg) {
+            return reg ? reg.update() : null;       // va chercher la nouvelle version
+          }).then(recharger, recharger);
+          setTimeout(recharger, 4000);              // filet : on ne reste pas bloqué
+        } else recharger();
+      } catch (e) { recharger(); }
+    };
+  }
 
   // ---------------------------------------------------------------- défis
   /* Un défi oppose deux joueurs sur la même liste de questions : c'est la graine du tirage

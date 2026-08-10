@@ -1,5 +1,5 @@
 /* Service worker : met l'app en cache pour qu'elle fonctionne hors ligne. */
-var CACHE = "quiz-culture-327be6e555";
+var CACHE = "quiz-culture-7de267c0d2";
 var FILES = ["./", "./index.html", "./manifest.webmanifest",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png", "./icons/favicon-64.png",
   "./img/bac.jpg", "./img/detente.jpg", "./img/defi.jpg",
@@ -27,6 +27,7 @@ self.addEventListener("fetch", function (e) {
   var url;
   try { url = new URL(e.request.url); } catch (err) { return; }
   if (url.origin !== self.location.origin) return;      // API distante : jamais de cache
+  if (/\/version\.json$/.test(url.pathname)) return;      // l'empreinte doit venir du réseau
   e.respondWith(caches.match(e.request, { ignoreSearch: true }).then(function (hit) {
     return hit || fetch(e.request).then(function (res) {
       var copy = res.clone();
