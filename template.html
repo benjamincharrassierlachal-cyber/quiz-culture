@@ -1420,6 +1420,44 @@
   }
 
 
+  // ---------------------------------------------------------------- touche retour
+  /* Sur Android, la touche retour ferme l'application. En pleine partie, c'est brutal —
+   * et un testeur y a laissé une partie de BAC presque terminée. On la détourne avec
+   * l'historique du navigateur : un état bidon est empilé, et chaque retour le dépile,
+   * ce qui nous prévient. On réempile aussitôt pour rester armé.
+   *
+   * En partie, la touche ouvre la pause — avec son coût de 20 secondes, exactement comme
+   * le bouton. La dispenser en ferait une pause gratuite, donc un moyen de tricher. */
+  function armerRetour() {
+    var w = (typeof window !== 'undefined') ? window : null;
+    if (!w || !w.history || !w.history.pushState || !w.addEventListener) return;
+    try { w.history.pushState({ quizz: 1 }, ''); } catch (e) { return; }
+    w.addEventListener('popstate', function () {
+      var sortir = retourArriere();
+      if (sortir) return;                       // on laisse l'application se fermer
+      try { w.history.pushState({ quizz: 1 }, ''); } catch (e) { /* ignore */ }
+    });
+  }
+
+  /** Où mène la touche retour ? Renvoie true s'il faut laisser quitter le jeu. */
+  function retourArriere() {
+    if (fx && fx.innerHTML) { fx.innerHTML = ''; return false; }   // une fenêtre était ouverte
+    switch (view) {
+      case 'play':      mettreEnPause(); return false;
+      case 'pause':     view = 'play'; startTimer(); render(); return false;
+      case 'rules':     closeRules(); return false;
+      case 'ranking':
+      case 'defis':     view = 'modes'; render(); return false;
+      case 'defiChoix':
+      case 'defiHisto':
+      case 'defiRecu':
+      case 'defiFin':   view = 'defis'; render(); return false;
+      case 'modes':     view = 'title'; render(); return false;
+      case 'title':     return true;            // l'accueil : le retour ferme, comme attendu
+      default:          return false;           // carte, jokers, annonces : on ne bouge pas
+    }
+  }
+
   // ---------------------------------------------------------------- mise à jour
   /* Le jeu se met déjà à jour tout seul, mais avec un lancement de retard et sans le dire.
    * On lit donc une empreinte servie hors cache : si elle diffère de celle embarquée,
@@ -2262,15 +2300,20 @@
   }
 
   // ------------------------------------------------------------------ actions
+  /** Mise en pause, qu'elle vienne du bouton ou de la touche retour du téléphone. */
+  function mettreEnPause() {
+    if (!game || game.finished || view !== 'play') return false;
+    stopTimer();
+    pauseCost = E.penalizePause(game);        // le chrono s'arrête, le temps de jeu non
+    autoSave();
+    view = 'pause'; render();
+    return true;
+  }
+
   function wirePlay() {
     var inf = document.getElementById('info'); if (inf) inf.onclick = openRules;
     var quit = document.getElementById('quit');
-    if (quit) quit.onclick = function () {
-      stopTimer();
-      pauseCost = E.penalizePause(game);      // le chrono s'arrête, le temps de jeu non
-      autoSave();
-      view = 'pause'; render();
-    };
+    if (quit) quit.onclick = mettreEnPause;
     var input = document.getElementById('free');
     var form = document.getElementById('answer-form');
     if (form) form.onsubmit = function (e) { e.preventDefault(); submitFree(); };
@@ -2467,6 +2510,7 @@
   });
 
   S.flush();          // envoie les scores restés en attente
+  armerRetour();      // la touche retour du téléphone n'est plus une sortie brutale
   render();
 })();
 </script>
