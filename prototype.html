@@ -509,6 +509,8 @@
   .histo-l .gagne{color:#1f9d55; font-weight:800}
   .histo-l .perdu{color:#c0392b}
   .histo-l .nul{color:var(--muted)}
+  .histo-l.attente{background:#fffbe8}
+  .histo-l .att{color:#a07800; font-weight:800}
   .histo-l .note{font-size:11px; color:var(--muted); font-weight:700; text-transform:uppercase}
   .defi-res{display:flex; align-items:center; gap:10px; padding:9px 6px;
     border-bottom:2px dashed var(--pale); font-size:14px}
@@ -1928,6 +1930,14 @@
       .then(function (rows) { return rows || []; });
   }
 
+  /** Le serveur autorise-t-il ce défi ? Renvoie 'ok' ou la raison du refus.
+   *  Appelé AVANT la partie : sans lui, on jouait trente questions pour rien. */
+  function defiPossible(toPseudo, toMasque) {
+    return rpc('defi_possible', {
+      p_from_tag: getTag(), p_to_pseudo: toPseudo, p_to_masque: toMasque
+    });
+  }
+
   function defiBilan() {
     return rpc('defi_bilan', { p_tag: getTag() }).then(function (r) {
       var b = (r && r[0]) || r || {};
@@ -2241,6 +2251,7 @@
     defiVu: defiVu,
     defiBilan: defiBilan,
     defiHistorique: defiHistorique,
+    defiPossible: defiPossible,
     defiChercher: defiChercher,
     defiGraine: defiGraine,
     defiGagne: defiGagne,
@@ -70776,7 +70787,7 @@
   "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkbnVpZ2J0c3loZHpsaXBuZ29sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMTEyNTMsImV4cCI6MjEwMDg4NzI1M30.eEw1D1Nbdu7LPSGbXScZICuA2Pj4WGiLnOHC_o_pJ3M"
 }
 ;</script>
-<script>var BUILD = {"version":"7faa2b0","date":"2026-08-09 17:19"};</script>
+<script>var BUILD = {"version":"60c4d12","date":"2026-08-10 13:42"};</script>
 <script>
 (function () {
   'use strict';
@@ -72068,10 +72079,43 @@
     return meilleure === null ? S.defiGraine() : meilleure;
   }
 
-  /** Je défie : ma partie démarre immédiatement, sur la graine la plus fraîche trouvée. */
+  /* Je défie. Le serveur est consulté AVANT la partie : il refuse un second défi contre le
+   * même joueur tant que le premier n'a pas été relevé, et il vaut mieux l'apprendre
+   * maintenant qu'après trente questions. */
   function lancerDefi(adv) {
     defiChoix = adv;
-    startDefi({ role: 'lanceur', seed: graineFraiche(), adversaire: adv.pseudo, masque: adv.masque });
+    var partir = function () {
+      startDefi({ role: 'lanceur', seed: graineFraiche(), adversaire: adv.pseudo, masque: adv.masque });
+    };
+    if (!S.configured()) return partir();
+    var zone = document.getElementById('adv-liste');
+    if (zone) zone.innerHTML = '<p class="center muted">Vérification…</p>';
+    S.defiPossible(adv.pseudo, adv.masque).then(function (r) {
+      if (r === 'ok') return partir();
+      refusDefi(adv, String(r));
+    }, function (e) { refusDefi(adv, String(e && e.message || e)); });
+  }
+
+  /** Le serveur a dit non : on l'explique sans avoir fait jouer. */
+  function refusDefi(adv, raison) {
+    var clair = raison;
+    if (/deja en attente/.test(raison)) {
+      clair = 'Tu as déjà un défi en attente contre ' + esc(adv.pseudo) +
+        '. Attends sa réponse — ou son expiration au bout de 7 jours.';
+    } else if (/introuvable/.test(raison)) {
+      clair = 'Aucun joueur ne correspond à ce pseudo et à ce numéro.';
+    } else if (/plusieurs joueurs/.test(raison)) {
+      clair = 'Plusieurs joueurs portent ce pseudo : choisis-le dans la liste plutôt qu\'à la main.';
+    } else if (/trop de defis/.test(raison)) {
+      clair = 'Tu as lancé beaucoup de défis dans l\'heure. Laisse-les se jouer.';
+    } else if (/soi-meme/.test(raison)) {
+      clair = 'On ne se défie pas soi-même.';
+    }
+    fx.innerHTML = '<div class="pop"><div class="sheet">' +
+      '<h2 class="center">Défi impossible</h2>' +
+      '<p class="center">' + clair + '</p>' +
+      '<button class="btn go" id="r-ok">J\'ai compris</button></div></div>';
+    document.getElementById('r-ok').onclick = function () { fx.innerHTML = ''; majListeAdv(); };
   }
 
 
@@ -72084,6 +72128,14 @@
     if (histo === null) corps = '<p class="center muted">Chargement…</p>';
     else if (!histo.length) corps = '<p class="center muted">Aucun défi terminé pour l\'instant.</p>';
     else corps = '<div class="rank-wrap">' + histo.map(function (d) {
+      // défi lancé, réponse pas encore venue : aucun vainqueur, et son score n'existe pas
+      if (d.etat === 'en attente') {
+        return '<div class="histo-l attente">' +
+          '<span class="j att">' + esc(d.son_pseudo) + ' <b>??</b></span>' +
+          '<span class="vs">—</span>' +
+          '<span class="j att"><b>' + d.mon_score + '</b> ' + esc(moi) + '</span>' +
+          '<span class="note">en attente</span></div>';
+      }
       var jeGagne = null;                       // null = ni victoire ni défaite (refus, expiration)
       if (d.etat === 'releve') {
         jeGagne = S.defiGagne(d.mon_score, d.mes_secondes, d.son_score, d.ses_secondes);
@@ -72109,7 +72161,8 @@
         '<h1 class="center">Historique</h1>' +
         (histoErr ? '<div class="oops">' + esc(histoErr) + '</div>' : '') +
         corps +
-        '<div class="hint center">En vert le vainqueur, en rouge le vaincu. ' +
+        '<div class="hint center">En vert le vainqueur, en rouge le vaincu, ' +
+          'en jaune les défis lancés dont on attend la réponse. ' +
           'À score égal, c\'est le temps qui départage.</div>' +
         '<button class="btn ghost" id="back">Retour</button>' +
       '</div>';

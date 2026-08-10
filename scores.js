@@ -207,6 +207,14 @@
       .then(function (rows) { return rows || []; });
   }
 
+  /** Le serveur autorise-t-il ce défi ? Renvoie 'ok' ou la raison du refus.
+   *  Appelé AVANT la partie : sans lui, on jouait trente questions pour rien. */
+  function defiPossible(toPseudo, toMasque) {
+    return rpc('defi_possible', {
+      p_from_tag: getTag(), p_to_pseudo: toPseudo, p_to_masque: toMasque
+    });
+  }
+
   function defiBilan() {
     return rpc('defi_bilan', { p_tag: getTag() }).then(function (r) {
       var b = (r && r[0]) || r || {};
@@ -520,6 +528,7 @@
     defiVu: defiVu,
     defiBilan: defiBilan,
     defiHistorique: defiHistorique,
+    defiPossible: defiPossible,
     defiChercher: defiChercher,
     defiGraine: defiGraine,
     defiGagne: defiGagne,
