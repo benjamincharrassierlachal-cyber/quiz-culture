@@ -496,6 +496,29 @@ d.timeLeft = 30;
 eq(good(d, 'free').speed, 1, 'détente : réponse rapide primée');
 
 
+// ---------------------------------------------------------------- réponses plus bavardes
+section('Réponse enrobée');
+var qGaulle = { answer: 'de Gaulle', accepted: ['de gaulle', 'charles de gaulle'],
+  distractors: ['Pétain', 'Churchill', 'Paul Reynaud', 'Leclerc'] };
+['de Gaulle', 'Général de Gaulle', 'le général de Gaulle', 'Charles de Gaulle'].forEach(function (a) {
+  ok(E.checkFree(qGaulle, a), 'titre en plus toléré : ' + a);
+});
+ok(!E.checkFree(qGaulle, 'Pétain'), 'un mauvais choix reste refusé');
+ok(!E.checkFree(qGaulle, 'le général Pétain'), 'un mauvais choix enrobé reste refusé');
+
+var qCordes = { answer: 'les cordes', accepted: ['cordes', 'les cordes'],
+  distractors: ['les vents', 'les cuivres', 'les percussions', 'les bois'] };
+['les cordes', 'cordes', 'les instruments à cordes', 'la famille des cordes'].forEach(function (a) {
+  ok(E.checkFree(qCordes, a), 'formulation plus longue acceptée : ' + a);
+});
+ok(!E.checkFree(qCordes, 'les cuivres'), 'la mauvaise famille reste refusée');
+
+// le garde-fou : on n'accepte pas une phrase qui noie la réponse
+var qCap = { answer: 'Paris', accepted: ['paris'],
+  distractors: ['Lyon', 'Marseille', 'Bordeaux', 'Toulouse'] };
+ok(E.checkFree(qCap, 'la ville de Paris'), 'deux mots en plus, cela reste une réponse');
+ok(!E.checkFree(qCap, 'je crois que la capitale est Paris ou Lyon'), 'une phrase entière est refusée');
+
 // ---------------------------------------------------------------- énumérations inversées
 var qLoi = {
   accepted: ["l'Église et l'État", 'Église et État'],

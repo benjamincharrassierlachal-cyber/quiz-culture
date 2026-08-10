@@ -232,8 +232,34 @@
     var acc = bestDistance(given, question.accepted);
     if (acc.d === 0) return true;
     if (question.numeric) return false;
+
+    /* Réponse plus bavarde que la réponse attendue : « Général de Gaulle » pour « de Gaulle »,
+     * « les instruments à cordes » pour « les cordes ». Le joueur sait, il en dit seulement
+     * plus. On accepte si la réponse attendue s'y retrouve mot pour mot, avec au plus trois
+     * mots en plus — et à condition qu'aucun mauvais choix ne s'y retrouve aussi. */
+    if (enrobee(given, question.accepted) && !enrobee(given, question.distractors)) return true;
+
     if (acc.d > tolerance(acc.len)) return false;
     return acc.d < bestDistance(given, question.distractors).d;
+  }
+
+  var MOTS_EN_TROP = 3;
+
+  /** L'une des cibles apparaît-elle mot pour mot dans la réponse donnée ? */
+  function enrobee(given, cibles) {
+    var g = given.split(' ').filter(Boolean);
+    for (var i = 0; i < (cibles || []).length; i++) {
+      var t = normalize(cibles[i]).split(' ').filter(Boolean);
+      if (!t.length || g.length <= t.length || g.length - t.length > MOTS_EN_TROP) continue;
+      for (var d = 0; d + t.length <= g.length; d++) {
+        var ok = true;
+        for (var j = 0; j < t.length; j++) {
+          if (g[d + j] !== t[j]) { ok = false; break; }
+        }
+        if (ok) return true;
+      }
+    }
+    return false;
   }
 
   // ---------------------------------------------------------------- utilitaires
