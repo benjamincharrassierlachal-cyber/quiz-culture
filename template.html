@@ -335,6 +335,10 @@
   .histo-l .gagne{color:#1f9d55; font-weight:800}
   .histo-l .perdu{color:#c0392b}
   .histo-l .nul{color:var(--muted)}
+  .defi-recu{display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:10px 4px; border-bottom:2px dashed var(--pale)}
+  .defi-recu .qui{display:flex; align-items:center; gap:9px; min-width:0}
+  .defi-recu .qui b{font-size:15px}
   .histo-l.attente{background:#fffbe8}
   .histo-l .att{color:#a07800; font-weight:800}
   .histo-l .note{font-size:11px; color:var(--muted); font-weight:700; text-transform:uppercase}
@@ -1324,8 +1328,15 @@
   }
 
   /** Numéro de version, discret, au bas des règles. */
+  /* La page des règles porte le diagnostic de version : celle qui tourne, et celle publiée
+   * en ligne. Sans cette comparaison affichée, un bandeau absent est indiscernable d'un
+   * bandeau cassé — et c'est exactement le doute qu'on a eu. */
   function healthLine() {
-    return '<div class="hint center" style="margin-top:12px">version ' + esc(BUILD.version) + '</div>';
+    verifierMaj();
+    var enLigne = majVue ? (majVue === BUILD.version ? 'à jour' : 'en ligne : ' + esc(majVue))
+                         : 'version en ligne inconnue';
+    return '<div class="hint center" style="margin-top:12px">version ' + esc(BUILD.version) +
+      ' · ' + enLigne + '</div>';
   }
 
   /** Rouleau de bois et papier enroulé, en haut et en bas du parchemin. */
@@ -1463,18 +1474,24 @@
    * On lit donc une empreinte servie hors cache : si elle diffère de celle embarquée,
    * une version plus récente est en ligne. Le bandeau n'apparaît que sur l'accueil —
    * proposer de recharger au milieu d'une partie serait une trahison. */
-  var majDispo = false, majLue = 0, majEnCours = false;
+  var majDispo = false, majLue = 0, majEnCours = false, majVue = null;
 
   function verifierMaj() {
-    if (majDispo || Date.now() - majLue < 60000) return;
+    if (majDispo || Date.now() - majLue < 30000) return;
     majLue = Date.now();
     if (typeof fetch !== 'function' || location.protocol === 'file:') return;
-    fetch('version.json?t=' + Date.now(), { cache: 'no-store' })
+    /* Chemin absolu tiré de l'adresse courante : une adresse relative se résout mal quand
+     * la page a été atteinte sans barre oblique finale. Et l'horodatage casse tout cache
+     * intermédiaire, y compris un ancien service worker qui ignorerait la règle. */
+    var base = location.pathname.replace(/[^/]*$/, '');
+    fetch(base + 'version.json?t=' + Date.now(), { cache: 'no-store' })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (v) {
-        if (!v || !v.version || v.version === BUILD.version) return;
+        if (!v || !v.version) return;
+        majVue = v.version;
+        if (v.version === BUILD.version) return;
         majDispo = true;
-        if (view === 'title' || view === 'modes') render();
+        if (view === 'title' || view === 'modes' || view === 'rules') render();
       })
       .catch(function () { /* hors ligne : rien à signaler */ });
   }
@@ -1852,34 +1869,42 @@
   function renderDefiRecu() {
     var recus = (defis || []).filter(function (d) { return d.etat === 'en attente' && d.role === 'cible'; });
     if (!recus.length) { view = 'defis'; return render(); }
-    var d = recus[0];
+    // tous les défis reçus, chacun avec ses deux boutons : on relève celui qu'on veut,
+    // dans l'ordre qu'on veut, et les autres continuent d'attendre
     app.innerHTML =
-      '<div class="card center">' + infoBtn() +
-        '<h1>Tu es défié !</h1>' +
-        '<div class="defi-qui"><span class="avatar big"><svg width="34" height="40" viewBox="0 0 12 16">' +
-          sprite(1, 0) + '</svg></span>' +
-          '<div><b>' + esc(d.adversaire) + '</b> <span class="muted">#' + esc(d.adversaire_masque) + '</span>' +
-          '<br><span class="muted" style="font-size:13px">t\'a lancé un défi</span></div></div>' +
-        '<p class="muted">Tu joueras <b>exactement les mêmes 30 questions</b> que lui. ' +
+      '<div class="card">' + infoBtn() +
+        '<h1 class="center">' + (recus.length > 1 ? 'Tu es défié ' + recus.length + ' fois !' : 'Tu es défié !') + '</h1>' +
+        '<p class="center muted" style="margin-top:0">Mêmes 30 questions que ton adversaire. ' +
           'Son score ne te sera révélé qu\'à la fin.</p>' +
-        '<div class="hint">Ni pause salvatrice ni redémarrage : abandonner, c\'est perdre.</div>' +
-        '<button class="btn go" id="d-ok">Accepter et jouer</button>' +
-        '<button class="btn ghost" id="d-no">Refuser</button>' +
-        (recus.length > 1 ? '<div class="hint">' + (recus.length - 1) + ' autre(s) défi(s) après celui-ci.</div>' : '') +
+        '<div class="rank-wrap">' + recus.map(function (d, i) {
+          return '<div class="defi-recu">' +
+            '<div class="qui"><span class="avatar"><svg width="26" height="30" viewBox="0 0 12 16">' +
+              sprite(1, 0) + '</svg></span>' +
+              '<span><b>' + esc(d.adversaire) + '</b> <span class="muted">#' +
+              esc(d.adversaire_masque) + '</span></span></div>' +
+            '<div class="row" style="gap:8px">' +
+              '<button class="chip on" id="ok-' + i + '">Relever</button>' +
+              '<button class="chip" id="no-' + i + '">Refuser</button>' +
+            '</div></div>';
+        }).join('') + '</div>' +
+        '<div class="hint center">Ni pause salvatrice ni redémarrage : abandonner, c\'est perdre. ' +
+          'Un défi laissé de côté t\'attend 7 jours ; refuser est définitif.</div>' +
         '<button class="btn ghost" id="back">Retour</button>' +
-        '<div class="hint">Revenir en arrière ne décide de rien : le défi t\'attend 7 jours. ' +
-          'Refuser, en revanche, est définitif et apparaîtra dans ton bilan.</div>' +
       '</div>';
     document.getElementById('info').onclick = openRules;
     document.getElementById('back').onclick = function () { view = 'defis'; render(); };
-    document.getElementById('d-ok').onclick = function () {
-      startDefi({ role: 'cible', id: d.id, seed: d.seed, adversaire: d.adversaire,
-                  masque: d.adversaire_masque, sonScore: d.son_score, sesSecondes: d.ses_secondes });
-    };
-    document.getElementById('d-no').onclick = function () {
-      var fin = function () { defis = null; defiLu = 0; view = 'defis'; render(); chargerDefis(); };
-      S.defiRepondre(d.id, false).then(fin, fin);
-    };
+    recus.forEach(function (d, i) {
+      var o = document.getElementById('ok-' + i);
+      if (o) o.onclick = function () {
+        startDefi({ role: 'cible', id: d.id, seed: d.seed, adversaire: d.adversaire,
+                    masque: d.adversaire_masque, sonScore: d.son_score, sesSecondes: d.ses_secondes });
+      };
+      var n = document.getElementById('no-' + i);
+      if (n) n.onclick = function () {
+        var fin = function () { defis = null; defiLu = 0; render(); chargerDefis(); };
+        S.defiRepondre(d.id, false).then(fin, fin);
+      };
+    });
   }
 
   /** Partie de défi : graine imposée, historique ignoré, pas de reprise possible. */

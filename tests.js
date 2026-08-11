@@ -519,6 +519,23 @@ var qCap = { answer: 'Paris', accepted: ['paris'],
 ok(E.checkFree(qCap, 'la ville de Paris'), 'deux mots en plus, cela reste une réponse');
 ok(!E.checkFree(qCap, 'je crois que la capitale est Paris ou Lyon'), 'une phrase entière est refusée');
 
+/* Le piège de l'assouplissement : beaucoup de mauvais choix sont des extensions de la bonne
+ * réponse. Une proposition fausse recopiée telle quelle doit rester fausse, toujours. */
+var qNap = { answer: 'Napoléon Ier', accepted: ['napoleon', 'napoleon ier'],
+  distractors: ['Napoléon III', 'Louis XVIII', 'Charles X', 'Louis-Philippe'] };
+ok(E.checkFree(qNap, 'Napoléon'), 'la bonne réponse courte passe');
+ok(!E.checkFree(qNap, 'Napoléon III'), 'un mauvais choix qui prolonge la bonne réponse est refusé');
+
+var qLim = { answer: "plus l'infini", accepted: ['plus l infini', 'infini'],
+  distractors: ['0', '1', "moins l'infini", "elle n'existe pas"] };
+ok(E.checkFree(qLim, 'infini'), 'la réponse attendue reste acceptée');
+ok(!E.checkFree(qLim, "moins l'infini"), 'le contraire, qui la contient, est refusé');
+
+var qIle = { answer: 'une île', accepted: ['ile', 'une ile'],
+  distractors: ["une presqu'île", 'un continent', 'une côte', 'un delta'] };
+ok(E.checkFree(qIle, 'une île'), 'la bonne réponse passe');
+ok(!E.checkFree(qIle, "une presqu'île"), 'la presqu\'île n\'est pas une île');
+
 // ---------------------------------------------------------------- énumérations inversées
 var qLoi = {
   accepted: ["l'Église et l'État", 'Église et État'],

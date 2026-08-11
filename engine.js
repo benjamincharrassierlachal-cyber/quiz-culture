@@ -234,10 +234,16 @@
     if (question.numeric) return false;
 
     /* Réponse plus bavarde que la réponse attendue : « Général de Gaulle » pour « de Gaulle »,
-     * « les instruments à cordes » pour « les cordes ». Le joueur sait, il en dit seulement
-     * plus. On accepte si la réponse attendue s'y retrouve mot pour mot, avec au plus trois
-     * mots en plus — et à condition qu'aucun mauvais choix ne s'y retrouve aussi. */
-    if (enrobee(given, question.accepted) && !enrobee(given, question.distractors)) return true;
+     * « les instruments à cordes » pour « les cordes ». Le joueur sait, il en dit seulement plus.
+     * On accepte si la réponse attendue s'y retrouve mot pour mot, avec au plus trois mots en plus.
+     *
+     * Deux verrous, et le premier est indispensable : beaucoup de mauvais choix sont justement
+     * des EXTENSIONS de la bonne réponse — « Napoléon III » contient « Napoléon », « moins
+     * l'infini » contient « infini », « une presqu'île » contient « île ». Une réponse identique
+     * à une proposition fausse est donc toujours refusée, quoi qu'elle contienne. */
+    if (enrobee(given, question.accepted)
+        && bestDistance(given, question.distractors).d !== 0
+        && !enrobee(given, question.distractors)) return true;
 
     if (acc.d > tolerance(acc.len)) return false;
     return acc.d < bestDistance(given, question.distractors).d;
