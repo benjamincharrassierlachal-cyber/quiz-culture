@@ -29,6 +29,9 @@
     perfectBonusPoints: 2,    // classe sans faute au primaire
     perfectBonusLife: 1,      // classe sans faute au secondaire
     bonusLifeFromLevel: 5,    // index de la 6ème : à partir de là, le bonus est une vie
+    lyceeFromLevel: 9,        // index de la 2nde : le lycée a ses propres règles
+    lyceeLives: 5,            // cinq cœurs neufs à chaque classe du lycée, sans cumul
+    lyceePerfectPoints: 5,    // classe parfaite au lycée : des points, les cœurs étant remis à neuf
     relaxQuestions: 30,       // mode détente
     relaxTiers: 3,            // 3 paliers de difficulté (10 questions chacun)
     jokerCost: 6,             // chaque joker coûte 6 points
@@ -437,6 +440,11 @@
   function classBonus(state) {
     if (state.classErrors > 0) return null;
     var cfg = state.config;
+    // au lycée, les cœurs sont remis à neuf à chaque classe : un cœur de bonus n'y vaudrait rien
+    if (state.levelIndex >= cfg.lyceeFromLevel) {
+      state.score += cfg.lyceePerfectPoints;
+      return { kind: 'points', amount: cfg.lyceePerfectPoints };
+    }
     if (state.levelIndex >= cfg.bonusLifeFromLevel) {
       state.lives += cfg.perfectBonusLife;
       return { kind: 'life', amount: cfg.perfectBonusLife };
@@ -467,6 +475,16 @@
         state.pointsSinceCheckpoint = 0;   // palier : les points sont sécurisés
         state.classErrors = 0;
         event = 'levelUp';
+        /* Au lycée, chaque classe repart avec cinq cœurs neufs : ils mesurent le droit à
+         * l'erreur dans la classe en cours, ils ne se cumulent plus d'une classe à l'autre.
+         * Et l'entrée en 2nde rend les trois jokers, qui devront tenir jusqu'au BAC. */
+        if (state.levelIndex >= state.config.lyceeFromLevel &&
+            state.levelIndex < state.levels.length) {
+          state.lives = state.config.lyceeLives;
+          if (state.levelIndex === state.config.lyceeFromLevel) {
+            state.jokers = { fifty: true, swap: true, pass: true };
+          }
+        }
         if (state.levelIndex >= state.levels.length) {
           state.finished = true;
           state.won = true;
@@ -479,31 +497,59 @@
     return event;
   }
 
-  /** Erreur de QCM : retour au début de la classe, perte des points de la classe et d'un cœur. */
+  /** Sommes-nous au lycée ? À partir de la 2nde, la sanction change de nature. */
+  function auLycee(state) {
+    return state.mode === 'bac' && state.levelIndex >= state.config.lyceeFromLevel;
+  }
+
+  /* Erreur de QCM.
+   *
+   * Jusqu'à la 3ème : retour au début de la classe, points de la classe perdus, un cœur en moins,
+   * et une rétrogradation quand il n'en reste plus.
+   *
+   * Au lycée : une simple autre question de la même matière, un cœur en moins. Ce n'est qu'à
+   * court de cœurs que la classe recommence — et on ne redescend jamais en dessous de la 2nde.
+   * Mesuré : à la moitié de bonnes réponses, l'ancienne règle laissait 5 % des joueurs
+   * atteindre le BAC, contre l'essentiel avec celle-ci. Le lycée était un piège, pas un défi. */
   function hardFail(state) {
     markSeen(state, state.current);
-    var lost = state.pointsSinceCheckpoint;
-    state.score -= lost;
-    if (state.score < 0) state.score = 0;
-    state.pointsSinceCheckpoint = 0;
-    state.qIndex = 0;
-    if (state.config.resetScope === 'level') state.subjectIndex = 0;
+    var lycee = auLycee(state);
+    var lost = 0, demoted = false, given = 0, repli = false;
+
     state.freeWrongStreak = 0;
     state.classErrors++;
     state.lives--;
-    var demoted = false, given = 0;
-    if (state.lives <= 0) {                      // plus de cœur : on redescend d'une classe
-      state.lives = state.config.lives;
-      if (state.levelIndex > 0) {
-        state.levelIndex--; demoted = true;
-        given = state.levelPoints[state.levelIndex] || 0;   // la classe redevient à refaire
-        state.levelPoints[state.levelIndex] = 0;
-        state.score = Math.max(0, state.score - given);
+    state.qIndex = 0;
+
+    if (!lycee) {
+      lost = state.pointsSinceCheckpoint;
+      state.score = Math.max(0, state.score - lost);
+      state.pointsSinceCheckpoint = 0;
+      if (state.config.resetScope === 'level') state.subjectIndex = 0;
+      if (state.lives <= 0) {
+        state.lives = state.config.lives;
+        if (state.levelIndex > 0) {
+          state.levelIndex--; demoted = true;
+          given = state.levelPoints[state.levelIndex] || 0;
+          state.levelPoints[state.levelIndex] = 0;
+          state.score = Math.max(0, state.score - given);
+        }
+        state.classErrors = 0;
       }
+    } else if (state.lives <= 0) {               // lycée, cœurs épuisés : la classe recommence
+      lost = state.pointsSinceCheckpoint;
+      state.score = Math.max(0, state.score - lost);
+      state.pointsSinceCheckpoint = 0;
+      state.subjectIndex = 0;
+      state.lives = state.config.lyceeLives;
       state.classErrors = 0;
+      repli = true;
     }
+    // au lycée avec des cœurs restants : on ne touche ni aux points ni à la matière,
+    // nextQuestion() se charge d'en proposer une autre dans la même matière
+
     nextQuestion(state);
-    return { lost: lost + given, demoted: demoted, lives: state.lives, given: given };
+    return { lost: lost + given, demoted: demoted, lives: state.lives, given: given, repli: repli };
   }
 
   // ---------------------------------------------------------------- mode détente
@@ -871,6 +917,8 @@
       // à partir du CM1, chaque réponse libre rapide vaut un point de plus
       if (i >= CONFIG.speedBonusFromLevel) total += n * CONFIG.speedBonusPoints;
       if (i < CONFIG.bonusLifeFromLevel) total += CONFIG.perfectBonusPoints;
+      // au lycée, la classe parfaite rapporte des points ; avant, un cœur, qui ne se compte pas ici
+      else if (i >= CONFIG.lyceeFromLevel) total += CONFIG.lyceePerfectPoints;
     });
     return total;
   }

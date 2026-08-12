@@ -496,6 +496,48 @@ d.timeLeft = 30;
 eq(good(d, 'free').speed, 1, 'détente : réponse rapide primée');
 
 
+// ---------------------------------------------------------------- règles du lycée
+section('Lycée : cinq cœurs, pas de redoublement, jokers rendus');
+s = game();
+var g2 = 0;
+while (E.progress(s).level !== '2nde' && g2++ < 400) goodRun(s, 1, 'free');
+eq(E.progress(s).level, '2nde', 'la 2nde est atteinte');
+eq(s.lives, E.CONFIG.lyceeLives, 'cinq cœurs neufs à l\'entrée au lycée');
+ok(s.jokers.fifty && s.jokers.swap && s.jokers.pass, 'les trois jokers sont rendus en 2nde');
+
+// une erreur au lycée ne renvoie plus au début de la classe
+goodRun(s, 2, 'free');                       // on avance de deux matières
+var avant = E.progress(s);
+var pointsAvant = s.score;
+E.answerFree(s, 'reponse totalement fausse');   // impose le QCM
+E.answerMC(s, s.current.distractors[0]);        // erreur de QCM
+eq(s.lives, E.CONFIG.lyceeLives - 1, 'un cœur en moins');
+eq(E.progress(s).subject, avant.subject, 'on reste dans la même matière');
+eq(s.score, pointsAvant, 'les points de la classe ne sont pas effacés');
+
+// à court de cœurs, la classe recommence — mais on ne redescend pas
+var niveauAvant = s.levelIndex;
+var garde = 0;
+while (s.lives > 1 && garde++ < 60) {
+  E.answerFree(s, 'faux'); E.answerMC(s, s.current.distractors[0]);
+}
+E.answerFree(s, 'faux');
+var r2 = E.answerMC(s, s.current.distractors[0]);
+eq(s.levelIndex, niveauAvant, 'aucune rétrogradation au lycée');
+eq(s.lives, E.CONFIG.lyceeLives, 'cinq cœurs neufs pour refaire la classe');
+eq(E.progress(s).step, 1, 'la classe reprend à la première matière');
+
+// la classe parfaite au lycée rapporte des points, non un cœur
+s = game();
+var g3 = 0;
+while (E.progress(s).level !== '2nde' && g3++ < 400) goodRun(s, 1, 'free');
+var vies = s.lives, pts = s.score;
+var g4 = 0;
+while (E.progress(s).level === '2nde' && g4++ < 20) goodRun(s, 1, 'free');
+eq(s.lives, E.CONFIG.lyceeLives, 'les cœurs restent à cinq, ils ne se cumulent pas');
+ok(s.score >= pts + E.CONFIG.lyceePerfectPoints, 'la classe parfaite rapporte des points');
+
+
 // ---------------------------------------------------------------- réponses plus bavardes
 section('Réponse enrobée');
 var qGaulle = { answer: 'de Gaulle', accepted: ['de gaulle', 'charles de gaulle'],

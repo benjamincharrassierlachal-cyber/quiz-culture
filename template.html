@@ -203,6 +203,15 @@
   .oops .chip{display:block; margin:8px auto 0}
 
   .accs{margin-top:14px; border-top:2px dashed var(--pale); padding-top:10px}
+  .adv-case{display:flex; width:100%; align-items:center; justify-content:space-between; gap:10px;
+    margin:6px 0; padding:9px 12px; text-align:left;
+    border:2px solid var(--ink); border-radius:12px; background:#fff;
+    box-shadow:2px 2px 0 var(--ink); transition:transform .06s, box-shadow .06s}
+  .adv-case:active{transform:translate(2px,2px); box-shadow:0 0 0 var(--ink)}
+  .adv-case .nom{flex:1; min-width:0; font-weight:800; font-size:15px;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .adv-case .num{color:var(--muted); font-size:12px; font-weight:700}
+  .adv-case .act{flex:none; font-size:12px; font-weight:800; color:var(--muted)}
   .acc-row{display:flex; align-items:center; gap:6px; margin-top:6px}
   .acc-row .acc{margin-top:0; flex:1}
   .acc-del{flex:none; width:34px; height:34px; border:2px solid var(--ink); border-radius:10px;
@@ -1297,6 +1306,16 @@
           '<li><b>Proposition fausse</b> : retour à la première matière de la classe, les points ' +
           'gagnés dans cette classe sont effacés, et tu perds une vie.</li></ul>' +
 
+          '<h2>Le lycée — à partir de la 2nde</h2>' +
+          '<p>Les règles s\'adoucissent là où les questions se durcissent :</p>' +
+          '<ul><li><b>Cinq cœurs neufs à chaque classe</b>, qui ne se cumulent pas.</li>' +
+          '<li>Une erreur de proposition ne renvoie plus au début de la classe : ' +
+          '<b>une autre question de la même matière</b> arrive, et tu perds un cœur.</li>' +
+          '<li>À court de cœurs, la classe recommence — mais <b>on ne redescend jamais ' +
+          'en dessous de la 2nde</b>.</li>' +
+          '<li>Tes <b>trois jokers sont rendus</b> en 2nde. Ils devront tenir jusqu\'au BAC.</li>' +
+          '<li>Classe parfaite : <b>+5 points</b> au lieu d\'un cœur.</li></ul>' +
+
           '<h2>Les vies</h2>' +
           '<p>Tu en as 3. À la dernière vie perdue, tu <b>redoubles</b> avec 3 nouvelles vies — et les ' +
           'points que cette classe t\'avait rapportés sont repris.</p>' +
@@ -1715,9 +1734,13 @@
     var liste = advFiltre();
     zone.innerHTML = liste.length
       ? '<div class="rank-wrap">' + liste.map(function (a, i) {
-          return '<button class="acc-row" id="adv-' + i + '">' +
-            '<span>' + esc(a.pseudo) + ' <span class="muted">#' + esc(a.masque) + '</span></span>' +
-            '<span class="muted">' + (a.score !== undefined ? a.score + ' pts' : 'défier') + '</span></button>';
+          // chaque joueur dans son cadre : la liste reste lisible, mais le relief
+          // et l'enfoncement au clic disent que la ligne se presse au lieu de se lire
+          return '<button class="adv-case" id="adv-' + i + '">' +
+            '<span class="nom">' + esc(a.pseudo) +
+              ' <span class="num">#' + esc(a.masque) + '</span></span>' +
+            '<span class="act">' + (a.score !== undefined ? a.score + ' pts' : 'défier') + '</span>' +
+          '</button>';
         }).join('') + '</div>'
       : '<p class="center muted">' + (advQ.trim().length >= 2
           ? 'Aucun joueur à ce nom.'
