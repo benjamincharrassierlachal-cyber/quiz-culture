@@ -1,0 +1,50 @@
+name: Réveiller Supabase
+
+# Un projet Supabase gratuit est mis en pause après sept jours sans activité de
+# base de données. Ce n'est pas une visite du tableau de bord qui compte : il
+# faut qu'une requête atteigne réellement Postgres. Ce travail en envoie une
+# chaque jour, ce qui remet le compteur à zéro avec une large marge.
+
+on:
+  schedule:
+    - cron: '17 6 * * *'      # tous les jours à 06 h 17 UTC
+  workflow_dispatch:          # et à la demande, depuis l'onglet Actions
+
+jobs:
+  ping:
+    name: Requête quotidienne
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Interroger la base
+        run: |
+          set -e
+          URL=$(jq -r .url data/leaderboard.json | sed 's:/*$::')
+          KEY=$(jq -r .anonKey data/leaderboard.json)
+
+          if [ -z "$URL" ] || [ "$URL" = "null" ]; then
+            echo "data/leaderboard.json ne contient pas d'URL Supabase."
+            exit 1
+          fi
+
+          # 1. Une vraie fonction SQL : le moteur de recherche des adversaires.
+          A=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 \
+                -X POST "$URL/rest/v1/rpc/defi_chercher" \
+                -H "apikey: $KEY" -H "Authorization: Bearer $KEY" \
+                -H "Content-Type: application/json" \
+                -d '{"p_debut":"aa","p_max":1}')
+
+          # 2. Une lecture de table, au cas où la fonction changerait de nom.
+          B=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 \
+                -X GET "$URL/rest/v1/scores?select=id&limit=1" \
+                -H "apikey: $KEY" -H "Authorization: Bearer $KEY")
+
+          echo "defi_chercher : HTTP $A"
+          echo "scores        : HTTP $B"
+
+          # Si les deux échouent, la base n'a pas été touchée : il faut le savoir.
+          if [ "$A" != "200" ] && [ "$B" != "200" ]; then
+            echo "Aucune requête n'a abouti. Le projet est peut-être déjà en pause."
+            exit 1
+          fi
